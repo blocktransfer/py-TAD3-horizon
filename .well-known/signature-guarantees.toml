@@ -1,14 +1,14 @@
 # Block Transfer <blocktransfer.io>
-# title type local
 
-EFFECTIVE 6-18-2021
+# THIS DOCUMENT CREATED PER COMPLIANCE WITH THE SECURITIES EXCHANGE ACT OF 1934,
+# SUBPARAGRAPHS 17Ad-15(c)–17Ad-15(e) — SIGNATURE GUARANTEE PROGRAM
 
-THIS DOCUMENT CREATED PER COMPLIANCE WITH THE SECURITIES EXCHANGE ACT OF 1934,
-SUBPARAGRAPHS 17Ad-15(c)–17Ad-15(e) — SIGNATURE GUARANTEE PROGRAM
+EFFECTIVE_DATE = "6-18-2021"
 
-BlockTrans Syndicate ("Block Transfer") engages in all guarantee activities, as
-defined in Subsection 17Ad-15(a)(3) and referenced herein, with equitable
-treatment of all eligible guarantor institution and classes of institutions.
+SIGNATURE_GUARANTEE_PROGRAM_SPECIFICATION = "BlockTrans Syndicate ('Block
+Transfer' herein) engages in all guarantee activities, as defined in Subsection
+17Ad-15(a)(3) and referenced herein, with equitable treatment of all eligible
+guarantor institutions and classes of institutions.
 
 Block Transfer uses cryptographic signatures
 perpetually stored in the immutable Stellar blockchain for the acceptance of
@@ -34,7 +34,7 @@ error codes in tandem with a local copy of the submitted invalid transfer.
 Due to (i) local checks for signature validity in standard wallet interfaces and
 (ii) haulted gossip propagation of invalid transactions on the Stellar blockchain, Block
 Transfer will, in a vast bulk of instances, not be made aware of rejected transfers
-given only a narrow range of transfers are invalid by false attestation, while
+given only a narrow range of transfers are invalid by false cryptographic attestation, while
 all validly-signed transfers are accepted by honest validating peers who also check the signature.
 
 Block Transfer accepts and internalizes the risk of financial loss in the event
@@ -57,14 +57,18 @@ material fact in the control book and master securityhodler files of issuers.
 
 Upon transfer from a given issuer's prior transfer agent, all certificate-
 holding shareholders will be notified that they must validate their Block
-Transfer blockchain account on the Stellar network at no cost to them. At that
-point, Block Transfer will credit said shareholders with their paper balances
-in DRS form. Old paper certificates will thus be null and void, and
-transferring shareholders maintain the same shares in their Stellar wallet.
+Transfer blockchain account on the Stellar network at no cost to them. See
+stellar.toml KYC_SERVER. Block Transfer will credit physcial shareholders with
+their paper balances in DRS form. Old paper certificates are thus null and void,
+and transferring shareholders maintain the same shares in their Stellar wallet.
 
-Block Transfer does not make a market for any of the issuers it services.
-Block Transfer will not accept payment of securities in exchange for value.
+Block Transfer does not make a market for any of the issuers it services. Block
+Transfer will not directly accept or make payment with securities in exchange
+for value, except in the case of tender offers or approved corporate mergers.
+Rather, all good-standing market participants can directly trade value through
+Stellar's decentralized exchange by signing order messages in their wallet."
 
-I attest to the validity of this signature guarantee program and, under penalty
+ATTESTATION = "The Board approves principal John Wooten to speak on its behalf.
+We attest to the validity of this signature guarantee program and, under penalty
 of purgery, claim its standards to be the operating by-laws of Block Transfer.
-/s/John Wooten
+/s/John Wooten"
