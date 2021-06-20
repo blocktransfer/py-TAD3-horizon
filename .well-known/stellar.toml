@@ -19,17 +19,16 @@ ORG_DBA = "Block Transfer"
 ORG_URL = "https://www.blocktransfer.io"
 ORG_LOGO = "https://www.blocktransfer.io/hosted/images/83/7373741bf2415b93aaf274faa023ec/BT-Circle_Cut.png"
 ORG_DESCRIPTION = "A decentralized stock transfer agent protocol for global financial markets."
-ORG_PHYSICAL_ADDRESS = "Block Transfer is a remote-first company.
-Finance should have no borders." # todo
-ORG_PHYSICAL_ADDRESS_ATTESTA
-ORG_PHONE_NUMBER = "4square +1" #todo
+ORG_PHYSICAL_ADDRESS = "Block Transfer is a remote-first company;
+                        finance should have no borders."
+ORG_PHONE_NUMBER = "4square +1" #todo: or not? Is legally-bound requirement?
 ORG_PHONE_NUMBER_ATTESTATION = "https://stellar.blocktransfer.io/" #URL w/ pdf of a phone bill showing both the phone number and your organization's name.
 ORG_KEYBASE = "blocktransfer"
 ORG_TWITTER = "blocktransfer"
 ORG_GITHUB = "blocktransfer"
 ORG_OFFICIAL_EMAIL = "stellar@blocktransfer.io"
 ORG_SUPPORT_EMAIL = "support@blocktransfer.io"
-ORG_LICENSING_AUTHORITY = "U.S. Securities and Exchange Commission, among others"
+ORG_LICENSING_AUTHORITY = "U.S. Securities and Exchange Commission" #among others
 ORG_LICENSE_TYPE = "Central Index Key"
 ORG_LICENSE_NUMBER = "0001846058"
 
@@ -57,8 +56,8 @@ conditions = "Copyright by USPTO, among others.
 See whitepaper.blocktransfer.io for latest IP.
 You cannot mimic our blockchain transfer agent protocol.
 Violators will be prosecuted.
-We will not issue new paper certificates.
-Anchor redemption equates to transfer to any traditional central broker-dealer.
+We do not issue or support paper certificates. See signature-guarantees.toml.
+Anchor redemption equates to DRS transfer to any legacy central broker-dealer.
 INTERACTING WITH THIS ASSET BINDINGLY EQUATES TO IRREVOCABLE WRITTEN CONSENT TO
 BLOCKTRANS SYNDICATE'S TERMS OF SERVICE, PRIVACY POLICY, AND TRANSFER STANDARDS"
 image	= "https://stellar.blocktransfer.io/assets/riot.png" #PNG image on a transparent background representing token
