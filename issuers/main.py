@@ -40,6 +40,8 @@ linkedAccounts = []
 for lines in readFile:
   lines = lines.split(',')
   addressStellar = lines[0]
+  if addressStellar == 'Blockchain Address':
+    continue
   nameInstitution = lines[1]
   nameFirst = lines[2]
   nameMiddle = lines[3]
