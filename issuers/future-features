@@ -5,5 +5,5 @@ Features to impliment:
 - Display history of shareholders (number of them, average holdings, etc)
 - Top buyers based on DEX activity
 - Ditto for sellers
-- Percent held by institutions based on nameInstution in PII vs. nameFirst, nameMiddle, nameLast, nameSuffix, given principals not listed
+- Percent held by institutions based on nameInstution in PII vs. nameFirst, nameMiddle, nameLast, nameSuffix; given principals not listed
 - Trend of institutional vs. individual book-entry holders 
