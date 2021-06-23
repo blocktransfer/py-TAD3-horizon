@@ -1,6 +1,6 @@
 Features to impliment: 
 
-- Dashboard login with issuer info linked to their asset and PII ... or just [insert asset code] and then upload some PII CSV, updated monthly
+- Dashboard login with issuer info linked to their asset and PII ... or just [insert asset code] and then upload some PII CSV, securely updated monthly
 - Display merged shareholders based on blockchain balances
 - Display history of shareholders (number of them, average holdings, etc)
 - Top buyers based on DEX activity
