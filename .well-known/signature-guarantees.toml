@@ -46,7 +46,7 @@ breaking EdDSA given holders maintain robust security of their private keys.
 Block Transfer retains the right to clawback assets sent in transfers if some
 participant can prove beyond all reasonable doubt that their secret key was
 stolen or they were violently coerced into a transfer. Such cases will generally
-be taken to a reliable local court of law, and theft or coercion must be proved.
+be taken to a competent local court of law, and theft or coercion must be proved.
 See our transfer standards.
 
 As soon as some good-standing (meaning passed KYC, etc.) participant broadcasts
