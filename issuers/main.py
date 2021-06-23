@@ -47,21 +47,23 @@ for lines in readFile:
   nameMiddle = lines[3]
   nameLast = lines[4]
   nameSuffix = lines[5]
-  addressPhysical = lines[6]
-  addressCity = lines[7]
-  addressStateProvince = lines[8]
-  addressAreaCode = lines[9]
-  SSN = lines[10]
-  EIN = lines[11]
-  TIN = lines[12]
-  driversLicenseNumber = lines[13]
-  passportNumber = lines[14]
-  otherID = lines[15]
-  onboardedDate = lines[16]
-  otherKYCinternal = lines[17]
-  email = lines[18]
+  addressPhysicalLine1 = lines[6]
+  addressPhysicalLine2 = lines[7]
+  addressCity = lines[8]
+  addressStateProvince = lines[9]
+  addressAreaCode = lines[10]
+  SSN = lines[11]
+  EIN = lines[12]
+  TIN = lines[13]
+  driversLicenseNumber = lines[14]
+  passportNumber = lines[15]
+  otherID = lines[16]
+  onboardedDate = lines[17]
+  otherKYCinternal = lines[18]
+  email = lines[19]
   for account,balance in accountBalancesStellar:
     if account == addressStellar:
       break
   balanceAsPercentOfOutstandingShares = 100 * float(balance) / totalOutstanding
-  linkedAccounts.append((account, balance, balanceAsPercentOfOutstandingShares, nameInstitution, nameFirst, nameMiddle, nameLast, nameSuffix, addressPhysical, addressCity, addressStateProvince, addressAreaCode, SSN, EIN, TIN, driversLicenseNumber, passportNumber, otherID, onboardedDate, otherKYCinternal, email))
+  linkedAccounts.append((account, balance, balanceAsPercentOfOutstandingShares, nameInstitution, nameFirst, nameMiddle, nameLast, nameSuffix, addressPhysicalLine1, addressPhysicalLine2, addressCity, addressStateProvince, addressAreaCode, SSN, EIN, TIN, driversLicenseNumber, passportNumber, otherID, onboardedDate, otherKYCinternal, email))
+  
