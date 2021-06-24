@@ -61,7 +61,7 @@ def mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingSha
     addressCity = lines[8]
     addressStateProvince = lines[9]
     addressAreaCode = lines[10]
-    country = lines[11]
+    addressCountry = lines[11]
     SSN = lines[12]
     EIN = lines[13]
     TIN = lines[14]
@@ -75,5 +75,5 @@ def mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingSha
       if account == addressStellar:
         break
     balanceAsPercentOfOutstandingShares = 100 * float(balance) / totalOutstandingShares
-    linkedAccounts.append((account, balance, balanceAsPercentOfOutstandingShares, nameInstitution, nameFirst, nameMiddle, nameLast, nameSuffix, addressPhysicalLine1, addressPhysicalLine2, addressCity, addressStateProvince, addressAreaCode, SSN, EIN, TIN, driversLicenseNumber, passportNumber, otherID, onboardedDate, otherKYCinternal, email))
+    linkedAccounts.append((account, balance, balanceAsPercentOfOutstandingShares, nameInstitution, nameFirst, nameMiddle, nameLast, nameSuffix, addressPhysicalLine1, addressPhysicalLine2, addressCity, addressStateProvince, addressAreaCode, addressCountry, SSN, EIN, TIN, driversLicenseNumber, passportNumber, otherID, onboardedDate, otherKYCinternal, email))
   return linkedAccounts
