@@ -49,11 +49,7 @@ def mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingSha
   inFile.close()
 
   linkedAccounts = []
-  skipHeaderYet = False
-  for lines in readFile:
-    if not skipHeaderYet:
-      skipHeaderYet = True
-      continue
+  for lines in readFile[1:]:
     lines = lines.split(',')
     addressStellar = lines[0]
     nameInstitution = lines[1]
