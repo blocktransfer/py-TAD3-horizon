@@ -1,5 +1,4 @@
 import requests
-from pprint import pprint
 
 searchLimitMax200 = '200'
 horizonInstance = 'horizon.stellar.org'
