@@ -12,14 +12,15 @@ accountBalancesStellar = []
 while(True):
   r = requests.get(requestAddress)
   data = r.json()
-  embeddedRecords=data['_embedded']['records']
-  if embeddedRecords == []:
+  blockchainRecords = data['_embedded']['records']
+  if blockchainRecords == []:
     break
-  for account in embeddedRecords:
-    accountAddress = account['id']
-    for balances in account['balances']:
+  for eachAccount in blockchainRecords:
+    accountAddress = eachAccount['id']
+    for balances in eachAccount['balances']:
       if balances['asset_type'] != 'native' and balances['asset_code'] == queryAsset:
         accountBalance = balances['balance']
+        break
     accountBalancesStellar.append((accountAddress, accountBalance))
   requestAddress = data['_links']['next']['href'].replace('%3A', ':')
 
