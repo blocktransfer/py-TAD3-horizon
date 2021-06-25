@@ -1,3 +1,7 @@
+# A script to merge a given list of shareholders (with PII)
+# to each shareholder's Stellar address balance and % ownership
+
+
 import requests
 
 searchLimitMax200 = '200'
