@@ -77,7 +77,7 @@ def mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingSha
     email = lines[20]
     for account,balance in accountBalancesStellar:
       if account == addressStellar:
+        balanceAsPercentOfOutstandingShares = 100.0 * float(balance) / totalOutstandingShares
+        linkedAccounts.append((account, balance, balanceAsPercentOfOutstandingShares, nameInstitution, nameFirst, nameMiddle, nameLast, nameSuffix, addressPhysicalLine1, addressPhysicalLine2, addressCity, addressStateProvince, addressAreaCode, addressCountry, SSN, EIN, TIN, driversLicenseNumber, passportNumber, otherID, onboardedDate, otherKYCinternal, email))
         break
-    balanceAsPercentOfOutstandingShares = 100 * float(balance) / totalOutstandingShares
-    linkedAccounts.append((account, balance, balanceAsPercentOfOutstandingShares, nameInstitution, nameFirst, nameMiddle, nameLast, nameSuffix, addressPhysicalLine1, addressPhysicalLine2, addressCity, addressStateProvince, addressAreaCode, addressCountry, SSN, EIN, TIN, driversLicenseNumber, passportNumber, otherID, onboardedDate, otherKYCinternal, email))
   return linkedAccounts
