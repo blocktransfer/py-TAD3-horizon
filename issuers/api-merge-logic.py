@@ -5,11 +5,11 @@ horizonInstance = 'horizon.stellar.org'
 BTissuerAddress = 'GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM'
 
 # With "formattingStockTestSheet.csv", use "StellarMart" as queryAsset and any numRestrictedShares
-def main(queryAsset, numRestrictedShares, PIIcsvSpreadsheetFileName):
+def getMergedReportForAssetWithNumRestrictedSharesUsingPIIcsvFile(queryAsset, numRestrictedShares, PIIcsvSpreadsheetFileName):
   accountBalancesFromStellar = getAccountBalancesFromStellar(queryAsset)
   totalOutstandingShares = getTotalOutstandingShares(queryAsset, numRestrictedShares)
-  returnReport = mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingShares, accountBalancesFromStellar)
-  return returnReport
+  mergedReport = mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingShares, accountBalancesFromStellar)
+  return mergedReport
 
 def getAccountBalancesFromStellar(queryAsset):
   accountBalancesFromStellar = []
