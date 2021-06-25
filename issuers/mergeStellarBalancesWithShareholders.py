@@ -54,30 +54,30 @@ def mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingSha
   linkedAccounts = []
   for lines in readFile[1:]:
     lines = lines.split(',')
-    addressStellar = lines[0]
+    accountStellarBlockchainPublic = lines[0]
     nameInstitution = lines[1]
-    nameFirst = lines[2]
-    nameMiddle = lines[3]
-    nameLast = lines[4]
-    nameSuffix = lines[5]
-    addressPhysicalLine1 = lines[6]
-    addressPhysicalLine2 = lines[7]
+    familiyName = lines[2]
+    givenName = lines[3]
+    dob = lines[4]
+    base64encodedID = lines[5]
+    addressFullStreet = lines[6]
+    addressExtraInfo = lines[7]
     addressCity = lines[8]
     addressStateProvince = lines[9]
-    addressAreaCode = lines[10]
+    addressPostalCode = lines[10]
     addressCountry = lines[11]
-    SSN = lines[12]
-    EIN = lines[13]
+    SSN = lines[12] # tax ID
+    EIN = lines[13] # tax ID type
     TIN = lines[14]
     driversLicenseNumber = lines[15]
     passportNumber = lines[16]
     otherID = lines[17]
     onboardedDate = lines[18]
-    otherKYCinternal = lines[19]
+    base64encodedSelfieGivenKYC = lines[19]
     email = lines[20]
     for account,balance in accountBalancesStellar: # balance is a string
-      if account == addressStellar:
+      if account == accountStellarBlockchainPublic:
         balanceAsPercentOfOutstandingShares = 100 * float(balance) / totalOutstandingShares
-        linkedAccounts.append((account, balance, balanceAsPercentOfOutstandingShares, nameInstitution, nameFirst, nameMiddle, nameLast, nameSuffix, addressPhysicalLine1, addressPhysicalLine2, addressCity, addressStateProvince, addressAreaCode, addressCountry, SSN, EIN, TIN, driversLicenseNumber, passportNumber, otherID, onboardedDate, otherKYCinternal, email))
+        linkedAccounts.append((account, balance, balanceAsPercentOfOutstandingShares, nameInstitution, familiyName, givenName, dob, base64encodedID, addressFullStreet, addressExtraInfo, addressCity, addressStateProvince, addressPostalCode, addressCountry, SSN, EIN, TIN, driversLicenseNumber, passportNumber, otherID, onboardedDate, base64encodedSelfieGivenKYC, email, accountStellarBlockchainPublic))
         break
   return linkedAccounts
