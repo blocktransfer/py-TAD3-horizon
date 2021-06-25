@@ -11,7 +11,7 @@ BTissuerAddress = 'GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM'
 # With "formattingStockTestSheet.csv", use "StellarMart" as queryAsset and any numRestrictedShares
 def getMergedReportForAssetWithNumRestrictedSharesUsingPIIcsvFile(queryAsset, numRestrictedShares, PIIcsvSpreadsheetFileName):
   accountBalancesFromStellar = getAccountBalancesFromStellar(queryAsset)
-  totalOutstandingShares = getTotalOutstandingShares(queryAsset, numRestrictedShares)
+  totalOutstandingShares = getTotalOutstandingShares(queryAsset, numRestrictedShares) # for % ownership
   mergedReport = mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingShares, accountBalancesFromStellar)
   return mergedReport
 
@@ -41,7 +41,7 @@ def getTotalOutstandingShares(queryAsset, numRestrictedShares):
   r = requests.get(requestAddress)
   data = r.json()
   numUnrestrictedShares = data['_embedded']['records'][len(data['_embedded']['records']) - 1]['total_coins']
-  totalOutstandingShares = float(numRestrictedShares) + float(numUnrestrictedShares)
+  totalOutstandingShares = numRestrictedShares + numUnrestrictedShares
   return totalOutstandingShares
 
 def mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingShares, accountBalancesStellar):
@@ -75,9 +75,9 @@ def mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingSha
     onboardedDate = lines[18]
     otherKYCinternal = lines[19]
     email = lines[20]
-    for account,balance in accountBalancesStellar:
+    for account,balance in accountBalancesStellar: # balance is a string
       if account == addressStellar:
-        balanceAsPercentOfOutstandingShares = 100.0 * float(balance) / totalOutstandingShares
+        balanceAsPercentOfOutstandingShares = 100 * float(balance) / totalOutstandingShares
         linkedAccounts.append((account, balance, balanceAsPercentOfOutstandingShares, nameInstitution, nameFirst, nameMiddle, nameLast, nameSuffix, addressPhysicalLine1, addressPhysicalLine2, addressCity, addressStateProvince, addressAreaCode, addressCountry, SSN, EIN, TIN, driversLicenseNumber, passportNumber, otherID, onboardedDate, otherKYCinternal, email))
         break
   return linkedAccounts
