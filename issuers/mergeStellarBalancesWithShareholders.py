@@ -68,7 +68,7 @@ def mergeBlockchainRecordsWithPII(PIIcsvSpreadsheetFileName, totalOutstandingSha
     addressCountry = lines[11]
     SSN = lines[12] # tax ID
     EIN = lines[13] # tax ID type
-    TIN = lines[14]
+    ITIN = lines[14] # todo: use logic from onboardFromOldAgent once finalizing Blockpass parameters and API/webhook access
     driversLicenseNumber = lines[15]
     passportNumber = lines[16]
     otherID = lines[17]
