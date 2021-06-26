@@ -6,4 +6,12 @@
 <h1>Block Transfer</h1>
 </div>
 
-See http://whitepaper.blocktransfer.io
+
+
+
+
+
+
+
+
+Read more about our project at http://whitepaper.blocktransfer.io
