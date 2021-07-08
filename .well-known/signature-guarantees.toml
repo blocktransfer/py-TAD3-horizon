@@ -23,10 +23,10 @@ request it be linked with their identity by Block Transfer. Further instructions
 on this process are available in our investor portal. The process requires no
 more than a mobile phone and five minutes; anyone can easily onboard quickly.
 
-Guarantees are made and verified through private-key cryptographic sigantures of
+Guarantees are made and verified through private-key cryptographic signatures of
 instructions to transfer an asset or endorse a transfer. Participants can
 automatically generate such digital signatures through an standard Stellar
-wallet, though we reccomend Lobstr. So long as the transfer is valid with the
+wallet, though we recommend Lobstr. So long as the transfer is valid with the
 claimed signing public key, the guarantee is accepted by the network no matter
 (and blind to) the original broadcaster. Otherwise, the transfer is rejected,
 and participants are immediately notified by the network why their signature and

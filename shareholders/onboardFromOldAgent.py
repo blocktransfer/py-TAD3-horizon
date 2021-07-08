@@ -1,7 +1,7 @@
 # Credit newly-onboarded Stellar accounts with assets they
 # already held at any old transfer agent from the prior MSF.
 
-import BPonboarding
+import KYConboarding
 
 def getOwnershipBalanceFromOldTA_MSF(oldTA_MSFcsv):
   inFile = open(oldTA_MSFcsv)
@@ -26,9 +26,9 @@ def getOwnershipBalanceFromOldTA_MSF(oldTA_MSFcsv):
       taxID = taxID.replace("-", "-" + tmp)
     else: 
       tmp1 = ... # todo well 
-    if taxID[3] == "-" and taxID[6] == "-":
+    if(taxID[3] == "-" and taxID[6] == "-"):
       taxIDtype = ("SSN", "ITIN") [ taxID[0] == 9 ]
-    else if taxID[2] == "-":
+    else: if(taxID[2] == "-"): ##
       taxIDtype = "EIN"
     balance = lines[999]
     notResitricted = (False, True) [ lines[999] == "Unrestricted_qualifier" ]
