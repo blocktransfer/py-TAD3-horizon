@@ -3,16 +3,16 @@
 
 import KYConboarding
 
-def getOwnershipBalanceFromOldTA_MSF(oldTA_MSFcsv):
-  inFile = open(oldTA_MSFcsv)
+def getOwnershipBalanceFromOldMSF(oldMSF):
+  inFile = open(oldMSF)
   readFile = inFile.read()
   readFile = readFile.strip()
   readFile = readFile.split('\n')
   inFile.close()
 
-  ownershipBalanceFromOldTA_MSF = []
+  ownershipBalanceFromOldMSF = []
   # Logic here depends on formatting from old transfer agent
-  for lines in readFile[1:]:
+  for lines in readFile[2:]:
     lines = lines.split(',')
     shareholderFirstName = lines[999]
     shareholderFamilyName = lines[999]
@@ -32,10 +32,10 @@ def getOwnershipBalanceFromOldTA_MSF(oldTA_MSFcsv):
       taxIDtype = "EIN"
     balance = lines[999]
     notResitricted = (False, True) [ lines[999] == "Unrestricted_qualifier" ]
-    ownershipBalanceFromOldTA_MSF.append((notRestricted, balance, shareholderInstitutionName, shareholderFirstName, shareholderFamilyName, addressCity, taxID, taxIDtype))
-  return ownershipBalanceFromOldTA_MSF
+    ownershipBalanceFromOldMSF.append((notRestricted, balance, shareholderInstitutionName, shareholderFirstName, shareholderFamilyName, addressCity, taxID, taxIDtype))
+  return ownershipBalanceFromOldMSF
 
-def grantAssetOnStellarFromOldTAForAssetWithBalance(queryAsset, ownershipBalanceFromOldTA_MSF):
+def grantAssetOnStellarFromOldTAForAssetWithBalance(queryAsset, ownershipBalanceFromOldMSF):
   # open ownesgip
 
 
@@ -46,7 +46,7 @@ def grantAssetOnStellarFromOldTAForAssetWithBalance(queryAsset, ownershipBalance
   #make txn to be signed open
 
   #log to ledger with declarative memo
-  memo = 'Accout verified from past transfer agent. Granting assets.'
+  memo = 'Accout verified from old transfer agent. Granting assets.'
   # or tbh could just not do that # 
   memo_type = 'text'
   #etc

@@ -1,0 +1,26 @@
+# Block Transfer <blocktransfer.io>
+
+# THIS DOCUMENT CREATED PER COMPLIANCE WITH THE SECURITIES EXCHANGE ACT OF 1934,
+# SUBPARAGRAPHS 17Ad-15(c)–17Ad-15(e) — SIGNATURE GUARANTEE PROGRAM
+
+EFFECTIVE_DATE = "7-9-2021"
+
+MASTER_SECURITYHOLDER_FILINGS_SPECIFICATION = "BlockTrans Syndicate ('Block
+Transfer' herein) engages as the recordkeeping transfer agent of various issuer
+control books and master securityholder files formatted per Subsection 17Ad-9(a–b).
+
+In accordance with other subsections of Rule 17Ad-9:
+Block Transfer will not under any circumstances issue, print, or otherwise grant
+certificated securities. Block Transfer does not under any circumstances
+maintain any subsidiary files or employ any co-transfer agents. Certificated or
+uncertificated securityholders from an old transfer agent can transfer their
+assets by completing Block Transfer KYC onboarding to claim existing assets on
+the Stellar blockchain per our Signature Guarantee Program wherein they can
+transfer assets directly on the master securityholder file without credit/debits
+existing for any meaningful amount of time, as defined in the Section."
+
+
+ATTESTATION = "The Board approves principal John Wooten to speak on its behalf.
+We attest to the validity of these MSF filing specifications and, under penalty
+of purgery, claim its standards to be the operating by-laws of Block Transfer.
+/s/John Wooten"

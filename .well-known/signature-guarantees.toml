@@ -53,7 +53,7 @@ As soon as some good-standing (meaning passed KYC, etc.) participant broadcasts
 a valid signed transfer to the Stellar network, Block Transfer can in no
 meaningful way stop the transfer from confirming regardless of the originating
 sender. Block Transfer accepts all account balances on the Stellar ledger as
-material fact in the control book and master securityhodler files of issuers.
+material fact in the control books and master securityholder files of issuers.
 
 Upon change from a given issuer's prior transfer agent, all certificate-holding
 shareholders must validate their Stellar blockchain account at no cost to them

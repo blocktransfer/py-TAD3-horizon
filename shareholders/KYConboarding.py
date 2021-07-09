@@ -1,8 +1,5 @@
-# A script to listen for newly-onboarded shareholders from Blockpass,
-# see if they are on the previous master securityholder file (including
-# prior ownership of paper certificates)
-
 import requests
+import json
 from pprint import pprint
 
 BTissuerAddress = 'GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM'
@@ -11,16 +8,24 @@ def getAllAccountApplicationsFromKYC(secretKeyBlockpass):
   r = requests.get('https://kyc.blockpass.org/kyc/1.0/connect/Block_Transfer/applicants', headers = {'Authorization': secretKeyBlockpass} )
   data = r.json()
   fullDataRecords = data['data']['records']
-  allIdentities = []
+  allKYCidentities = []
   for identities in fullDataRecords:
     recordName = identities['identities']['given_name']['value'] + ' ' + identities['identities']['family_name']['value']
     recordStatus = identities['status']
-    allIdentities.append((recordName, recordStatus))
-  return allIdentities
+    addressDictFromStrDict = json.loads(identities['identities']['address']['value'])
+    recordPhysicalAddress = addressDictFromStrDict['address'] + ', ' + addressDictFromStrDict['extraInfo'] + ', ' + addressDictFromStrDict['city'] + ', ' + addressDictFromStrDict['state'] + ' ' + addressDictFromStrDict['postalCode'] + ', ' + addressDictFromStrDict['country']
+    # recordStellarAddress = # coming soon, manual for now
+    allKYCidentities.append((recordName, recordPhysicalAddress, recordStatus))
+  return allKYCidentities
 
-def filterOutUnsuccessfulCandidates(allBlockpassAccounts):
-  #dlsps
+def allSuccessfulCandidatesOnly(allKYCidentities):
+  successfulCandidates = []
+  for identities in allKYCidentities:
+    if identities[2] == 'approved':
+        successfulCandidates.append((identities[0], identities[1]))
   return successfulCandidates
+
+def mergeSuccessfulCandidateAccountsWithUserProvidedStellarAddress(successfulCandidates, MSF):
 
 def getStellarAccountsAlreadySponsored(BTissuerAddress):
   #dlsps
@@ -37,10 +42,14 @@ def sponsorAccountCreation(remainingAccountsPassedKYCyetNotSponsored):
   return True
 
 def goFromKYCrequestToSponsoringAccounts(secretKeyBlockpass, BTissuerAddress):
-  allBlockpassAccounts = getAllAccountApplicationsFromKYC(secretKeyBlockpass)
-  successfulCandidates = filterOutUnsuccessfulCandidates(allBlockpassAccounts)
+  allKYCidentities = getAllAccountApplicationsFromKYC(secretKeyBlockpass)
+  successfulCandidates = allSuccessfulCandidatesOnly(allKYCidentities)
   accountsAlreadySponsored = getStellarAccountsAlreadySponsored(BTissuerAddress)
   remainingAccountsPassedKYCyetNotSponsored = removeExistingAccountsFromSuccessfulCandidates(successfulCandidates, accountsAlreadySponsored)
   sponsorAccountCreation(remainingAccountsPassedKYCyetNotSponsored)
 
 
+#pprint(getAllAccountApplicationsFromKYC('c3820f100433fb7012639110fe4136d7'))
+#print("\n\n Full Attributes \n\n")
+allKYCidentities = getAllAccountApplicationsFromKYC('5c1fa7cd86481dea2145d6151be0014f')
+pprint(allSuccessfulCandidatesOnly(allKYCidentities))
