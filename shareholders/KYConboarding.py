@@ -14,7 +14,6 @@ def getAllAccountApplicationsFromKYC(secretKeyBlockpass):
     recordStatus = identities['status']
     addressDictFromStrDict = json.loads(identities['identities']['address']['value'])
     recordPhysicalAddress = addressDictFromStrDict['address'] + ', ' + addressDictFromStrDict['extraInfo'] + ', ' + addressDictFromStrDict['city'] + ', ' + addressDictFromStrDict['state'] + ' ' + addressDictFromStrDict['postalCode'] + ', ' + addressDictFromStrDict['country']
-    # recordStellarAddress = # coming soon, manual for now
     allKYCidentities.append((recordName, recordPhysicalAddress, recordStatus))
   return allKYCidentities
 
@@ -25,8 +24,24 @@ def allSuccessfulCandidatesOnly(allKYCidentities):
         successfulCandidates.append((identities[0], identities[1]))
   return successfulCandidates
 
-def mergeSuccessfulCandidateAccountsWithUserProvidedStellarAddress(successfulCandidates, MSF):
-
+def mergeSuccessfulCandidatesWithOfficialStellarAddressesFromMSF(successfulCandidates, MSF):
+  inFile = open(MSF)
+  readFile = inFile.read()
+  readFile = readFile.strip()
+  readFile = readFile.split('\n')
+  inFile.close()
+  securityholders = []
+  for lines in readFile[2:]:
+    lines = lines.split(',')
+    print(lines)
+    #MSFphysicalAddress = lines[5] + ', ' + lines[6] + ', ' + + lines[7] + ', ' + lines[7] + ', ' + lines[8] + ' ' + lines[9]
+    #MSFname = lines[2]
+    #for identities in successfulCandidates:
+    #    if MSFname == identities[0] and MSFphysicalAddress == identities[1]:
+    #        securityholders.append((lines[0], identities[0], identities[1]))
+    #        break
+  return securityholders
+  
 def getStellarAccountsAlreadySponsored(BTissuerAddress):
   #dlsps
   return accountsAlreadySponsored
@@ -52,4 +67,5 @@ def goFromKYCrequestToSponsoringAccounts(secretKeyBlockpass, BTissuerAddress):
 #pprint(getAllAccountApplicationsFromKYC('c3820f100433fb7012639110fe4136d7'))
 #print("\n\n Full Attributes \n\n")
 allKYCidentities = getAllAccountApplicationsFromKYC('5c1fa7cd86481dea2145d6151be0014f')
-pprint(allSuccessfulCandidatesOnly(allKYCidentities))
+successfulCandidates = allSuccessfulCandidatesOnly(allKYCidentities)
+pprint(mergeSuccessfulCandidatesWithOfficialStellarAddressesFromMSF(successfulCandidates, "testingGitIgnore.csv"))

@@ -370,8 +370,7 @@
 						{'type': 'string',
 						'value':
 							'
-							{"address":"123 '
-							'Somewhere Street",
+							{"address":"123 Somewhere Street",
 							"extraInfo":"Apt 55",
 							"city":"Atlanta",
 							"state":"GA",
@@ -457,13 +456,13 @@
 						'value': '1d11979c-1bc7-4a53-a475-96cb67d33f25'
 						}
 				},
-				'inreviewDate': '2021-07-08T19:12:34.509Z',
-				'isArchived': False,
-				'recordId': '60e718ab03fdfa00144c88db',
-				'refId': 'r-1625757616383',
-				'status': 'approved',
-				'submitCount': 1,
-				'waitingDate': '2021-07-08T15:25:47.702Z'
+			'inreviewDate': '2021-07-08T19:12:34.509Z',
+			'isArchived': False,
+			'recordId': '60e718ab03fdfa00144c88db',
+			'refId': 'r-1625757616383',
+			'status': 'approved',
+			'submitCount': 1,
+			'waitingDate': '2021-07-08T15:25:47.702Z'
 			}
 		],
 	'skip': 0,

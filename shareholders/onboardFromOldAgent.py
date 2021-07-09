@@ -9,7 +9,6 @@ def getOwnershipBalanceFromOldMSF(oldMSF):
   readFile = readFile.strip()
   readFile = readFile.split('\n')
   inFile.close()
-
   ownershipBalanceFromOldMSF = []
   # Logic here depends on formatting from old transfer agent
   for lines in readFile[2:]:
