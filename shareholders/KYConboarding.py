@@ -2,8 +2,6 @@ import requests
 import json
 from pprint import pprint
 
-BTissuerAddress = 'GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM'
-
 def getAllAccountApplicationsFromKYC(secretKeyBlockpass):
   r = requests.get('https://kyc.blockpass.org/kyc/1.0/connect/Block_Transfer/applicants', headers = {'Authorization': secretKeyBlockpass} )
   data = r.json()
