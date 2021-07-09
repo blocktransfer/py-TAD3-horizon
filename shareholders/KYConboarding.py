@@ -15,7 +15,7 @@ def getAllAccountApplicationsFromKYC(secretKeyBlockpass):
     allKYCidentities.append((recordName, recordPhysicalAddress, recordStatus))
   return allKYCidentities
 
-def allSuccessfulCandidatesOnly(allKYCidentities):
+def getSuccessfulCandidatesOnly(allKYCidentities):
   successfulCandidates = []
   for identities in allKYCidentities:
     if identities[2] == 'approved':
