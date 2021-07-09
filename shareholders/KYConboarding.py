@@ -4,17 +4,19 @@
 
 import requests
 from pprint import pprint
-# '4c242faeaeeef8a08c031ee1d15b1ebf'
 
 BTissuerAddress = 'GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM'
 
 def getAllAccountApplicationsFromKYC(secretKeyBlockpass):
   r = requests.get('https://kyc.blockpass.org/kyc/1.0/connect/Block_Transfer/applicants', headers = {'Authorization': secretKeyBlockpass} )
   data = r.json()
-
-  pprint(data)
-
-  return
+  fullDataRecords = data['data']['records']
+  allIdentities = []
+  for identities in fullDataRecords:
+    recordName = identities['identities']['given_name']['value'] + ' ' + identities['identities']['family_name']['value']
+    recordStatus = identities['status']
+    allIdentities.append((recordName, recordStatus))
+  return allIdentities
 
 def filterOutUnsuccessfulCandidates(allBlockpassAccounts):
   #dlsps
@@ -40,3 +42,5 @@ def goFromKYCrequestToSponsoringAccounts(secretKeyBlockpass, BTissuerAddress):
   accountsAlreadySponsored = getStellarAccountsAlreadySponsored(BTissuerAddress)
   remainingAccountsPassedKYCyetNotSponsored = removeExistingAccountsFromSuccessfulCandidates(successfulCandidates, accountsAlreadySponsored)
   sponsorAccountCreation(remainingAccountsPassedKYCyetNotSponsored)
+
+
