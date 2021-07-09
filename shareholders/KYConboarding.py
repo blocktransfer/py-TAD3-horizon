@@ -1,6 +1,5 @@
 import requests
 import json
-from pprint import pprint
 
 def getAllAccountApplicationsFromKYC(secretKeyBlockpass):
   r = requests.get('https://kyc.blockpass.org/kyc/1.0/connect/Block_Transfer/applicants', headers = {'Authorization': secretKeyBlockpass} )
