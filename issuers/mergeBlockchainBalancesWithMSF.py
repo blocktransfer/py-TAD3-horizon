@@ -43,15 +43,24 @@ def getTotalOutstandingShares(queryAsset, numRestrictedShares):
 def mergeBlockchainRecordsWithMSF(MSF, totalOutstandingShares, accountBalancesStellar):
   inFile = open(MSF)
   readFile = inFile.read()
+
+  issuer = inFile.readline()
+
   readFile = readFile.strip()
   readFile = readFile.split('\n')
   inFile.close()
   linkedAccounts = []
   # rewrite first 2 headers
-  
+
+  try:
+    issuer = issuer.split(',')
+    delimiter = ','
+  except:
+    delimiter = '\t'
+
   #
   for lines in readFile[2:]:
-    lines = lines.split('\t')
+    lines = lines.split(delimiter)
     securityholderStellarAddress = lines[0]
     sharesNotYetClaimedOnStellar = lines[1]
     for account,balance in accountBalancesStellar:
