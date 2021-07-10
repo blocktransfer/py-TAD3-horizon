@@ -1,5 +1,5 @@
 import requests
-from datetime import date
+from datetime import datetime
 
 searchLimitMax200 = '200'
 horizonInstance = 'horizon.stellar.org'
@@ -48,8 +48,8 @@ def mergeBlockchainRecordsWithMSF(MSF, totalOutstandingShares, StellarBlockchain
   readFile = readFile.split('\n')
   inFile.close()
   mergedMSF = open('mergedMSF.csv', 'w+')
-  today = date.today()
-  mergedMSF.write('Shares as of {},Percent of Total Shares,Registration,Email,Date of Birth / Organization,Address,Address Extra,City,State,Postal Code,Country,Onboarded Date,Issue Date of Security,Cancellation Date of Security,Restricted Shares Notes\n'.format(today))
+  now = datetime.now()
+  mergedMSF.write('Shares as of {},Percent of Total Shares,Registration,Email,Date of Birth / Organization,Address,Address Extra,City,State,Postal Code,Country,Onboarded Date,Issue Date of Security,Cancellation Date of Security,Restricted Shares Notes\n'.format(now))
   for lines in readFile[1:]:
     lines = lines.split(',')
     sharesNotYetClaimedOnStellar = 0 if lines[1] == '' else float(lines[1])
