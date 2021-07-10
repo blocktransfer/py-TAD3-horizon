@@ -1,5 +1,5 @@
 import requests
-from pprint import pprint
+from datetime import date
 
 searchLimitMax200 = '200'
 horizonInstance = 'horizon.stellar.org'
@@ -47,11 +47,9 @@ def mergeBlockchainRecordsWithMSF(MSF, totalOutstandingShares, StellarBlockchain
   readFile = readFile.strip()
   readFile = readFile.split('\n')
   inFile.close()
-  #linkedAccounts = []
-  
-  writeData = []
-  
-  
+  mergedMSF = open('mergedMSF.csv', 'w+')
+  today = date.today()
+  mergedMSF.write('Shares as of {},Percent of Total Shares,Registration,Email,Date of Birth / Organization,Address,Address Extra,City,State,Postal Code,Country,Onboarded Date,Issue Date of Security,Cancellation Date of Security,Restricted Shares Notes\n'.format(today))
   for lines in readFile[1:]:
     lines = lines.split(',')
     sharesNotYetClaimedOnStellar = 0 if lines[1] == '' else float(lines[1])
@@ -60,17 +58,14 @@ def mergeBlockchainRecordsWithMSF(MSF, totalOutstandingShares, StellarBlockchain
     except KeyError:
         # This address is no longer a securityholder per removed trustline. Prune from merged MSF
         continue
-    lines[0] = blockchainBalance + sharesNotYetClaimedOnStellar
-    lines[1] = 100 * lines[0] / totalOutstandingShares
-    writeData.append(lines)
-  pprint(writeData)
-  #mergedMSF = date.get() + 'merged' + MSF
-  #writeFile = open(mergedMSF, 'a')
-  #writeFile = writeFile
-  #writeFile.close()
+    totalBalance = blockchainBalance + sharesNotYetClaimedOnStellar # perhaps string addition here, but float precision should suffice given this is for reading only, not reporting
+    lines[0] = str(totalBalance)
+    lines[1] = str(100 * totalBalance / totalOutstandingShares)
+    mergedMSF.write(','.join(lines) + '\n')
+  mergedMSF.close()
   return True
 
 
 
 
-getMergedReportForAssetWithNumRestrictedSharesUsingMSF("StellarMart", 10000, "testingMasterSecurityholderFile.csv")
+getMergedReportForAssetWithNumRestrictedSharesUsingMSF("StellarMart", 10000, "VeryRealStockIncMSF.csv")
