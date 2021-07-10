@@ -64,8 +64,3 @@ def mergeBlockchainRecordsWithMSF(MSF, totalOutstandingShares, StellarBlockchain
     mergedMSF.write(','.join(lines) + '\n')
   mergedMSF.close()
   return True
-
-
-
-
-getMergedReportForAssetWithNumRestrictedSharesUsingMSF("StellarMart", 10000, "VeryRealStockIncMSF.csv")
