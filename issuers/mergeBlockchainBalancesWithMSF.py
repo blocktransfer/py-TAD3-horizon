@@ -1,4 +1,5 @@
 import requests
+from pprint import pprint
 
 searchLimitMax200 = '200'
 horizonInstance = 'horizon.stellar.org'
@@ -48,7 +49,7 @@ def mergeBlockchainRecordsWithMSF(MSF, totalOutstandingShares, StellarBlockchain
   inFile.close()
   #linkedAccounts = []
   
-  writeCSV = []
+  writeData = []
   
   
   for lines in readFile[1:]:
@@ -59,12 +60,11 @@ def mergeBlockchainRecordsWithMSF(MSF, totalOutstandingShares, StellarBlockchain
     except KeyError:
         # This address is no longer a securityholder per removed trustline. Prune from merged MSF
         continue
-    balanceAsPercentOfOutstandingShares = 100 * float(blockchainBalance) / totalOutstandingShares
     lines[0] = blockchainBalance + sharesNotYetClaimedOnStellar
-    lines[1] = balanceAsPercentOfOutstandingShares
-    
-    writeCSV.append(lines)
-  #mergedMSF = 'merged' + MSF + 'AsOf' + date.get()
+    lines[1] = 100 * lines[0] / totalOutstandingShares
+    writeData.append(lines)
+  pprint(writeData)
+  #mergedMSF = date.get() + 'merged' + MSF
   #writeFile = open(mergedMSF, 'a')
   #writeFile = writeFile
   #writeFile.close()
