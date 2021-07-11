@@ -34,10 +34,10 @@ def getStellarBlockchainBalances(queryAsset):
   return StellarBlockchainBalances
 
 def getTotalOutstandingShares(queryAsset, numRestrictedShares):
-  requestAddress = 'https://' + horizonInstance + '/ledgers?asset=' + queryAsset + ':' + BTissuerAddress
+  requestAddress = 'https://' + horizonInstance + '/assets?asset_code=' + queryAsset + '&asset_issuer=' + BTissuerAddress
   r = requests.get(requestAddress)
   data = r.json()
-  numUnrestrictedShares = float(data['_embedded']['records'][len(data['_embedded']['records']) - 1]['total_coins'])
+  numUnrestrictedShares = float(data['_embedded']['records'][0]['amount'])
   totalOutstandingShares = numRestrictedShares + numUnrestrictedShares
   return totalOutstandingShares
 
@@ -57,7 +57,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, MSF, totalOutstandingShares, Stell
     except KeyError:
         # This address is no longer a securityholder per removed trustline. Prune from merged MSF
         continue
-    totalBalance = blockchainBalance + sharesNotYetClaimedOnStellar # perhaps string addition here, but float precision should suffice given this is for reading only, not reporting
+    totalBalance = blockchainBalance + sharesNotYetClaimedOnStellar
     lines[0] = str(totalBalance)
     lines[1] = str(totalBalance / totalOutstandingShares)
     mergedMSF.write(','.join(lines) + '\n')
