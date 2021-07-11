@@ -47,7 +47,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, MSF, totalOutstandingShares, Stell
   readFile = readFile.strip()
   readFile = readFile.split('\n')
   inFile.close()
-  mergedMSF = open('{}mergedMSFasOf{}.csv'.format(queryAsset, datetime.now()), 'w+')
+  mergedMSF = open('{} Master Securityholder File as of {}.csv'.format(queryAsset, (datetime.now())), 'w+')
   mergedMSF.write('Shares,Percent of Outstanding Shares,Registration,Email,Date of Birth / Organization,Address,Address Extra,City,State,Postal Code,Country,Onboarded Date,Issue Date of Security,Cancellation Date of Security,Restricted Shares Notes\n')
   for lines in readFile[1:]:
     lines = lines.split(',')
