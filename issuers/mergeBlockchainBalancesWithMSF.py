@@ -9,7 +9,7 @@ BTissuerAddress = 'GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM'
 def getMergedReportForAssetWithNumRestrictedSharesUsingMSF(queryAsset, numRestrictedShares, MSF):
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
   totalOutstandingShares = getTotalOutstandingShares(queryAsset, numRestrictedShares)
-  didSucceed = mergeBlockchainRecordsWithMSF(MSF, totalOutstandingShares, StellarBlockchainBalances)
+  didSucceed = mergeBlockchainRecordsWithMSF(queryAsset, MSF, totalOutstandingShares, StellarBlockchainBalances)
   return didSucceed
 
 def getStellarBlockchainBalances(queryAsset):
@@ -41,14 +41,14 @@ def getTotalOutstandingShares(queryAsset, numRestrictedShares):
   totalOutstandingShares = numRestrictedShares + numUnrestrictedShares
   return totalOutstandingShares
 
-def mergeBlockchainRecordsWithMSF(MSF, totalOutstandingShares, StellarBlockchainBalances):
+def mergeBlockchainRecordsWithMSF(queryAsset, MSF, totalOutstandingShares, StellarBlockchainBalances):
   inFile = open(MSF)
   readFile = inFile.read()
   readFile = readFile.strip()
   readFile = readFile.split('\n')
   inFile.close()
-  mergedMSF = open('mergedMSF.csv', 'w+')
-  mergedMSF.write('Shares as of {},Percentage of Total Shares,Registration,Email,Date of Birth / Organization,Address,Address Extra,City,State,Postal Code,Country,Onboarded Date,Issue Date of Security,Cancellation Date of Security,Restricted Shares Notes\n'.format(datetime.now()))
+  mergedMSF = open('{}mergedMSFasOf{}.csv'.format(queryAsset, datetime.now()), 'w+')
+  mergedMSF.write('Shares,Percent of Outstanding Shares,Registration,Email,Date of Birth / Organization,Address,Address Extra,City,State,Postal Code,Country,Onboarded Date,Issue Date of Security,Cancellation Date of Security,Restricted Shares Notes\n')
   for lines in readFile[1:]:
     lines = lines.split(',')
     sharesNotYetClaimedOnStellar = 0 if lines[1] == '' else float(lines[1])
