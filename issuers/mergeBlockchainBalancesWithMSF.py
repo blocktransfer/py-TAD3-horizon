@@ -59,7 +59,7 @@ def mergeBlockchainRecordsWithMSF(MSF, totalOutstandingShares, StellarBlockchain
         continue
     totalBalance = blockchainBalance + sharesNotYetClaimedOnStellar # perhaps string addition here, but float precision should suffice given this is for reading only, not reporting
     lines[0] = str(totalBalance)
-    lines[1] = str(100 * totalBalance / totalOutstandingShares)
+    lines[1] = str(totalBalance / totalOutstandingShares)
     mergedMSF.write(','.join(lines) + '\n')
   mergedMSF.close()
   return True
