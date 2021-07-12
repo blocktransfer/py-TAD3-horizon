@@ -21,7 +21,7 @@
 title: Block Transfer
 email: devs@blocktransfer.io
 description: >- # this means to ignore newlines until "baseurl:"
-  Stellar technical interface for Block Transfer,
+  Stellar interface for Block Transfer,
   a decentralized transfer agent for global financial markets.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "stellar.blocktransfer.io" # the base hostname & protocol for your site, e.g. http://example.com
