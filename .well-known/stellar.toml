@@ -40,7 +40,7 @@ telegram = "JFWooten4"
 twitter = "JFWooten4"
 github = "JFWooten4"
 id_photo_hash = "0dce43292a7dd2c6ef021cca9f84330ceeec34e8587172453bc2b05f1bd13edd"
-verification_photo_hash = "" #todo
+verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44f0b8e62ff48"
 
 [[CURRENCIES]]
 code = "ISIN" #todo: Token code <= 12 char
