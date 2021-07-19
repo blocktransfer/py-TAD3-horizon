@@ -7,9 +7,9 @@ TRANSFER_SERVER = "https://api.blocktransfer.io/transfer" #todo: The server used
 TRANSFER_SERVER_SEP0024 = "https://stellar.blocktransfer.io/transfer/" #todo: The server used for SEP-24 Anchor/Client interoperability
 KYC_SERVER = "https://testanchor.stellar.org/kyc" #todo: The server used for SEP-12 Anchor/Client customer info transfer
 WEB_AUTH_ENDPOINT="https://api.anchorusd.com/webauth" #todo: The endpoint used for SEP-10 Web Authentication
-SIGNING_KEY = "GC5TUPFLOXCGNDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ" #todo: The signing key is used for SEP-10 Authentication Protocol
-ACCOUNTS = [ "GC5TUPFLOXCGNDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ" ] #accounts controlled by blocktransfer.io
-URI_REQUEST_SIGNING_KEY = "GC5TUPFLOXCGNDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ" #todo: The signing key is used for SEP-7 delegated signing
+SIGNING_KEY = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" #todo: The signing key is used for SEP-10 Authentication Protocol
+ACCOUNTS = [ "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7, GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6" ] # Issuer, Distributor
+URI_REQUEST_SIGNING_KEY = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" #todo: The signing key is used for SEP-7 delegated signing
 DIRECT_PAYMENT_SERVER	= "https://" #todo: The server used for receiving SEP-31 direct fiat-to-fiat payments. Requires SEP-12 and hence a KYC_SERVER TOML attribute.
 ANCHOR_QUOTE_SERVER = "https://" #todo: The server used for receiving SEP-38 requests.
 
@@ -19,9 +19,8 @@ ORG_DBA = "Block Transfer"
 ORG_URL = "https://www.blocktransfer.io"
 ORG_LOGO = "https://www.blocktransfer.io/hosted/images/83/7373741bf2415b93aaf274faa023ec/BT-Circle_Cut.png"
 ORG_DESCRIPTION = "A decentralized stock transfer agent protocol for global financial markets."
-ORG_PHYSICAL_ADDRESS = "Block Transfer is a remote-first company;
-                        finance should have no borders."
-ORG_PHONE_NUMBER = "4square +1" #todo: or not? Is legally-bound requirement?
+ORG_PHYSICAL_ADDRESS = "Block Transfer is a remote-first company; finance should have no borders."
+ORG_PHONE_NUMBER = "8x8 +1 tollFree -> 3235-AJ47" #todo: or not? Is legally-bound requirement?
 ORG_PHONE_NUMBER_ATTESTATION = "https://stellar.blocktransfer.io/" #URL w/ pdf of a phone bill showing both the phone number and your organization's name.
 ORG_KEYBASE = "blocktransfer"
 ORG_TWITTER = "blocktransfer"
@@ -40,11 +39,11 @@ telegram = "JFWooten4"
 twitter = "JFWooten4"
 github = "JFWooten4"
 id_photo_hash = "0dce43292a7dd2c6ef021cca9f84330ceeec34e8587172453bc2b05f1bd13edd"
-verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44f0b8e62ff48"
+verification_photo_hash = "" #todo
 
 [[CURRENCIES]]
 code = "ISIN" #todo: Token code <= 12 char
-issuer = "GC5TUPFLOXCGNDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ"
+issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 status = "test" # live
 display_decimals = 7
 name = "<= 20 char,	A short name for the token"
@@ -65,7 +64,7 @@ is_unlimited = true
 is_asset_anchored = true
 anchor_asset_type = "stock"
 anchor_asset = "ISIN" #code / symbol for asset that token is anchored to
-attestation_of_reserve = "https://www.sec.gov/amd-filings" #Search for Form TA-2
+attestation_of_reserve = "https://www.sec.gov/amd-filings" #todo: Search for Form TA-2 # Our CIK filing page 
 redemption_instructions = "halp" #todo: If anchored token, these are instructions to redeem the underlying asset from tokens.
 regulated = true
 
