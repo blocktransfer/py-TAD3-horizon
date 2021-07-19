@@ -51,9 +51,8 @@ desc = "IT IS HEREBY SET FORTH BY BLOCKTRANS SYNDICATE THAT,
 GIVEN THE LIVELIHOOD OF THIS ASSET AND BOUNDS OF SECURITIES LAW,
 THIS IS THE OFFICIAL STOCK REGISTER FOR SOME COMPANY WIDGETS CO INC.
 CLASS A COMMON STOCK, PAR $0.000001, CUSIP 55302P202, HOME TICKER NYSE:$AMD"
-conditions = "Copyright by USPTO, among others.
-See whitepaper.blocktransfer.io for latest IP.
-You cannot mimic our blockchain transfer agent protocol.
+conditions = "Patented per US 63/156,267. See whitepaper.blocktransfer.io
+for latest IP. You cannot mimic our blockchain transfer agent protocol.
 We do not issue or support paper certificates. See signature-guarantees.toml.
 Anchor redemption equates to DRS transfer to any legacy central broker-dealer.
 INTERACTING WITH THIS ASSET BINDINGLY EQUATES TO IRREVOCABLE WRITTEN CONSENT TO
