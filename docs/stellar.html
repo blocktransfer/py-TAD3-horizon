@@ -7,6 +7,8 @@ permalink: /.well-known/stellar.toml
 # Block Transfer <blocktransfer.io>
 # @ https://stellar.blocktransfer.io/.well-known/stellar.toml
 
+# Block Transfer <blocktransfer.io>
+
 VERSION = "4.2.1"
 NETWORK_PASSPHRASE = "Public Global Stellar Network ; September 2015"
 FEDERATION_SERVER = "https://stellar.blocktransfer.io/federation" #todo: The endpoint for clients to resolve stellar addresses for users on your domain via SEP-2 Federation Protocol
@@ -57,11 +59,10 @@ name = "<= 20 char,	A short name for the token"
 desc = "IT IS HEREBY SET FORTH BY BLOCKTRANS SYNDICATE THAT,
 GIVEN THE LIVELIHOOD OF THIS ASSET AND BOUNDS OF SECURITIES LAW,
 THIS IS THE OFFICIAL STOCK REGISTER FOR SOME COMPANY WIDGETS CO INC.
-CLASS A COMMON STOCK, PAR $0.001, CUSIP 55302P202, HOME TICKER NYSE:$AMD"
+CLASS A COMMON STOCK, PAR $0.000001, CUSIP 55302P202, HOME TICKER NYSE:$AMD"
 conditions = "Copyright by USPTO, among others.
 See whitepaper.blocktransfer.io for latest IP.
 You cannot mimic our blockchain transfer agent protocol.
-Violators will be prosecuted.
 We do not issue or support paper certificates. See signature-guarantees.toml.
 Anchor redemption equates to DRS transfer to any legacy central broker-dealer.
 INTERACTING WITH THIS ASSET BINDINGLY EQUATES TO IRREVOCABLE WRITTEN CONSENT TO
@@ -71,7 +72,7 @@ is_unlimited = true
 is_asset_anchored = true
 anchor_asset_type = "stock"
 anchor_asset = "ISIN" #code / symbol for asset that token is anchored to
-attestation_of_reserve = "https://www.sec.gov/amd-filings" #todo: Search for Form TA-2 # Our CIK filing page 
+attestation_of_reserve = "https://www.sec.gov/amd-filings" #todo: Search for Form TA-2 # Our CIK filing page
 redemption_instructions = "halp" #todo: If anchored token, these are instructions to redeem the underlying asset from tokens.
 regulated = true
 
