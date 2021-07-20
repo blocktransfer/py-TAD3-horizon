@@ -43,7 +43,7 @@ Most Stellar transactions clear in the next proposed block or one substantially
 close to it, with blocks created every five seconds on average. In a worst-case
 scenario, securityholders executing routine transfers on the blockchain may have
 to wait a few blocks (call it twelve very aggresively, as a denial of service
-attack for one minute is economically infeasible for most market participants,
+attack over 45 seconds is economically infeasible for most market participants,
 and such a consensus attack for any amount of time over 180 blocks or approximately
 15 minutes is for all intensive purposes statistically impossivle, especially given
 our implimentation of issuer-enforced finality which effectivey caps transfer 
