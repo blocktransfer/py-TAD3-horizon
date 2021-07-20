@@ -45,7 +45,7 @@ scenario, securityholders executing routine transfers on the blockchain may have
 to wait a few blocks (call it twelve very aggresively, as a denial of service
 attack over 45 seconds is economically infeasible for most market participants,
 and such a consensus attack for any amount of time over 180 blocks or approximately
-15 minutes is for all intensive purposes statistically impossivle, especially given
+15 minutes is for all intensive purposes statistically impossible, especially given
 our implimentation of issuer-enforced finality which effectivey caps transfer 
 times at 24 seconds for 99.97% of transfers, n=1461). Therefore, we find it 
 probabilistically impossible that, given the liveliness of the Stellar blockchain
