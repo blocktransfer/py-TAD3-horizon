@@ -14,4 +14,4 @@
 
 
 
-Read more about our project at http://whitepaper.blocktransfer.io
+Read more about our project at http://devs.blocktransfer.io
