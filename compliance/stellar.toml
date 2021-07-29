@@ -1,4 +1,6 @@
 # Block Transfer <blocktransfer.io>
+# Patented per US 63/156,267. See whitepaper.blocktransfer.io for latest IP.
+# You cannot mimic our blockchain transfer agent protocol.
 
 VERSION = "4.2.1"
 NETWORK_PASSPHRASE = "Public Global Stellar Network ; September 2015"
@@ -49,19 +51,17 @@ status = "live"
 display_decimals = 7
 name = "Example Security"
 desc = "This is an example stock used interally for product demos."
-conditions = "Patented per US 63/156,267. See whitepaper.blocktransfer.io
-for latest IP. You cannot mimic our blockchain transfer agent protocol.
-We do not issue or support paper certificates. See signature-guarantees.toml.
-Anchor redemption equates to DRS transfer to any legacy central broker-dealer.
+conditions = "We do not issue or support paper certificates. See compliance docs.
+Anchor redemption equates to security transfer to any legacy central broker-dealer.
 INTERACTING WITH THIS ASSET BINDINGLY EQUATES TO IRREVOCABLE WRITTEN CONSENT TO
-BLOCKTRANS SYNDICATE'S TERMS OF SERVICE, PRIVACY POLICY, AND TRANSFER STANDARDS"
-image	= "https://stellar.blocktransfer.io/assets/demo.png" #PNG image on a transparent background representing token
+BLOCKTRANS SYNDICATE'S TERMS OF SERVICE, PRIVACY POLICY, AND TRANSFER STANDARDS."
+image	= "https://www.blocktransfer.io/hosted/images/31/f73c177c5b4fa0aa6ad5eb25f3baea/demo.png"
 is_unlimited = true
 is_asset_anchored = false
 #anchor_asset_type = "stock"
-#anchor_asset = "CUSIP/ISIN"
+#anchor_asset = "CUSIP"
 attestation_of_reserve = "https://sec.report/CIK/0001846058" # -> EDGAR
-redemption_instructions = "todo" #todo: If anchored token, these are instructions to redeem the underlying asset from tokens.
+redemption_instructions = "Email anchor@blocktransfer.io with your public key."
 regulated = false
 
 #E.x. desc
