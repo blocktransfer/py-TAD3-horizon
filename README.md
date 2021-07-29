@@ -5,7 +5,7 @@
 
 <h1>Block Transfer</h1>
 </div>
-Read more about our project at http://devs.blocktransfer.io
+Welcome video at http://devs.blocktransfer.io
 
 <h1>Developers:</h1>
 </div>
