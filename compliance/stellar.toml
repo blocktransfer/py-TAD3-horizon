@@ -18,7 +18,7 @@ ANCHOR_QUOTE_SERVER = "https://" #todo: The server used for receiving SEP-38 req
 ORG_NAME = "BlockTrans Syndicate"
 ORG_DBA = "Block Transfer"
 ORG_URL = "https://www.blocktransfer.io"
-ORG_LOGO = "https://www.blocktransfer.io/hosted/images/83/7373741bf2415b93aaf274faa023ec/BT-Circle_Cut.png"
+ORG_LOGO = "https://www.blocktransfer.io/hosted/images/83/7373741bf2415b93aaf274faa023ec/BT-Circle_Cut.png" # todo: inline w. stellar assets
 ORG_DESCRIPTION = "A decentralized stock transfer agent protocol for global financial markets."
 ORG_PHYSICAL_ADDRESS = "Block Transfer is a remote-first company; finance should have no borders."
 ORG_PHONE_NUMBER = "(332) 237-6400"
@@ -43,29 +43,32 @@ id_photo_hash = "0dce43292a7dd2c6ef021cca9f84330ceeec34e8587172453bc2b05f1bd13ed
 verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44f0b8e62ff48"
 
 [[CURRENCIES]]
-code = "ISIN" #todo: Token code <= 12 char
+code = "DEMO"
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
-status = "test" # live
+status = "live"
 display_decimals = 7
-name = "<= 20 char,	A short name for the token"
-desc = "IT IS HEREBY SET FORTH BY BLOCKTRANS SYNDICATE THAT,
-GIVEN THE LIVELIHOOD OF THIS ASSET AND BOUNDS OF SECURITIES LAW,
-THIS IS THE OFFICIAL STOCK REGISTER FOR SOME COMPANY WIDGETS CO INC.
-CLASS A COMMON STOCK, PAR $0.000001, CUSIP 55302P202, TICKER $WDGT."
+name = "Example Security"
+desc = "This is an example stock used interally for product demos."
 conditions = "Patented per US 63/156,267. See whitepaper.blocktransfer.io
 for latest IP. You cannot mimic our blockchain transfer agent protocol.
 We do not issue or support paper certificates. See signature-guarantees.toml.
 Anchor redemption equates to DRS transfer to any legacy central broker-dealer.
 INTERACTING WITH THIS ASSET BINDINGLY EQUATES TO IRREVOCABLE WRITTEN CONSENT TO
 BLOCKTRANS SYNDICATE'S TERMS OF SERVICE, PRIVACY POLICY, AND TRANSFER STANDARDS"
-image	= "https://stellar.blocktransfer.io/assets/riot.png" #PNG image on a transparent background representing token
+image	= "https://stellar.blocktransfer.io/assets/demo.png" #PNG image on a transparent background representing token
 is_unlimited = true
-is_asset_anchored = true
-anchor_asset_type = "stock"
-anchor_asset = "ISIN" #code / symbol for asset that token is anchored to
-attestation_of_reserve = "https://www.sec.gov/amd-filings" #todo: Search for Form TA-2 # Our CIK filing page
-redemption_instructions = "halp" #todo: If anchored token, these are instructions to redeem the underlying asset from tokens.
-regulated = true
+is_asset_anchored = false
+#anchor_asset_type = "stock"
+#anchor_asset = "CUSIP/ISIN"
+attestation_of_reserve = "https://sec.report/CIK/0001846058" # -> EDGAR
+redemption_instructions = "todo" #todo: If anchored token, these are instructions to redeem the underlying asset from tokens.
+regulated = false
+
+#E.x. desc
+#"IT IS HEREBY SET FORTH BY BLOCKTRANS SYNDICATE THAT,
+#GIVEN THE LIVELIHOOD OF THIS ASSET AND BOUNDS OF SECURITIES LAW,
+#THIS IS THE OFFICIAL STOCK REGISTER FOR SOME COMPANY WIDGETS CO INC.
+#CLASS A COMMON STOCK, PAR $0.000001, CUSIP 55302P202, TICKER $WDGT."
 
 #[[VALIDATORS]]
 #ALIAS	= "bt1"
