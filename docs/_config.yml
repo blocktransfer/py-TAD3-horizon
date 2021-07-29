@@ -23,8 +23,8 @@ email: devs@blocktransfer.io
 description: >- # this means to ignore newlines until "baseurl:"
   Stellar interface for Block Transfer,
   a decentralized transfer agent for global financial markets.
-baseurl: "stellar.blocktransfer.io" # the subpath of your site, e.g. /blog
-url: "stellar.blocktransfer.io" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: ""
+url: "https://stellar.blocktransfer.io"
 twitter_username: blocktransfer
 github_username:  blocktransfer
 
