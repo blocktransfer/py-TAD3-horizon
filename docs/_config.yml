@@ -24,7 +24,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   Stellar interface for Block Transfer,
   a decentralized transfer agent for global financial markets.
 baseurl: ""
-url: "https://stellar.blocktransfer.io"
+url: "stellar.blocktransfer.io"
 twitter_username: blocktransfer
 github_username:  blocktransfer
 
