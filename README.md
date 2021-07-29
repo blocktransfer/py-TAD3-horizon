@@ -5,13 +5,11 @@
 
 <h1>Block Transfer</h1>
 </div>
-
-
-
-
-
-
-
-
-
 Read more about our project at http://devs.blocktransfer.io
+
+<h1>Developers:</h1>
+</div>
+Next projects (submit a PR to contribute—thanks!)
+- Make Jekyll (Docs) default site look nice 
+- Transfer internal issuer portal to React-based suite
+- ^ incl. forks with basic wallet infrastructure
