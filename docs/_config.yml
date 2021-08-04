@@ -1,8 +1,8 @@
 title: Block Transfer
 email: devs@blocktransfer.io
-description: >- # this means to ignore newlines until "baseurl:"
+description: >-
   Stellar interface for Block Transfer,
-  a decentralized transfer agent for global financial markets.
+  a blockchain transfer agent for global financial markets.
 baseurl: ""
 url: "stellar.blocktransfer.io"
 twitter_username: blocktransfer
