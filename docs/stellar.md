@@ -1,4 +1,6 @@
 ---
+charset: UTF-8
+layout: page
 content-type: text/plain
 permalink: /.well-known/stellar.toml
 Access-Control-Allow-Origin: *
@@ -9,7 +11,7 @@ Access-Control-Allow-Origin: *
 
 VERSION = "4.2.1"
 NETWORK_PASSPHRASE = "Public Global Stellar Network ; September 2015"
-FEDERATION_SERVER = "https://stellarid.io/federation/"
+FEDERATION_SERVER = "https://stellarid.io/fedelayoutration/"
 TRANSFER_SERVER = "https://api.blocktransfer.io/transfer" #todo: The server used for SEP-6 Anchor/Client interoperability
 TRANSFER_SERVER_SEP0024 = "https://stellar.blocktransfer.io/transfer/" #todo: The server used for SEP-24 Anchor/Client interoperability
 KYC_SERVER = "https://testanchor.stellar.org/kyc" #todo: The server used for SEP-12 Anchor/Client customer info transfer
