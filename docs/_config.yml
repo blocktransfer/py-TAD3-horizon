@@ -4,7 +4,7 @@ description: >-
   Stellar interface for Block Transfer,
   a blockchain transfer agent for global financial markets.
 baseurl: ""
-url: "stellar.blocktransfer.io"
+url: "e-energy.ir"
 twitter_username: blocktransfer
 github_username:  blocktransfer
 
@@ -12,7 +12,9 @@ github_username:  blocktransfer
 theme: minima
 plugins:
   - jekyll-feed
-
+include:
+  - .well-known
+  - _headers
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
