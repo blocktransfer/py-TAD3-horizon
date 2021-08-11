@@ -1,0 +1,79 @@
+# Block Transfer <blocktransfer.io>
+# Patented per US 63/156,267. See whitepaper.blocktransfer.io for latest IP.
+# You cannot mimic our blockchain transfer agent protocol.
+
+VERSION = "4.2.1"
+NETWORK_PASSPHRASE = "Public Global Stellar Network ; September 2015"
+FEDERATION_SERVER = "https://stellarid.io/fedelayoutration/"
+TRANSFER_SERVER = "https://api.blocktransfer.io/transfer" #todo: The server used for SEP-6 Anchor/Client interoperability
+TRANSFER_SERVER_SEP0024 = "https://stellar.blocktransfer.io/transfer/" #todo: The server used for SEP-24 Anchor/Client interoperability
+KYC_SERVER = "https://testanchor.stellar.org/kyc" #todo: The server used for SEP-12 Anchor/Client customer info transfer
+WEB_AUTH_ENDPOINT="https://api.anchorusd.com/webauth" #todo: The endpoint used for SEP-10 Web Authentication
+SIGNING_KEY = "" #todo: The signing key is used for SEP-10 Authentication Protocol
+ACCOUNTS = [ "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7,
+GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6" ] # Issuer, Distributor
+URI_REQUEST_SIGNING_KEY = "" #todo: The signing key is used for SEP-7 delegated signing
+DIRECT_PAYMENT_SERVER	= "https://" #todo: The server used for receiving SEP-31 direct fiat-to-fiat payments. Requires SEP-12 and hence a KYC_SERVER TOML attribute.
+ANCHOR_QUOTE_SERVER = "https://" #todo: The server used for receiving SEP-38 requests.
+
+[DOCUMENTATION]
+ORG_NAME = "BlockTrans Syndicate"
+ORG_DBA = "Block Transfer"
+ORG_URL = "https://www.blocktransfer.io"
+ORG_LOGO = "https://www.blocktransfer.io/hosted/images/83/7373741bf2415b93aaf274faa023ec/BT-Circle_Cut.png" # todo: inline w. stellar assets
+ORG_DESCRIPTION = "A decentralized stock transfer agent protocol for global financial markets."
+ORG_PHYSICAL_ADDRESS = "Block Transfer is a remote-first company; finance should have no borders."
+ORG_PHONE_NUMBER = "(332) 237-6400"
+ORG_PHONE_NUMBER_ATTESTATION = "https://stellar.blocktransfer.io/" #URL w/ pdf of a phone bill showing both the phone number and your organization's name.
+ORG_KEYBASE = "blocktransfer"
+ORG_TWITTER = "blocktransfer"
+ORG_GITHUB = "blocktransfer"
+ORG_OFFICIAL_EMAIL = "stellar@blocktransfer.io"
+ORG_SUPPORT_EMAIL = "support@blocktransfer.io"
+ORG_LICENSING_AUTHORITY = "U.S. Securities and Exchange Commission"
+ORG_LICENSE_TYPE = "Central Index Key"
+ORG_LICENSE_NUMBER = "0001846058"
+
+[[PRINCIPALS]]
+name = "John Franklin Wooten, IV"
+email = "john@blocktransfer.io"
+keybase = "JFWooten4"
+telegram = "JFWooten4"
+twitter = "JFWooten4"
+github = "JFWooten4"
+id_photo_hash = "0dce43292a7dd2c6ef021cca9f84330ceeec34e8587172453bc2b05f1bd13edd"
+verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44f0b8e62ff48"
+
+[[CURRENCIES]]
+code = "DEMO"
+issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
+status = "live"
+display_decimals = 7
+name = "Example Security"
+desc = "This is an example stock used interally for product demos."
+conditions = "We do not issue or support paper certificates. See compliance docs.
+Anchor redemption equates to security transfer to any legacy central broker-dealer.
+INTERACTING WITH THIS ASSET BINDINGLY EQUATES TO IRREVOCABLE WRITTEN CONSENT TO
+BLOCKTRANS SYNDICATE'S TERMS OF SERVICE, PRIVACY POLICY, AND TRANSFER STANDARDS."
+image	= "https://www.blocktransfer.io/hosted/images/31/f73c177c5b4fa0aa6ad5eb25f3baea/demo.png"
+is_unlimited = true
+is_asset_anchored = false
+#anchor_asset_type = "stock"
+#anchor_asset = "CUSIP"
+attestation_of_reserve = "https://sec.report/CIK/0001846058" # -> EDGAR
+redemption_instructions = "Email anchor@blocktransfer.io with your public key."
+regulated = false
+
+#E.x. desc
+#"IT IS HEREBY SET FORTH BY BLOCKTRANS SYNDICATE THAT,
+#GIVEN THE LIVELIHOOD OF THIS ASSET AND BOUNDS OF SECURITIES LAW,
+#THIS IS THE OFFICIAL STOCK REGISTER FOR SOME COMPANY WIDGETS CO INC.
+#CLASS A COMMON STOCK, PAR $0.000001, CUSIP 55302P202, TICKER $WDGT."
+
+#[[VALIDATORS]]
+#ALIAS	= "bt1"
+#DISPLAY_NAME = "BT 1"
+#PUBLIC_KEY = "G..."
+#HOST = "validators.blocktransfer.io:port"
+#HISTORY = "https://validators.blocktransfer.io/live1/"
+#Coming soon
