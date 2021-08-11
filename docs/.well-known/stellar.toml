@@ -1,7 +1,3 @@
----
-content: text/toml
-permalink: /.well-known/stellar.toml/
----
 # Block Transfer <blocktransfer.io>
 # Patented per US 63/156,267. See whitepaper.blocktransfer.io for latest IP.
 # You cannot mimic our blockchain transfer agent protocol.
