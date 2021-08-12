@@ -11,4 +11,4 @@ Welcome video at http://devs.blocktransfer.io
 <h1>Developers:</h1>
 Next projects (submit a PR to contribute—thanks!)
 
-* CAP-42
+* Technical development help for Stellar [CAP-42](https://github.com/stellar/stellar-protocol/issues/1015)
