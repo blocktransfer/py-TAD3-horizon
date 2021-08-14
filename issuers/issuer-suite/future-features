@@ -11,3 +11,4 @@ Features to impliment:
 
 One effective way to do this is to fork a desktop wallet and then use issuer credentials to authenticate AES encrypted GET requests to an MSF.csv API. In progress
 July 12: Started dev in Figma and will post source here ASAP
+August 14: Functional prototype complete in Retool
