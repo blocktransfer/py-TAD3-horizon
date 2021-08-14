@@ -8,7 +8,7 @@ Welcome video at http://devs.blocktransfer.io
 
 </div>
 
-<h1>Developers:</h1>
-Next projects (submit a PR to contribute—thanks!)
+<h1>PRs/Devs:</h1>
+Todo:
 
 * Technical development help for Stellar [CAP-42](https://github.com/stellar/stellar-protocol/issues/1015)
