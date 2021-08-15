@@ -64,6 +64,8 @@ attestation_of_reserve = "https://sec.report/CIK/0001846058" # -> EDGAR
 redemption_instructions = "Email anchor@blocktransfer.io with your public key."
 regulated = false
 
+
+# [[CURRENCIES]]
 #E.x. desc
 #"IT IS HEREBY SET FORTH BY BLOCKTRANS SYNDICATE THAT,
 #GIVEN THE LIVELIHOOD OF THIS ASSET AND BOUNDS OF SECURITIES LAW,
