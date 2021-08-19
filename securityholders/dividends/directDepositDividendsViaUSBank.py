@@ -5,6 +5,7 @@
 
 import requests
 import json
+from datetime import datetime
 
 from pprint import pprint 
 
@@ -48,24 +49,13 @@ def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsC
     print(r.status_code, r.reason)
     pprint(r.json())
     
-    mergedDirectDividendsMSF = open('Card dividends distributed on {}.csv'.format(datetime.now().date()), 'a')
-    mergedDirectDividendsMSF.write('{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(shareholderDividend, lines[1], lines[2], lines[3], lines[4], '', '', lines[7], lines[8], lines[9], lines[10], lines[11], lines[12]))
+    mergedDirectDividendsMSF = open('Direct deposit dividends distributed on {}.csv'.format(datetime.now().date()), 'a')
+    mergedDirectDividendsMSF.write('{:.2f},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(shareholderDividend, lines[1], lines[2], lines[3], lines[4], '', '', '', '', '', lines[10], lines[11], lines[12], lines[13], lines[14], lines[15]))
     mergedDirectDividendsMSF.close()
     print( '*** {} compensated ${:.2f} for dividend of ${} per share via direct deposit ***\n'.format(lines[1], shareholderDividend, perShareDividend))
     divSum += shareholderDividend
     investorSum += 1
     break # testing: prevent MAX_CARDS
   print('\n*****\n\nTotal of ${:.2f} cash dividends direct deposited to {} securityholders\n\n*****\n'.format(divSum, investorSum))
-  
-#  rData = {
-#    'nickname': lines[1],
-#    'openBalance': perShareDividend
-#  }
-#  requests.post(USBankCoreBankingAPI + 'account/' + USBankAccountID + '/dda', headers = USBankAPIheaders, data = rData)
-#  rData = {
-#    'accountID': shareholderExternalAccountID,
-#    'memo':  '{} compensated ${:.2f} for USBank dividend of ${} per share on 8/20/21'.format(lines[1], shareholderDividend, perShareDividend)
-#  }
-#  requests.post(USbankBaseAPI + 'activity/memo',  headers = USBankAPIheaders, data = rData)
 
 directDepositDividendsViaUSBank('demoCashDividendsMSF.csv', .23)

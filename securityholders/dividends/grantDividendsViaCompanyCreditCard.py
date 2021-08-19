@@ -42,6 +42,13 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
       currentCardLimit = 0
     else:
       currentCardLimit = r.json()['vcard']['balances']['availableCredit']
+      print(currentCardLimit)
+      cardID = '936590187930'
+      # get used balance
+      print('Cancelling....')
+      r = requests.post(USBankCaaSAPI + 'vcards/' + cardID + '/cancel', headers = USBankAPIheaders)
+      pprint(r.json())
+      break
     cardholderName = HumanName(lines[1])
     # company ZIP code
     USBankAPIbody = {
@@ -55,8 +62,8 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
     'paymentAccountID': USBankAccountID,
     'comments': [
       {
-        'comment': lines[0],
-        'comment': 'Address: {}, {}{}, {} {}, {}'.format(lines[7], lines[8] + ', ' if lines[8] !='' else '', lines[9], lines[10], lines[11], lines[12])
+        'comment': lines[1],
+        'comment': '{}, {}{}, {} {}, {}'.format(lines[7], lines[8] + ', ' if lines[8] !='' else '', lines[9], lines[10], lines[11], lines[12])
       }
     ],
     'returnCVV': True
