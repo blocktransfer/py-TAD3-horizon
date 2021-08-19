@@ -14,7 +14,7 @@ USBankCoreBankingAPI = 'https://alpha-api.usbank.com/innovation/bank-node/custom
 USBankAPIkey = '6HKCcpr2jijlT0H1QfluoNZ6NutndJNA'
 USBankSecret = 'pS5I39aTLkuPDsJk'
 USBankAuthorization = 'Basic NkhLQ2NwcjJqaWpsVDBIMVFmbHVvTlo2TnV0bmRKTkE6cFM1STM5YVRMa3VQRHNKaw=='
-USBankCustomerID = '6053588662'
+USBankCustomerID = '6725987777'
 USBankAccountID = '947714798707'
 
 def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsCSV, perShareDividend):

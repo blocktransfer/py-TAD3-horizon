@@ -13,7 +13,7 @@ USBankCaaSAPI = 'https://alpha-api.usbank.com/innovation/bank-node/caas/v1/'
 USBankAPIkey = '6HKCcpr2jijlT0H1QfluoNZ6NutndJNA'
 USBankSecret = 'pS5I39aTLkuPDsJk'
 USBankAuthorization = 'Basic NkhLQ2NwcjJqaWpsVDBIMVFmbHVvTlo2TnV0bmRKTkE6cFM1STM5YVRMa3VQRHNKaw=='
-USBankCustomerID = '6053588662'
+USBankCompanyID = '6053588662'
 USBankAccountID = '947714798707'
 
 def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividendsCSV, perShareDividend):
@@ -44,15 +44,8 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
       currentCardLimit = r.json()['vcard']['balances']['availableCredit']
       currentCardBalance = r.json()['vcard']['balances']['currentBalance']
       transferCredit = currentCardLimit - currentCardBalance
-      print(transferCredit)
-      cardID = '936590187930'
-      # get used balance
-      print('Cancelling....')
-      r = requests.post(USBankCaaSAPI + 'vcards/' + cardID + '/close', headers = USBankAPIheaders)
-      pprint(r.json())
-      break
+      r = requests.post(USBankCaaSAPI + 'vcards/' + lines[9] + '/close', headers = {'Accept': 'application/json', 'Authorization': USBankAuthorization})
     cardholderName = HumanName(lines[1])
-    # company ZIP code
     USBankAPIbody = {
     'amount': float('{:.2f}'.format(transferCredit + shareholderDividend if shareholderDividend + transferCredit <= 50000 else 50000)),
     'cardInfo': {
