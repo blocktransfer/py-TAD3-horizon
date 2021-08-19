@@ -39,20 +39,22 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
     shareholderDividend = float(lines[0]) * perShareDividend
     r = requests.get(USBankCaaSAPI + 'vcards/' + lines[9] + '/details',  headers = {'Accept': 'application/json', 'Authorization': USBankAuthorization})
     if r.status_code == 400 or r.status_code == 404:
-      currentCardLimit = 0
+      transferCredit = 0
     else:
       currentCardLimit = r.json()['vcard']['balances']['availableCredit']
-      print(currentCardLimit)
+      currentCardBalance = r.json()['vcard']['balances']['currentBalance']
+      transferCredit = currentCardLimit - currentCardBalance
+      print(transferCredit)
       cardID = '936590187930'
       # get used balance
       print('Cancelling....')
-      r = requests.post(USBankCaaSAPI + 'vcards/' + cardID + '/cancel', headers = USBankAPIheaders)
+      r = requests.post(USBankCaaSAPI + 'vcards/' + cardID + '/close', headers = USBankAPIheaders)
       pprint(r.json())
       break
     cardholderName = HumanName(lines[1])
     # company ZIP code
     USBankAPIbody = {
-    'amount': float('{:.2f}'.format(currentCardLimit + shareholderDividend if shareholderDividend + currentCardLimit <= 50000 else 50000)),
+    'amount': float('{:.2f}'.format(transferCredit + shareholderDividend if shareholderDividend + transferCredit <= 50000 else 50000)),
     'cardInfo': {
       'firstName': cardholderName.first,
       'lastName': cardholderName.last,
@@ -80,7 +82,7 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
     mergedCardDividendsMSF = open('Card dividends distributed on {}.csv'.format(datetime.now().date()), 'a')
     mergedCardDividendsMSF.write('{:.2f},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(shareholderDividend, lines[1], lines[2], lines[3], lines[4], cardNum, cardCVV, cardExp, cardZip, cardID, lines[10], lines[11], lines[12], lines[13], lines[14], lines[15]))
     mergedCardDividendsMSF.close()
-    print('${:.2f} added to credit limit on {}\'s card for dividend of ${} per share\nTotal card limit: ${:.2f}***\n'.format(shareholderDividend, lines[1], perShareDividend, currentCardLimit + shareholderDividend))
+    print('${:.2f} added to credit limit on {}\'s card for dividend of ${} per share\nTotal card limit: ${:.2f}***\n'.format(shareholderDividend, lines[1], perShareDividend, transferCredit + shareholderDividend))
     divSum += shareholderDividend
     investorSum += 1
     break # testing: prevent MAX_CARDS
