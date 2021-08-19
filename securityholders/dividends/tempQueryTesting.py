@@ -11,7 +11,7 @@ USBankAPIkey = '6HKCcpr2jijlT0H1QfluoNZ6NutndJNA'
 USBankSecret = 'pS5I39aTLkuPDsJk'
 USBankAuthorization = 'Basic NkhLQ2NwcjJqaWpsVDBIMVFmbHVvTlo2TnV0bmRKTkE6cFM1STM5YVRMa3VQRHNKaw=='
 USBankCustomerID = '6053588662' # companyID
-realUSBankCustomerID = '6725987777'
+realUSBankCustomerID = '6700658872'
 USBankAccountID = '947714798707'
 
 USBankAPIheaders = {
@@ -43,7 +43,17 @@ print('')
 #pprint(USBankAPIheaders)
 
 print('Bank Account:')
-r = requests.get(USBankCoreBankingAPI + 'company/' + realUSBankCustomerID + '/accounts',  headers = {'Accept': 'application/json', 'Authorization': USBankAuthorization})
+r = requests.get(USBankCoreBankingAPI + 'customer/' + realUSBankCustomerID + '/accounts',  headers = {'Accept': 'application/json', 'Authorization': USBankAuthorization})
+pprint(r.json())
+print('2')
+
+jarvis = {
+  'nickname': 'Block Transfer Dividends Payable',
+  'accountType': 'DDA',
+  'openBalance': 25000
+}
+
+r = requests.post(USBankCoreBankingAPI + 'account/' + realUSBankCustomerID + '/dda',  headers = USBankAPIheaders, data = json.dumps(jarvis, indent=4))
 pprint(r.json())
 print('')
 

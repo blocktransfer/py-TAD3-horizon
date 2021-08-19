@@ -14,7 +14,8 @@ USBankCoreBankingAPI = 'https://alpha-api.usbank.com/innovation/bank-node/custom
 USBankAPIkey = '6HKCcpr2jijlT0H1QfluoNZ6NutndJNA'
 USBankSecret = 'pS5I39aTLkuPDsJk'
 USBankAuthorization = 'Basic NkhLQ2NwcjJqaWpsVDBIMVFmbHVvTlo2TnV0bmRKTkE6cFM1STM5YVRMa3VQRHNKaw=='
-USBankCustomerID = '6725987777'
+USBankCustomerID = '6700658872'
+BlockTransferDividendsPayableAccountNum = '936606647590'
 USBankAccountID = '947714798707'
 
 def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsCSV, perShareDividend):
@@ -32,7 +33,7 @@ def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsC
   divSum = 0
   investorSum = 0
   mergedDirectDividendsMSF = open('Direct deposit dividends distributed on {}.csv'.format(datetime.now().date()), 'a')
-  mergedDirectDividendsMSF.write('Dividends Paid,Registration,Email,Routing # Direct Deposit,Account # Direct Deposit,Card # Card Deposit,Card CVV Card Deposit,Address,Address Extra,City,State,Postal Code,Country\n')
+  mergedDirectDividendsMSF.write('Dividends Paid,Registration,Email,Routing # Direct Deposit,Account # Direct Deposit,Card # Card Deposit,Card CVV Card Deposit,Expiration Date Card Deposit,Billing Zip Card Deposit,For Internal Use: Card ID,Address,Address Extra,City,State,Postal Code,Country\n')
   mergedDirectDividendsMSF.close()
   for lines in readFile[1:]:
     lines = lines.split(',')
@@ -40,12 +41,12 @@ def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsC
     shareholderDividend = float(lines[0]) * perShareDividend
     USBankAPIbody = {
       'customerID': USBankCustomerID,
-      'accountID': USBankAccountID,
+      'accountID': BlockTransferDividendsPayableAccountNum,
       'routingNumber': lines[3],
       'externalAccountID': lines[4],
-      'amount': shareholderDividend if shareholderDividend <= 10000 else 10000
+      'amount': float('{:.2f}'.format(shareholderDividend if shareholderDividend <= 10000 else 10000))
     }
-    r = requests.post(USBankMoneyMovementSimAPI + 'activity/external-transfer',  headers = USBankAPIheaders, data = USBankAPIbody)
+    r = requests.post(USBankMoneyMovementSimAPI + 'activity/external-transfer',  headers = USBankAPIheaders, data = json.dumps(USBankAPIbody))
     print(r.status_code, r.reason)
     pprint(r.json())
     
@@ -58,4 +59,4 @@ def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsC
     break # testing: prevent MAX_CARDS
   print('\n*****\n\nTotal of ${:.2f} cash dividends direct deposited to {} securityholders\n\n*****\n'.format(divSum, investorSum))
 
-directDepositDividendsViaUSBank('demoCashDividendsMSF.csv', .23)
+directDepositDividendsViaUSBank('demoCashDividendsMSF.csv', .0000023)

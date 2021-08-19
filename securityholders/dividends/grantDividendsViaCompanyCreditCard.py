@@ -66,7 +66,7 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
     r = requests.post(USBankCaaSAPI + 'vcard',  headers = USBankAPIheaders, data = json.dumps(USBankAPIbody, indent=4))
     print(r.status_code, r.reason)
     pprint(r.json())
-    print('')
+    
     cardNum = r.json()['virtualCard']['number']
     cardCVV = r.json()['virtualCard']['CVV']
     cardExp = r.json()['virtualCard']['expirationDate']
