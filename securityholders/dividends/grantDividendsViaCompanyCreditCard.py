@@ -45,8 +45,7 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
       currentCardBalance = r.json()['vcard']['balances']['currentBalance']
       transferCredit = currentCardLimit - currentCardBalance
       r = requests.post(USBankCaaSAPI + 'vcards/' + lines[9] + '/close', headers = {'Accept': 'application/json', 'Authorization': USBankAuthorization})
-      print('Cancelling old card and transferring remaining ${:.2f}:'.format(transferCredit))
-      pprint('{} successfully'.format(r.json()['status']['details'][0]['attributeName']))
+      print('{}. Transferring remaining ${:.2f}:'.format(r.json()['status']['details'][0]['attributeName'], transferCredit))
     cardholderName = HumanName(lines[1])
     USBankAPIbody = {
     'amount': float('{:.2f}'.format(transferCredit + shareholderDividend if shareholderDividend + transferCredit <= 50000 else 50000)),
@@ -66,9 +65,6 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
     'returnCVV': True
     }
     r = requests.post(USBankCaaSAPI + 'vcard',  headers = USBankAPIheaders, data = json.dumps(USBankAPIbody, indent=4))
-    print('Issuing new card:')
-    pprint(r.json()['virtualCard'])
-    
     cardNum = r.json()['virtualCard']['number']
     cardCVV = r.json()['virtualCard']['CVV']
     cardExp = r.json()['virtualCard']['expirationDate']
@@ -77,10 +73,9 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
     mergedCardDividendsMSF = open('Card dividends distributed on {}.csv'.format(datetime.now().date()), 'a')
     mergedCardDividendsMSF.write('{:.2f},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(shareholderDividend, lines[1], lines[2], lines[3], lines[4], cardNum, cardCVV, cardExp, cardZip, cardID, lines[10], lines[11], lines[12], lines[13], lines[14], lines[15]))
     mergedCardDividendsMSF.close()
-    print('${:.2f} added to credit limit on {}\'s card for dividend of ${} per share\nTotal card limit: ${:.2f}***\n'.format(shareholderDividend, lines[1], perShareDividend, transferCredit + shareholderDividend))
+    print('Card ID {} created for {} with {:.2f} from dividends of ${} per share\nTotal card limit: ${:.2f}\n***\n'.format(cardID, lines[1], shareholderDividend, perShareDividend, transferCredit + shareholderDividend))
     divSum += shareholderDividend
     investorSum += 1
-    break # testing: prevent MAX_CARDS
   print('\n*****\n\nTotal of ${:.2f} cash dividends direct deposited to {} securityholders\n\n*****\n'.format(divSum, investorSum))
 
 grantDividendsViaCompanyCreditCard('demoCashDividendsMSF.csv', .23)
