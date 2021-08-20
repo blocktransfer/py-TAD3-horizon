@@ -7,8 +7,6 @@ from datetime import datetime
 from datetime import timedelta
 from nameparser import HumanName
 
-from pprint import pprint
-
 USBankCaaSAPI = 'https://alpha-api.usbank.com/innovation/bank-node/caas/v1/'
 USBankAPIkey = '6HKCcpr2jijlT0H1QfluoNZ6NutndJNA'
 USBankSecret = 'pS5I39aTLkuPDsJk'
