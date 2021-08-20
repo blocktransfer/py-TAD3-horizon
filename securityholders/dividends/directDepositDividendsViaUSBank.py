@@ -7,8 +7,6 @@ import requests
 import json
 from datetime import datetime
 
-from pprint import pprint 
-
 USBankMoneyMovementSimAPI = 'https://alpha-api.usbank.com/innovation/bank-node/money-movement/v1/'
 USBankCoreBankingAPI = 'https://alpha-api.usbank.com/innovation/bank-node/customer-accounts/v1/'
 USBankAPIkey = '6HKCcpr2jijlT0H1QfluoNZ6NutndJNA'
@@ -29,7 +27,7 @@ def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsC
   readFile = readFile.strip()
   readFile = readFile.split('\n')
   inFile.close()
-  print('*****\nDistributing dividend of $' + str(perShareDividend) + ' per share\n*****\n')
+  print('*****\n\nDistributing dividend of $' + str(perShareDividend) + ' per share\n\n*****\n')
   divSum = 0
   investorSum = 0
   mergedDirectDividendsMSF = open('Direct deposit dividends distributed on {}.csv'.format(datetime.now().date()), 'a')
@@ -40,23 +38,21 @@ def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsC
     if lines[5] != '': continue
     shareholderDividend = float(lines[0]) * perShareDividend
     USBankAPIbody = {
-      'customerID': USBankCustomerID,
       'accountID': BlockTransferDividendsPayableAccountNum,
-      'routingNumber': lines[3],
-      'externalAccountID': lines[4],
-      'amount': float('{:.2f}'.format(shareholderDividend if shareholderDividend <= 10000 else 10000))
+      'amount': float('{:.2f}'.format(shareholderDividend if shareholderDividend <= 10000 else 10000)),
+      'party': lines[1].replace('&', 'and').replace(',', '').replace('.', '').replace('-', ' ')
     }
-    r = requests.post(USBankMoneyMovementSimAPI + 'activity/external-transfer',  headers = USBankAPIheaders, data = json.dumps(USBankAPIbody))
-    print(r.status_code, r.reason)
-    pprint(r.json())
-    
+    if USBankAPIbody['amount'] <= 0.00: continue
+    r = requests.post(USBankMoneyMovementSimAPI + 'activity/withdrawal',  headers = USBankAPIheaders, data = json.dumps(USBankAPIbody))
+    try: transactionID = r.json()['transactionID']
+    except: continue
     mergedDirectDividendsMSF = open('Direct deposit dividends distributed on {}.csv'.format(datetime.now().date()), 'a')
-    mergedDirectDividendsMSF.write('{:.2f},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(shareholderDividend, lines[1], lines[2], lines[3], lines[4], '', '', '', '', '', lines[10], lines[11], lines[12], lines[13], lines[14], lines[15]))
+    mergedDirectDividendsMSF.write('{:.2f},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(shareholderDividend, lines[1], lines[2], lines[3], lines[4], '', '', '', '', '', lines[10], lines[11], lines[12], lines[13], lines[14], lines[15]))
     mergedDirectDividendsMSF.close()
-    print( '*** {} compensated ${:.2f} for dividend of ${} per share via direct deposit ***\n'.format(lines[1], shareholderDividend, perShareDividend))
+    print( '*** {} compensated ${:.2f} via dividend withdrawal #{} ***\n'.format(lines[1], shareholderDividend, transactionID))
     divSum += shareholderDividend
     investorSum += 1
-    break # testing: prevent MAX_CARDS
+    #break # testing: prevent MAX_CARDS
   print('\n*****\n\nTotal of ${:.2f} cash dividends direct deposited to {} securityholders\n\n*****\n'.format(divSum, investorSum))
 
-directDepositDividendsViaUSBank('demoCashDividendsMSF.csv', .0000023)
+directDepositDividendsViaUSBank('demoCashDividendsMSF.csv', .0023)

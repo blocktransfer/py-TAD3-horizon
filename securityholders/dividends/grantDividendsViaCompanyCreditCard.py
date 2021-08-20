@@ -45,6 +45,8 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
       currentCardBalance = r.json()['vcard']['balances']['currentBalance']
       transferCredit = currentCardLimit - currentCardBalance
       r = requests.post(USBankCaaSAPI + 'vcards/' + lines[9] + '/close', headers = {'Accept': 'application/json', 'Authorization': USBankAuthorization})
+      print('Cancelling old card and transferring remaining ${:.2f}:'.format(transferCredit))
+      pprint('{} successfully'.format(r.json()['status']['details'][0]['attributeName']))
     cardholderName = HumanName(lines[1])
     USBankAPIbody = {
     'amount': float('{:.2f}'.format(transferCredit + shareholderDividend if shareholderDividend + transferCredit <= 50000 else 50000)),
@@ -58,14 +60,14 @@ def grantDividendsViaCompanyCreditCard(recordDateShareholdersOptedForCashDividen
     'comments': [
       {
         'comment': lines[1],
-        'comment': '{}, {}{}, {} {}, {}'.format(lines[7], lines[8] + ', ' if lines[8] !='' else '', lines[9], lines[10], lines[11], lines[12])
+        'comment': '{}, {}{}, {} {}, {}'.format(lines[7], lines[8] + ', ' if lines[8] !='' else '', lines[12], lines[13], lines[14], lines[15])
       }
     ],
     'returnCVV': True
     }
     r = requests.post(USBankCaaSAPI + 'vcard',  headers = USBankAPIheaders, data = json.dumps(USBankAPIbody, indent=4))
-    print(r.status_code, r.reason)
-    pprint(r.json())
+    print('Issuing new card:')
+    pprint(r.json()['virtualCard'])
     
     cardNum = r.json()['virtualCard']['number']
     cardCVV = r.json()['virtualCard']['CVV']
