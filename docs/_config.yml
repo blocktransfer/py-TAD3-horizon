@@ -4,7 +4,7 @@ description: >-
   Stellar interface for Block Transfer,
   a blockchain transfer agent for global financial markets.
 baseurl: ""
-url: "stellar.blocktransfer.io"
+url: "us.blocktransfer.io"
 twitter_username: blocktransfer
 github_username:  blocktransfer
 
