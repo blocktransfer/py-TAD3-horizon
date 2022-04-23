@@ -48,7 +48,7 @@ is_asset_anchored = false
 #anchor_asset_type = "stock"
 #anchor_asset = "CUSIP/ISIN-011531"
 attestation_of_reserve = "https://www.sec.gov/edgar/browse/?CIK=1846058"
-redemption_instructions = "Transfer your shares to cede*stellar.blocktransfer.io and initiate a transfer request from your legacy broker."
+redemption_instructions = "Transfer your shares to cede*blocktransfer.io and initiate a transfer request from your legacy broker."
 regulated = false
 
 
