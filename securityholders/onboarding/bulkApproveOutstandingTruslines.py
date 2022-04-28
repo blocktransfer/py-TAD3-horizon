@@ -8,18 +8,22 @@ identityMappingCSV = "" # todo: make a style for a master identity ledger... sto
 # that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
 HorizonInstance = "horizon.stellar.org"
 minFeePerOp = .00001 # is there a get call for 100 stoops? in case minBaseFee changes one day 
+maxNumOpsPerTxn = 100
 
-def bulkApproveTruslines():
+def getKnownAddressesFromIdentityMappingCSV(inputCSV):
+  KYC_known = fopen(inputCSV)
+  KYC_known.readline()
+  i = -1
+  while(KYC_known and i++):
+    KYC_known = KYC_known.readline()
+    all_verified_addresses[i] = inputCSV.split(',')[0]
+
+def bulkApproveOutstandingTruslines():
   r = "https://" + HorizonInstance + "..."
   data = r.json()
   bulkTxnXDR = ""
   
-  KYC_known = fopen(identityMappingCSV) ... 
-  KYC_known.readline()
-  i = -1
-  while(KYC_known and i++):
-    inputCSV = KYC_known.readline()
-    all_verified_addresses[i] = inputCSV.split(',')[0]
+  KYC_known = getKnownAddressesFromIdentityMappingCSV(identityMappingCSV)
   
   trustlinesToPotentiallyApproveWithAsset = {}
   pendingTrustline = data[...]
@@ -38,16 +42,18 @@ def bulkApproveTruslines():
   # search over approved securitholder list + address mappping
   shareholder = data[...]
   
+  i = 0
   for potentialAddress, potentialAsset in trustlinesToPotentiallyApproveWithAsset:
-    if(public_address in all_verified_addresses):
+    if(public_address in all_verified_addresses and i < maxNumOpsPerTxn):
       trustline_approval = stellar.AuthorizeTrust(public_address, ...)
       bulkTxnXDR.append(trustline_approval) #does bulkTxnXDR need to be a list or what? 
+      i++
     
     
   
   # generate bulk approval txn XDR
   
   
-  # sign and export to output.txt
+  # sign and export to [date, time in standard]-signedXDR-machineID-(error checking?).txt
   
   
