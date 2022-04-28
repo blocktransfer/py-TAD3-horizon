@@ -48,11 +48,12 @@ def approveTrustlinesFromAddressAssetDict(addressesWithAssetsDict):
   bulkTxnXDR = ""
   for address, asset in addressesWithAssetsDict:
     bulkTxnXDR.append(stellar.AuthorizeTrust(potentialAddress, ...)) # todo
-  return bulkTxnXDR[:maxNumOpsPerTxn]
+  return bulkTxnXDR[:maxNumOpsPerTxn] # todo: edge case test with >100 unique trustlines pending
 
 def signBulkTrustlineApprovals(bulkTxnXDR):
   
   # todo: create the txn envelope and basically make this work 
+  fee = len(bulkTxnXDR) * minFeePerOp
   
   return stellar.SignTxn(bulkTxnXDR, secretKey ...)
 
