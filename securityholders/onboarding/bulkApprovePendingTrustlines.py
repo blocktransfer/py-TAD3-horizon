@@ -46,13 +46,9 @@ def verifyAddressesWithAssetDict(addressesWithAssetsDict):
 
 def approveTrustlinesFromAddressAssetDict(addressesWithAssetsDict):
   bulkTxnXDR = ""
-  i = 0
   for address, asset in addressesWithAssetsDict:
-    if(i >= maxNumOpsPerTxn):
-      break
     bulkTxnXDR.append(stellar.AuthorizeTrust(potentialAddress, ...)) # todo
-    i++
-  return bulkTxnXDR
+  return bulkTxnXDR[:maxNumOpsPerTxn]
 
 def signBulkTrustlineApprovals(bulkTxnXDR):
   
