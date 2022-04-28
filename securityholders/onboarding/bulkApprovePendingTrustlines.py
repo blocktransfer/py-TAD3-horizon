@@ -1,4 +1,4 @@
-from stellar_sdk import Server, TransactionBuilder
+from stellar_sdk import Asset, Server, TransactionBuilder
 from datetime import datetime
 import requests
 import json
@@ -10,19 +10,26 @@ identityMappingCSV = "" # todo: make a style for a master identity ledger... sto
 HorizonInstance = "horizon.stellar.org"
 minFeeInStroops = 100 # is there a get call for 100 stoops? in case minBaseFee changes one day 
 maxNumOpsPerTxn = 100
-BT_issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" # check for consistency for this field against other scripts
+BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" # check for consistency for this field against other scripts
 
 def getAllPendingTrustlinesWithAsset():
-  r = "https://" + HorizonInstance + "..." + BT_issuer + "..."
+  r = "https://" + HorizonInstance + "..." + BT_ISSUER + "..."
   data = r.json()
   
   allPendingTrustlines = {}
   pendingTrustline = data[...]
   while(pendingTrustline):
     potentialAddress = pendingTrustline[...]
+    # ditto 
+    
     potentialAsset = pendingTrustline[...]
+    # this needs to format potentialAsset correctly for later
+    len(asset > 4) ? ASSET_TYPE_CREDIT_ALPHANUM12 : ASSET_TYPE_CREDIT_ALPHANUM4
+    credit_alphanum4_asset = Asset("USDC", BT_ISSUER)
+    credit_alphanum12_asset = Asset("BANANA", BT_ISSUER)
+    
     allPendingTrustlines[potentialAddress] = potentialAsset
-    r = "https://" + HorizonInstance + "..." + BT_issuer + "..." -> next
+    r = "https://" + HorizonInstance + "..." + BT_ISSUER + "..." -> next
     data = r.json()
     pendingTrustline = data[...]
   return allPendingTrustlines
@@ -46,18 +53,19 @@ def verifyAddressesWithAssetDict(addressesWithAssetsDict):
 
 def signBulkTrustlineApprovals(addressesWithAssetsDict):
   server = Server(horizon_url= "https://" + HorizonInstance)
-  issuer = server.load_account(account = BT_issuer)
-  
+  issuer = server.load_account(account = BT_ISSUER)
   transaction = TransactionBuilder(
     source_account = issuer,
     network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
     base_fee = minFeeInStroops,
   )
   for address, asset in addressesWithAssetsDict:
-    .append_payment_op(
-        destination="GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-        amount="2000",
-        asset=Asset.native(),
+    .append_set_trust_line_flags_op(
+        trustor = address,
+        asset = asset,
+
+        set_flags = 1
+        
     )
 
   transaction = transaction.add_text_memo("Approve trustline verified by KYC")
