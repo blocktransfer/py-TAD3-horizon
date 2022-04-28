@@ -65,7 +65,7 @@ def exportTrustlineApprovalXDR(bulkRawTrustlineApprovalXDR):
     output = fopen(dateTime + "-signedApprovePendingTrustlineXDR", "w")
     output.write(bulkRawTrustlineApprovalXDR)
 
-def bulkApprovePendingTruslines():
+def bulkApprovePendingTrustlines():
   pendingAddressesWithAssetsDict = getAllPendingTrustlinesWithAsset()
   verifiedAddressesWithAssetsDict = verifyAddressesWithAssetDict(pendingAddressesWithAssetsDict)
   bulkRawTrustlineApprovalXDR = approveTrustlinesFromAddressAssetDict(verifiedAddressesWithAssetDict)
