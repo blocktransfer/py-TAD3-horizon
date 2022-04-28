@@ -32,7 +32,7 @@ def getKnownAddressesFromIdentityMappingCSV(inputCSV):
   identityMapping = fopen(inputCSV, "r")
   identityMapping.readline()
   while(identityMapping.readline()):
-    allVerifiedAddresses[].append(identityMapping.readline().split(',')[0])
+    allVerifiedAddresses.append(identityMapping.readline().split(',')[0])
   return allVerifiedAddresses
 
 def verifyAddressesWithAssetDict(addressesWithAssetsDict):
