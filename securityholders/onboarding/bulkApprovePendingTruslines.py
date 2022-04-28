@@ -11,16 +11,6 @@ minFeePerOp = .00001 # is there a get call for 100 stoops? in case minBaseFee ch
 maxNumOpsPerTxn = 100
 BT_issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" # check for consistency for this field against other scripts
 
-def getKnownAddressesFromIdentityMappingCSV(inputCSV):
-  KYC_known = fopen(inputCSV)
-  KYC_known.readline()
-  all_verified_addresses[] = ""
-  i = -1
-  while(KYC_known and i++):
-    KYC_known = KYC_known.readline()
-    all_verified_addresses[i] = inputCSV.split(',')[0]
-  return all_verified_addresses
-
 def getAllPendingTrustlinesWithAsset():
   r = "https://" + HorizonInstance + "..." + BT_issuer + "..."
   data = r.json()
@@ -36,29 +26,40 @@ def getAllPendingTrustlinesWithAsset():
     pendingTrustline = data[...]
   return allPendingTrustlines
 
-def bulkApproveOutstandingTruslines():
-  
-  bulkTxnXDR = ""
-  
-  KYC_known = getKnownAddressesFromIdentityMappingCSV(identityMappingCSV)
-  pendingTrustlinesAndAsset = getAllPendingTrustlinesWithAsset()
-  
-  
-  
-  verifiedTrustlinesToApproveWithAsset = {}
-  # search over approved securitholder list + address mappping
-  shareholder = data[...]
-  
+def getKnownAddressesFromIdentityMappingCSV(inputCSV):
+  allVerifiedAddresses[] = ""
+  identityMapping = fopen(inputCSV)
+  identityMapping.readline()
+  i = -1
+  while(identityMapping and i++):
+    allVerifiedAddresses[i] = identityMapping.readline().split(',')[0]
+  return allVerifiedAddresses
+
+def verifyAddressesWithAssetDict(addressesWithAssetsDict):
+  allKnownShareholderAddressesList = getKnownAddressesFromIdentityMappingCSV(identityMappingCSV)
+  verifiedAddressesWithAssetDict = {}
   i = 0
-  for potentialAddress, potentialAsset in trustlinesToPotentiallyApproveWithAsset:
-    if(public_address in all_verified_addresses and i < maxNumOpsPerTxn):
-      trustline_approval = stellar.AuthorizeTrust(public_address, ...)
-      bulkTxnXDR.append(trustline_approval) #does bulkTxnXDR need to be a list or what? 
-      i++
-    
-    
+  for potentialAddress, potentialAsset in addressesWithAssetsDict:
+    if(potentialAddress in allKnownShareholderAddressesList):
+      verifiedAddressesWithAssetDict[potentialAddress] = potentialAsset
+  return verifiedAddressesWithAssetDict
+
+def approveTrustlinesFromAddressAssetDict(addressesWithAssetsDict):
+  bulkTxnXDR = ""
+  i = 0
+  for address, asset in addressesWithAssetsDict:
+    if(i >= maxNumOpsPerTxn):
+      break
+    bulkTxnXDR.append(stellar.AuthorizeTrust(potentialAddress, ...)) # todo
+    i++
+  return bulkTxnXDR
   
-  # generate bulk approval txn XDR
+def bulkApprovePendingTruslines():
+  pendingAddressesWithAssetsDict = getAllPendingTrustlinesWithAsset()
+  verifiedAddressesWithAssetsDict = verifyAddressesWithAssetDict(pendingAddressesWithAssetsDict)
+  bulkTxnXDR = approveTrustlinesFromAddressAssetDict(verifiedAddressesWithAssetDict)
+  #does bulkTxnXDR need to be a list or what? 
+  
   
   
   # sign and export to [date, time in standard]-signedXDR-machineID-(error checking?).txt
