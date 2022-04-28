@@ -1,4 +1,5 @@
-import stellar ... 
+from stellar import stellar ... 
+from datetime import datetime
 import requests
 import json
 
@@ -30,9 +31,8 @@ def getKnownAddressesFromIdentityMappingCSV(inputCSV):
   allVerifiedAddresses[] = ""
   identityMapping = fopen(inputCSV, "r")
   identityMapping.readline()
-  i = -1
-  while(identityMapping and i++):
-    allVerifiedAddresses[i] = identityMapping.readline().split(',')[0]
+  while(identityMapping.readline()):
+    allVerifiedAddresses[].append(identityMapping.readline().split(',')[0])
   return allVerifiedAddresses
 
 def verifyAddressesWithAssetDict(addressesWithAssetsDict):
@@ -61,8 +61,7 @@ def signBulkTrustlineApprovals(bulkTxnXDR):
   return stellar.SignTxn(bulkTxnXDR, secretKey ...)
 
 def exportTrustlineApprovalXDR(bulkRawTrustlineApprovalXDR):
-    dateTime = datetime.get() # todo import properly
-    output = fopen(dateTime + "-signedApprovePendingTrustlineXDR", "w")
+    output = fopen(datetime.now() + " signedApprovePendingTrustlineXDR", "w")
     output.write(bulkRawTrustlineApprovalXDR)
 
 def bulkApprovePendingTrustlines():
