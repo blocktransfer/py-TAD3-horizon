@@ -48,6 +48,6 @@ def bulkApproveTruslines():
   # generate bulk approval txn XDR
   
   
-  # sign and export to output.txt or (if poss.) just submit to network with minFee
+  # sign and export to output.txt
   
   
