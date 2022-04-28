@@ -28,7 +28,7 @@ def getAllPendingTrustlinesWithAsset():
 
 def getKnownAddressesFromIdentityMappingCSV(inputCSV):
   allVerifiedAddresses[] = ""
-  identityMapping = fopen(inputCSV)
+  identityMapping = fopen(inputCSV, "r")
   identityMapping.readline()
   i = -1
   while(identityMapping and i++):
@@ -62,7 +62,8 @@ def signBulkTrustlineApprovals(bulkTxnXDR):
 
 def exportTrustlineApprovalXDR(bulkRawTrustlineApprovalXDR):
     dateTime = datetime.get() # todo import properly
-    dateTime in standard]-signedXDR-machineID-(error checking?).txt
+    output = fopen(dateTime + "-signedApprovePendingTrustlineXDR", "w")
+    output.write(bulkRawTrustlineApprovalXDR)
 
 def bulkApprovePendingTruslines():
   pendingAddressesWithAssetsDict = getAllPendingTrustlinesWithAsset()
