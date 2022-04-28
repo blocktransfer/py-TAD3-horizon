@@ -2,7 +2,7 @@ import stellar ...
 import requests
 import json
 
-SecretKey = "ABCD..." # Admin temporary 1-weight signers... execute on offline airgapped sys... then remove from Issuer 
+secretKey = "ABCD..." # Admin temporary 1-weight signers... execute on offline airgapped sys... then remove from Issuer 
 
 identityMappingCSV = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
 # that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
@@ -53,15 +53,22 @@ def approveTrustlinesFromAddressAssetDict(addressesWithAssetsDict):
     bulkTxnXDR.append(stellar.AuthorizeTrust(potentialAddress, ...)) # todo
     i++
   return bulkTxnXDR
+
+def signBulkTrustlineApprovals(bulkTxnXDR):
   
+  # todo: create the txn envelope and basically make this work 
+  
+  return stellar.SignTxn(bulkTxnXDR, secretKey ...)
+
+def exportTrustlineApprovalXDR(bulkRawTrustlineApprovalXDR):
+    dateTime = datetime.get() # todo import properly
+    dateTime in standard]-signedXDR-machineID-(error checking?).txt
+
 def bulkApprovePendingTruslines():
   pendingAddressesWithAssetsDict = getAllPendingTrustlinesWithAsset()
   verifiedAddressesWithAssetsDict = verifyAddressesWithAssetDict(pendingAddressesWithAssetsDict)
-  bulkTxnXDR = approveTrustlinesFromAddressAssetDict(verifiedAddressesWithAssetDict)
+  bulkRawTrustlineApprovalXDR = approveTrustlinesFromAddressAssetDict(verifiedAddressesWithAssetDict)
   #does bulkTxnXDR need to be a list or what? 
-  
-  
-  
-  # sign and export to [date, time in standard]-signedXDR-machineID-(error checking?).txt
-  
-  
+  signedTrustlineApprovalXDR = signBulkTrustlineApprovals(bulkRawTrustlineApprovalXDR)
+  exportTrustlineApprovalXDR(signedTrustlineApprovalXDR)
+
