@@ -30,7 +30,7 @@ def bulkApproveTruslines():
     
     r = "https://" + HorizonInstance + "..." # this might need to be newR 
     data = r.json() # ditto 
-    shareholder = data[...]
+    pendingTrustline = data[...]
 
   ...
   
