@@ -37,27 +37,17 @@ def bulkApproveTruslines():
   verifiedTrustlinesToApproveWithAsset = {}
   # search over approved securitholder list + address mappping
   shareholder = data[...]
-  while(shareholder):
-    do...
-    
-    
-    public_address = shareholder[...]
+  
+  for potentialAddress, potentialAsset in trustlinesToPotentiallyApproveWithAsset:
     if(public_address in all_verified_addresses):
-      #make trustlines approval
       trustline_approval = stellar.AuthorizeTrust(public_address, ...)
       bulkTxnXDR.append(trustline_approval) #does bulkTxnXDR need to be a list or what? 
     
     
-    data = r.json()
-    shareholder = data[...]
-  
-  # check for outsnanding trustlines requests
-  
-  
-  # reconcile against known appproved identities
-  
   
   # generate bulk approval txn XDR
   
   
   # sign and export to output.txt or (if poss.) just submit to network with minFee
+  
+  
