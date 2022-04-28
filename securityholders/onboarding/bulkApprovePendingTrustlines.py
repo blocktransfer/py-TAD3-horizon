@@ -22,13 +22,13 @@ def getAllPendingTrustlinesWithAsset():
     potentialAddress = pendingTrustline[...]
     # ditto 
     
-    potentialAsset = pendingTrustline[...]
+    asset = pendingTrustline[...]
     # this needs to format potentialAsset correctly for later
-    len(asset > 4) ? ASSET_TYPE_CREDIT_ALPHANUM12 : ASSET_TYPE_CREDIT_ALPHANUM4
+    len(asset) > 4 ? ASSET_TYPE_CREDIT_ALPHANUM12 : ASSET_TYPE_CREDIT_ALPHANUM4
     credit_alphanum4_asset = Asset("USDC", BT_ISSUER)
     credit_alphanum12_asset = Asset("BANANA", BT_ISSUER)
     
-    allPendingTrustlines[potentialAddress] = potentialAsset
+    allPendingTrustlines[potentialAddress] = asset
     r = "https://" + HorizonInstance + "..." + BT_ISSUER + "..." -> next
     data = r.json()
     pendingTrustline = data[...]
