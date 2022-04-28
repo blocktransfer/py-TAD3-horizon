@@ -1,4 +1,4 @@
-from stellar import stellar ... 
+from stellar_sdk import Server, TransactionBuilder
 from datetime import datetime
 import requests
 import json
@@ -8,7 +8,7 @@ secretKey = "ABCD..." # Admin temporary 1-weight signers... execute on offline a
 identityMappingCSV = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
 # that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
 HorizonInstance = "horizon.stellar.org"
-minFeePerOp = .00001 # is there a get call for 100 stoops? in case minBaseFee changes one day 
+minFeeInStroops = 100 # is there a get call for 100 stoops? in case minBaseFee changes one day 
 maxNumOpsPerTxn = 100
 BT_issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" # check for consistency for this field against other scripts
 
@@ -40,32 +40,41 @@ def verifyAddressesWithAssetDict(addressesWithAssetsDict):
   verifiedAddressesWithAssetDict = {}
   i = 0
   for potentialAddress, potentialAsset in addressesWithAssetsDict:
-    if(potentialAddress in allKnownShareholderAddressesList):
+    if(potentialAddress in allKnownShareholderAddressesList and ++i < maxNumOpsPerTxn):
       verifiedAddressesWithAssetDict[potentialAddress] = potentialAsset
   return verifiedAddressesWithAssetDict
 
-def approveTrustlinesFromAddressAssetDict(addressesWithAssetsDict):
-  bulkTxnXDR = ""
+def signBulkTrustlineApprovals(addressesWithAssetsDict):
+  server = Server(horizon_url= "https://" + HorizonInstance)
+  issuer = server.load_account(account = BT_issuer)
+  
+  transaction = TransactionBuilder(
+    source_account = issuer,
+    network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
+    base_fee = minFeeInStroops,
+  )
   for address, asset in addressesWithAssetsDict:
-    bulkTxnXDR.append(stellar.AuthorizeTrust(potentialAddress, ...)) # todo
-  return bulkTxnXDR[:maxNumOpsPerTxn] # todo: edge case test with >100 unique trustlines pending
+    .append_payment_op(
+        destination="GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
+        amount="2000",
+        asset=Asset.native(),
+    )
 
-def signBulkTrustlineApprovals(bulkTxnXDR):
+  transaction = transaction.add_text_memo("Approve trustline verified by KYC")
+  transaction = transaction.set_timeout(3600).build()
   
-  # todo: create the txn envelope and basically make this work 
-  fee = len(bulkTxnXDR) * minFeePerOp
+  .sign()
   
-  return stellar.SignTxn(bulkTxnXDR, secretKey ...)
+  return transaction
 
-def exportTrustlineApprovalXDR(bulkRawTrustlineApprovalXDR):
+def exportTrustlineApprovalTransaction(bulkTxnXDR):
     output = fopen(datetime.now() + " signedApprovePendingTrustlineXDR", "w")
-    output.write(bulkRawTrustlineApprovalXDR)
+    output.write(bulkTxnXDR)
+    output.close()
 
 def bulkApprovePendingTrustlines():
   pendingAddressesWithAssetsDict = getAllPendingTrustlinesWithAsset()
   verifiedAddressesWithAssetsDict = verifyAddressesWithAssetDict(pendingAddressesWithAssetsDict)
-  bulkRawTrustlineApprovalXDR = approveTrustlinesFromAddressAssetDict(verifiedAddressesWithAssetDict)
-  #does bulkTxnXDR need to be a list or what? 
-  signedTrustlineApprovalXDR = signBulkTrustlineApprovals(bulkRawTrustlineApprovalXDR)
-  exportTrustlineApprovalXDR(signedTrustlineApprovalXDR)
+  signedTrustlineApprovalXDR = signBulkTrustlineApprovalsFromAddressAssetDict(verifiedAddressesWithAssetDict)
+  exportTrustlineApprovalTransaction(signedTrustlineApprovalXDR)
 
