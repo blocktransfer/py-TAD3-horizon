@@ -4,14 +4,11 @@
 VERSION = "4.2.1"
 NETWORK_PASSPHRASE = "Public Global Stellar Network ; September 2015"
 FEDERATION_SERVER = "https://stellarid.io/federation/"
-#TRANSFER_SERVER = "https://api.blocktransfer.io/transfer" #todo: The server used for SEP-6 Anchor/Client interoperability
-#TRANSFER_SERVER_SEP0024 = "https://stellar.blocktransfer.io/transfer/" #todo: The server used for SEP-24 Anchor/Client interoperability
 #KYC_SERVER = "https://testanchor.stellar.org/kyc" #todo: The server used for SEP-12 Anchor/Client customer info transfer
 #WEB_AUTH_ENDPOINT="https://api.anchorusd.com/webauth" #todo: The endpoint used for SEP-10 Web Authentication
 #SIGNING_KEY = "" #todo: The signing key is used for SEP-10 Authentication Protocol
 ACCOUNTS = ["GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7, GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"] # Issuer, Distributor
 #URI_REQUEST_SIGNING_KEY = "" #todo: The signing key is used for SEP-7 delegated signing
-#DIRECT_PAYMENT_SERVER	= "https://" #todo: The server used for receiving SEP-31 direct fiat-to-fiat payments. Requires SEP-12 and hence a KYC_SERVER TOML attribute.
 #ANCHOR_QUOTE_SERVER = "https://" #todo: The server used for receiving SEP-38 requests.
 
 [DOCUMENTATION]
@@ -20,24 +17,19 @@ ORG_DBA = "Block Transfer"
 ORG_URL = "https://www.blocktransfer.io"
 ORG_LOGO = "https://stellar.blocktransfer.io/logo.png"
 ORG_DESCRIPTION = "A decentralized stock transfer agent protocol for global financial markets."
-ORG_PHYSICAL_ADDRESS = "Block Transfer is a remote-first company; finance should have no borders."
-ORG_PHONE_NUMBER = "(332) 237-6400"
-ORG_PHONE_NUMBER_ATTESTATION = "https://www.sec.gov/Archives/edgar/data/0001846058/000184605821000002/xslFTA1X01/primary_doc.xml"
-ORG_KEYBASE = "blocktransfer"
-ORG_TWITTER = "blocktransfer"
+ORG_PHYSICAL_ADDRESS = "131 Ponce de Leon Ave NE, Ste 405, Atlanta GA, 30308."
+ORG_PHONE_NUMBER = "TBA"
+ORG_PHONE_NUMBER_ATTESTATION = "https://www.sec.gov/edgar/browse/?CIK=1846058"
 ORG_GITHUB = "blocktransfer"
 ORG_OFFICIAL_EMAIL = "stellar@blocktransfer.io"
 ORG_SUPPORT_EMAIL = "support@blocktransfer.io"
 ORG_LICENSING_AUTHORITY = "U.S. Securities and Exchange Commission"
 ORG_LICENSE_TYPE = "CIK"
-ORG_LICENSE_NUMBER = "1846058"
+ORG_LICENSE_NUMBER = "0001846058"
 
 [[PRINCIPALS]]
 name = "John F. Wooten, IV"
 email = "john@blocktransfer.io"
-keybase = "JFWooten4"
-telegram = "JFWooten4"
-twitter = "JFWooten4"
 github = "JFWooten4"
 id_photo_hash = "0dce43292a7dd2c6ef021cca9f84330ceeec34e8587172453bc2b05f1bd13edd"
 verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44f0b8e62ff48"
@@ -54,9 +46,9 @@ image	= "https://stellar.blocktransfer.io/assets/demo.png"
 is_unlimited = true
 is_asset_anchored = false
 #anchor_asset_type = "stock"
-#anchor_asset = "CUSIP"
+#anchor_asset = "CUSIP/ISIN-011531"
 attestation_of_reserve = "https://www.sec.gov/edgar/browse/?CIK=1846058"
-redemption_instructions = "Transfer your shares to cede*stellar.blocktransfer.io and initiate a transfer request from your legacy broker."
+redemption_instructions = "Transfer your shares to cede*blocktransfer.io and initiate a transfer request from your legacy broker."
 regulated = false
 
 
@@ -73,4 +65,3 @@ regulated = false
 #PUBLIC_KEY = "G..."
 #HOST = "validators.blocktransfer.io:port"
 #HISTORY = "https://validators.blocktransfer.io/live1/"
-#Coming soon
