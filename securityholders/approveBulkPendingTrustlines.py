@@ -1,9 +1,9 @@
-from stellar_sdk import Asset, Server, TransactionBuilder
+from stellar_sdk import Asset, Keypair, Server, TransactionBuilder
 from datetime import datetime
 import requests
 import json
 
-secretKey = "ABCD..." # Admin temporary 1-weight signers... execute on offline airgapped sys... then remove from Issuer 
+secretKey = "" # Admin temporary 1-weight signers... execute on offline airgapped sys... then remove from Issuer 
 # todo: set as function input as environmnet var in aigapped HSM 
 
 identityMappingCSV = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
@@ -59,11 +59,34 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
     fee = server.fetch_base_fee()
   except: 
     fee = FALLBACK_MIN_STROOPS
-  transaction = TransactionBuilder(
+  
+  
+  
+  transactions[0] = TransactionBuilder(
     source_account = issuer,
     network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
     base_fee = fee,
   )
+  
+  i, idx = 0
+  for address in outstandingTrustlines:
+    transactions[idx].append_set_trust_line_flags_op(
+        trustor = address,
+        asset = asset,
+
+        clear_flags = 1
+        # todo: cleanup after verf
+    )
+    if(++i and i >= MAX_NUM_TXN_OPS):
+      i = 0
+      idx++
+      transactions[idx] = TransactionBuilder(
+        source_account = issuer,
+        network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
+        base_fee = fee,
+      )
+
+  
   for address, asset in addressesWithAssetsDict:
     .append_set_trust_line_flags_op(
         trustor = address,
@@ -73,12 +96,11 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
         
     )
 
-  transaction = transaction.add_text_memo("Approve trustline verified by KYC")
-  transaction = transaction.set_timeout(3600).build()
+  for tnx in transactions:
+    tnx.add_text_memo("Approve trustline verified by KYC")
+    txn.set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
   
-  .sign()
-  
-  return transaction
+  return transactions
 
 def exportTrustlineApprovalTransaction(bulkTxnXDR):
     output = fopen(datetime.now() + " signedApprovePendingTrustlineXDR", "w")
