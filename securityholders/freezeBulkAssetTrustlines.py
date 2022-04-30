@@ -7,13 +7,13 @@ searchLimitMax200 = "200" # rem as needed
 
 secretKey = ""
 
-HorizonInstance = "horizon.stellar.org"
-FALLBACK_MIN_STROOPS = 100
+HORIZON_INST = "horizon.stellar.org"
+FALLBACK_MIN_FEE = 100
 MAX_NUM_TXN_OPS = 100
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 
 def getOutstandingTrustlines():
-  r = "https://" + HorizonInstance + "..." + BT_ISSUER + "..."
+  r = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..."
   data = r.json()
   
   allOutstandingTrustlines = []
@@ -22,19 +22,19 @@ def getOutstandingTrustlines():
     address = outstandingTrustline[...]
     outstandingTrustline.append(address)
     
-    r = "https://" + HorizonInstance + "..." + BT_ISSUER + "..." -> next
+    r = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..." -> next
     data = r.json()
     outstandingTrustline = data[...]
 
   return allOutstandingTrustlines
 
 def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
-  server = Server(horizon_url= "https://" + HorizonInstance)
+  server = Server(horizon_url= "https://" + HORIZON_INST)
   issuer = server.load_account(account = BT_ISSUER)
   try: 
     fee = server.fetch_base_fee()
   except: 
-    fee = FALLBACK_MIN_STROOPS
+    fee = FALLBACK_MIN_FEE
   
   
   transactions[0] = TransactionBuilder(
