@@ -66,13 +66,14 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
   
   return transactions
 
-def exportTrustlineRevocationTransaction(bulkTxnXDR):
-    output = fopen(datetime.now() + " signedFreezeAssetTrustlinesXDR", "w")
-    output.write(bulkTxnXDR)
-    output.close()
+def exportTrustlineRevocationTransaction(bulkTxnXDRarr):
+    for txn in txnXDRarr:
+      output = fopen(datetime.now() + " signedFreezeAssetTrustlinesXDR", "w")
+      output.write(bulkTxnXDR)
+      output.close()
 
 def freezeBulkAssetTrustlines(asset, reason): # add helper function for inputs ? 
   asset = len(asset) > 4 ? ASSET_TYPE_CREDIT_ALPHANUM12 : ASSET_TYPE_CREDIT_ALPHANUM4 # Asset(asset, BT_ISSUER)
   outstandingTrustlines = getOutstandingTrustlines(asset)
-  revocationTxnXDR = signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason)
-  exportTrustlineRevocationTransaction(revocationTxnXDR)
+  revocationTxnXDRarr = signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason)
+  exportTrustlineRevocationTransaction(revocationTxnXDRarr)
