@@ -37,7 +37,7 @@ def getAllPendingTrustlinesWithAsset():
 
 def getKnownAddressesFromIdentityMappingCSV(inputCSV):
   allVerifiedAddresses[] = ""
-  identityMapping = fopen(inputCSV, "r")
+  identityMapping = open(inputCSV, "r")
   identityMapping.readline()
   while(identityMapping.readline()):
     allVerifiedAddresses.append(identityMapping.readline().split(',')[0])
@@ -90,7 +90,7 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
 
 def exportTrustlineApprovalTransaction(txnXDRarr):
     for txn in txnXDRarr:
-      output = fopen(datetime.now() + " signedApprovePendingTrustlineXDR", "w")
+      output = open(datetime.now() + " signedApprovePendingTrustlineXDR", "w")
       output.write(bulkTxnXDR)
       output.close()
 
