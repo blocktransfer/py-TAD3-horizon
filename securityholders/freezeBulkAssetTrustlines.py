@@ -5,6 +5,8 @@ import json
 
 searchLimitMax200 = "200" # rem as needed
 
+secretKey = ""
+
 HorizonInstance = "horizon.stellar.org"
 fallbackMinFeeInStroops = 100
 MAX_NUM_TXN_OPS = 100
