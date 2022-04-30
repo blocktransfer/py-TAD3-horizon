@@ -50,13 +50,12 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
   )
   
   i, idx = 0
-  for balance, address in shareholderBalancesWithAddress:
-    transactions[idx].append_set_trust_line_flags_op(
-        trustor = address,
-        asset = queryAsset,
+  for address, balance in StellarBlockchainBalances:
+    transactions[idx].append_payment_op(
+        destination = address,
+        asset = Asset(queryAsset, BT_ISSUER),
 
         clear_flags = 1
-        # todo: cleanup after verf
     )
     if(++i and i >= MAX_NUM_TXN_OPS):
       i = 0
