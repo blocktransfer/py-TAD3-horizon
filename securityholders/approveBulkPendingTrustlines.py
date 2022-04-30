@@ -74,6 +74,7 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
         set_flags = 1
     )
     if(++i and i >= MAX_NUM_TXN_OPS):
+      transactions[idx].add_text_memo("Approve trustline: Shareholder KYC verified").set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
       i = 0
       idx++
       transactions[idx] = TransactionBuilder(
@@ -81,11 +82,7 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
         network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
         base_fee = fee,
       )
-
-  for tnx in transactions:
-    tnx.add_text_memo("Approve trustline verified by KYC")
-    txn.set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
-  
+  transactions[idx].add_text_memo("Approve trustline: Shareholder KYC verified").set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
   return transactions
 
 def exportTrustlineApprovalTransaction(txnXDRarr):
