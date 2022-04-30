@@ -10,7 +10,7 @@ identityMappingCSV = "" # todo: make a style for a master identity ledger... sto
 # that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
 HorizonInstance = "horizon.stellar.org"
 fallbackMinFeeInStroops = 100
-maxNumOpsPerTxn = 100
+MAX_NUM_TXN_OPS = 100
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" # check for consistency for this field against other scripts
 
 def getAllPendingTrustlinesWithAsset():
@@ -48,7 +48,7 @@ def verifyAddressesWithAssetDict(addressesWithAssetsDict):
   verifiedAddressesWithAssetDict = {}
   i = 0
   for potentialAddress, potentialAsset in addressesWithAssetsDict:
-    if(potentialAddress in allKnownShareholderAddressesList and ++i < maxNumOpsPerTxn):
+    if(potentialAddress in allKnownShareholderAddressesList and ++i < MAX_NUM_TXN_OPS):
       verifiedAddressesWithAssetDict[potentialAddress] = potentialAsset
   return verifiedAddressesWithAssetDict
 

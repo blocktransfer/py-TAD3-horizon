@@ -7,7 +7,7 @@ searchLimitMax200 = "200" # rem as needed
 
 HorizonInstance = "horizon.stellar.org"
 fallbackMinFeeInStroops = 100
-maxNumOpsPerTxn = 100
+MAX_NUM_TXN_OPS = 100
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 
 def getOutstandingTrustlines():
@@ -33,26 +33,36 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
     fee = server.fetch_base_fee()
   except: 
     fee = fallbackMinFeeInStroops
-  transaction = TransactionBuilder(
+  
+  
+  transactions[0] = TransactionBuilder(
     source_account = issuer,
     network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
     base_fee = fee,
   )
+  
+  i, idx = 0
   for address in outstandingTrustlines:
-    .append_set_trust_line_flags_op(
+    transactions[idx].append_set_trust_line_flags_op(
         trustor = address,
         asset = asset,
 
         clear_flags = 1
         # todo: cleanup after verf
     )
+    if(++i and i >= MAX_NUM_TXN_OPS):
+      i = 0
+      idx++
+      transactions[idx] = TransactionBuilder(
+        source_account = issuer,
+        network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
+        base_fee = fee,
+      )
 
-  transaction = transaction.add_text_memo(reason)
-  transaction = transaction.set_timeout(3600).build()
+  for tnx in transactions:
+    tnx.add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
   
-  .sign()
-  
-  return transaction
+  return transactions
 
 def exportTrustlineRevocationTransaction(bulkTxnXDR):
     output = fopen(datetime.now() + " signedFreezeAssetTrustlinesXDR", "w")
