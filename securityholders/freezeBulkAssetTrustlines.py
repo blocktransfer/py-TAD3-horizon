@@ -55,7 +55,7 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
     if(++i and i >= MAX_NUM_TXN_OPS):
       i = 0
       idx++
-      transactions[idx] = TransactionBuilder(
+      transactions[idx] = TransactionBuilder( # todo: might need to do append() here 
         source_account = issuer,
         network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
         base_fee = fee,
@@ -66,7 +66,7 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
   
   return transactions
 
-def exportTrustlineRevocationTransaction(bulkTxnXDRarr):
+def exportTrustlineRevocationTransaction(txnXDRarr):
     for txn in txnXDRarr:
       output = open(datetime.now() + " signedFreezeAssetTrustlinesXDR", "w")
       output.write(bulkTxnXDR)
