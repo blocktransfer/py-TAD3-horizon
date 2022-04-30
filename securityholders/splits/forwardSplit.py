@@ -66,10 +66,10 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
   return transactions
 
 def exportSplitNewShareTransactions(txnXDRarr):
-    for txn in txnXDRarr:
-      output = open(datetime.now() + " forwardSplitPaymentXDR", "w")
-      output.write(bulkTxnXDR)
-      output.close()
+  for txn in txnXDRarr:
+    output = open(datetime.now() + " forwardSplitPaymentXDR", "w")
+    output.write(bulkTxnXDR)
+    output.close()
 
 def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV):
   

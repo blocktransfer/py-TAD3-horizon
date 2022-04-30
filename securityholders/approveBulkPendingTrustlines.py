@@ -87,10 +87,10 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
   return transactions
 
 def exportTrustlineApprovalTransaction(txnXDRarr):
-    for txn in txnXDRarr:
-      output = open(datetime.now() + " signedApprovePendingTrustlineXDR", "w")
-      output.write(bulkTxnXDR)
-      output.close()
+  for txn in txnXDRarr:
+    output = open(datetime.now() + " signedApprovePendingTrustlineXDR", "w")
+    output.write(bulkTxnXDR)
+    output.close()
 
 def approveBulkPendingTrustlines():
   pendingAddressesWithAssetsDict = getAllPendingTrustlinesWithAsset()
