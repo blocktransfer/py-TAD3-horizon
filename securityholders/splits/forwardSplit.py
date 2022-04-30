@@ -1,6 +1,5 @@
 from stellar_sdk import Asset, TransactionBuilder
 from datetime import datetime
-from fractions import Fraction
 from decimal import Decimal
 import requests
 import json
@@ -29,7 +28,7 @@ def grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCS
   for shareholder in oldMSF[1:]: # Assume restricted entries are separate from unrestricted entries 
     if(shareholder[0] == ""):
       shareholder = shareholder.split(",")
-      shareholder[1] = Decimal(shareholder[1])*numerator/denominator
+      shareholder[1] = Decimal(shareholder[1]) * numerator / denominator
       newMSF.write(",".join(shareholder) + "\n")
   newMSF.close()
   return newMSF
@@ -52,10 +51,9 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
   i, idx = 0
   for address, balance in StellarBlockchainBalances:
     transactions[idx].append_payment_op(
-        destination = address,
-        asset = Asset(queryAsset, BT_ISSUER),
-
-        clear_flags = 1
+      destination = address,
+      asset = Asset(queryAsset, BT_ISSUER),
+      amount = (balance * numerator / denominator) - balance
     )
     if(++i and i >= MAX_NUM_TXN_OPS):
       i = 0
