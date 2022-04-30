@@ -4,11 +4,12 @@ import requests
 import json
 
 secretKey = "ABCD..." # Admin temporary 1-weight signers... execute on offline airgapped sys... then remove from Issuer 
+# todo: set as function input as environmnet var in aigapped HSM 
 
 identityMappingCSV = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
 # that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
 HorizonInstance = "horizon.stellar.org"
-minFeeInStroops = 100 # is there a get call for 100 stoops? in case minBaseFee changes one day 
+fallbackMinFeeInStroops = 100
 maxNumOpsPerTxn = 100
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" # check for consistency for this field against other scripts
 
@@ -51,13 +52,17 @@ def verifyAddressesWithAssetDict(addressesWithAssetsDict):
       verifiedAddressesWithAssetDict[potentialAddress] = potentialAsset
   return verifiedAddressesWithAssetDict
 
-def signBulkTrustlineApprovals(addressesWithAssetsDict):
+def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
   server = Server(horizon_url= "https://" + HorizonInstance)
   issuer = server.load_account(account = BT_ISSUER)
+  try: 
+    fee = server.fetch_base_fee()
+  except: 
+    fee = fallbackMinFeeInStroops
   transaction = TransactionBuilder(
     source_account = issuer,
     network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-    base_fee = minFeeInStroops,
+    base_fee = fee,
   )
   for address, asset in addressesWithAssetsDict:
     .append_set_trust_line_flags_op(
