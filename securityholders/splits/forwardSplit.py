@@ -47,7 +47,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
     network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
     base_fee = fee,
   )
-  
+  reason = str(numerator) + "-for-" + str(denominator) + " forward stock split"
   i, idx = 0
   for address, balance in StellarBlockchainBalances:
     transactions[idx].append_payment_op(
@@ -56,20 +56,20 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
       amount = (balance * numerator / denominator) - balance
     )
     if(++i and i >= MAX_NUM_TXN_OPS):
-      transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
+      transactions[idx].add_text_memo(reason).set_timeout(7200).build()
       i = 0
       idx++
-      transactions[idx] = TransactionBuilder( 
+      transactions[idx] = TransactionBuilder(
         source_account = issuer,
         network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
         base_fee = fee,
       )
-  transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
+  transactions[idx].add_text_memo(reason).set_timeout(7200).build()
   return transactions
 
 def exportSplitNewShareTransactions(txnXDRarr):
     for txn in txnXDRarr:
-      output = open(datetime.now() + " signedFreezeAssetTrustlinesXDR", "w")
+      output = open(datetime.now() + " forwardSplitPaymentXDR", "w")
       output.write(bulkTxnXDR)
       output.close()
 
