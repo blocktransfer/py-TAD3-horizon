@@ -55,7 +55,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, MSF, totalOutstandingShares, Stell
     except KeyError:
         # This address is no longer a securityholder per removed trustline. Prune from merged MSF
         continue
-    totalBalance = blockchainBalance + sharesNotYetClaimedOnStellar
+    totalBalance = blockchainBalance + sharesNotYetClaimedOnStellar # Redundant given restricted entries are separate from unrestricted entries 
     lines[0] = str(totalBalance)
     lines[1] = str(totalBalance / totalOutstandingShares)
     mergedMSF.write(",".join(lines) + "\n")

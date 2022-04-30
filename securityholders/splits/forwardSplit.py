@@ -4,23 +4,26 @@ from fractions import Fraction
 from decimal import Decimal
 import requests
 import json
+
+from root.parent.issuers.mergeBlockchainBalancesWithMSF import getStellarBlockchainBalances
+sys.path.append(os.path.abspath("../issuers/"))
 import mergeBlockchainBalancesWithMSF
 
+
 HORIZON_INST = "horizon.stellar.org"
-FALLBACK_MIN_FEE = 100
-MAX_NUM_DECIMALS = 7
+MAX_NUM_DECIMALS = "7"
 FALLBACK_MIN_FEE = 100
 MAX_NUM_TXN_OPS = 100
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 
-def getAccountBalancesWithAddressFromMSF(MSFpreSplitBalancesCSV, StellarBlockchainBalances):
+def getAccountBalancesWithAddressFromMSF_BAD_FUNCTION(MSFpreSplitBalancesCSV, StellarBlockchainBalances):
   balances = {}
   MSF = open(MSFpreSplitBalancesCSV, "r")
   readFile = MSF.read()
   readFile = readFile.strip()
   readFile = readFile.split("\n")
   MSF.close()
-  for shareholders in readFile[1:0]:
+  for shareholders in readFile[1:0]: # Assume restricted entries are separate from unrestricted entries 
     shareholders = shareholders.split(",")
     if(shareholders[1] != ""):
       
@@ -35,7 +38,7 @@ def grantNewSplitSharesFromBalances(shareholderBalances, asset, numerator, denom
   try: 
     fee = server.fetch_base_fee()
   except: 
-    fee = FALLBACK_MIN_STROOPS
+    fee = FALLBACK_MIN_FEE
   
   
   transactions[0] = TransactionBuilder(
@@ -78,11 +81,14 @@ def forwardSplit(asset, numerator, denominator, MSFpreSplitBalancesCSV):
   denominator = Decimal(denominator)
   
   StellarBlockchainBalances = mergeBlockchainBalancesWithMSF.getStellarBlockchainBalances(asset)
-  shareholderBalances = getAccountBalancesFromMSF(MSFpreSplitBalancesCSV, StellarBlockchainBalances)
-  newShareTxnXDRarr = grantNewSplitSharesFromBalances(shareholderBalances, asset, numerator, denominator)
+  shareholderBalances = getAccountBalancesWithAddressFromMSF_BAD_FUNCTION(MSFpreSplitBalancesCSV, StellarBlockchainBalances)
+  
+  grantMSFsplitSharesUnclaimedOnStellarInclRestricted(numerator, denominator)
+  # ^ Outputs new postSplitMSF
+  newShareTxnXDRarr = grantNewSplitSharesFromBalances_ClaimedOnStellar(StellarBlockchainBalances, asset, numerator, denominator) # Consider: arithemtic logic embedded in function call? 
   exportSplitNewShareTransactions(newShareTxnXDRarr)
   
-  ("{:." + str(MAX_NUM_DECIMALS) + "f}").format(shares)
+  ("{:." + MAX_NUM_DECIMALS + "f}").format(shares)
 
   
   
