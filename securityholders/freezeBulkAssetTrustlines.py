@@ -3,7 +3,7 @@ from datetime import datetime
 import requests
 import json
 
-searchLimitMax200 = "200"
+searchLimitMax200 = "200" # rem as needed
 
 HorizonInstance = "horizon.stellar.org"
 fallbackMinFeeInStroops = 100
@@ -62,5 +62,5 @@ def exportTrustlineRevocationTransaction(bulkTxnXDR):
 def freezeBulkAssetTrustlines(asset, reason): # add helper function for inputs ? 
   asset = len(asset) > 4 ? ASSET_TYPE_CREDIT_ALPHANUM12 : ASSET_TYPE_CREDIT_ALPHANUM4 # Asset(asset, BT_ISSUER)
   outstandingTrustlines = getOutstandingTrustlines(asset)
-  revocationTxn = signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason)
-  exportTrustlineRevocationTransaction(revocationTxn)
+  revocationTxnXDR = signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason)
+  exportTrustlineRevocationTransaction(revocationTxnXDR)
