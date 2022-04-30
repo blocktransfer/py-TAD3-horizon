@@ -60,8 +60,6 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
   except: 
     fee = FALLBACK_MIN_STROOPS
   
-  
-  
   transactions[0] = TransactionBuilder(
     source_account = issuer,
     network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
@@ -69,13 +67,11 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
   )
   
   i, idx = 0
-  for address in outstandingTrustlines:
+  for address, asset in addressesWithAssetsDict:
     transactions[idx].append_set_trust_line_flags_op(
         trustor = address,
         asset = asset,
-
-        clear_flags = 1
-        # todo: cleanup after verf
+        set_flags = 1
     )
     if(++i and i >= MAX_NUM_TXN_OPS):
       i = 0
@@ -85,16 +81,6 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
         network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
         base_fee = fee,
       )
-
-  
-  for address, asset in addressesWithAssetsDict:
-    .append_set_trust_line_flags_op(
-        trustor = address,
-        asset = asset,
-
-        set_flags = 1
-        
-    )
 
   for tnx in transactions:
     tnx.add_text_memo("Approve trustline verified by KYC")
