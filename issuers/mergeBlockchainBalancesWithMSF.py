@@ -1,5 +1,7 @@
-import requests
 from datetime import datetime
+from decimal import Decimal
+import requests
+import json
 
 MAX_SEARCH = "200"
 HORIZON_INST = "horizon.stellar.org"
@@ -23,7 +25,7 @@ def getStellarBlockchainBalances(queryAsset):
       accountAddress = accounts["id"]
       for balances in accounts["balances"]:
         if balances["asset_type"] != "native" and balances["asset_code"] == queryAsset:
-          accountBalance = float(balances["balance"])
+          accountBalance = Decimal(balances["balance"])
           break
       StellarBlockchainBalances[accountAddress] = accountBalance
     # Go to next cursor
@@ -35,7 +37,7 @@ def getStellarBlockchainBalances(queryAsset):
 def getTotalOutstandingShares(queryAsset, numRestrictedShares):
   requestAddress = "https://" + HORIZON_INST + "/assets?asset_code=" + queryAsset + "&asset_issuer=" + BT_ISSUER
   data = requests.get(requestAddress).json()
-  numUnrestrictedShares = float(data["_embedded"]["records"][0]["amount"])
+  numUnrestrictedShares = Decimal(data["_embedded"]["records"][0]["amount"])
   totalOutstandingShares = numRestrictedShares + numUnrestrictedShares
   return totalOutstandingShares
 
@@ -49,7 +51,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, MSF, totalOutstandingShares, Stell
   mergedMSF.write("Shares,Percent of Outstanding Shares,Registration,Email,Date of Birth / Organization,Address,Address Extra,City,State,Postal Code,Country,Onboarded Date,Issue Date of Security,Cancellation Date of Security,Dividends,Restricted Shares Notes\n")
   for lines in readFile[1:]:
     lines = lines.split(",")
-    sharesNotYetClaimedOnStellar = 0 if lines[1] == "" else float(lines[1])
+    sharesNotYetClaimedOnStellar = 0 if lines[1] == "" else Decimal(lines[1])
     try:
         blockchainBalance = 0 if lines[0] == "" else StellarBlockchainBalances[lines[0]]
     except KeyError:
