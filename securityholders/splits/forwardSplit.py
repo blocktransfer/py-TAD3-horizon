@@ -1,4 +1,4 @@
-from stellar_sdk import Asset, TransactionBuilder
+from stellar_sdk import Asset, Keypair, Server, TransactionBuilder
 from datetime import datetime
 from decimal import Decimal
 import requests
@@ -56,6 +56,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
       amount = (balance * numerator / denominator) - balance
     )
     if(++i and i >= MAX_NUM_TXN_OPS):
+      transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
       i = 0
       idx++
       transactions[idx] = TransactionBuilder( 
@@ -63,10 +64,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
         network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
         base_fee = fee,
       )
-
-  for tnx in transactions:
-    tnx.add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
-  
+  transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
   return transactions
 
 def exportSplitNewShareTransactions(txnXDRarr):
