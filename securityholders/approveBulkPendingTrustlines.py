@@ -80,7 +80,7 @@ def exportTrustlineApprovalTransaction(bulkTxnXDR):
     output.write(bulkTxnXDR)
     output.close()
 
-def bulkApprovePendingTrustlines():
+def approveBulkPendingTrustlines():
   pendingAddressesWithAssetsDict = getAllPendingTrustlinesWithAsset()
   verifiedAddressesWithAssetsDict = verifyAddressesWithAssetDict(pendingAddressesWithAssetsDict)
   signedTrustlineApprovalXDR = signBulkTrustlineApprovalsFromAddressAssetDict(verifiedAddressesWithAssetDict)
