@@ -55,7 +55,7 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
   return transaction
 
 def exportTrustlineRevocationTransaction(bulkTxnXDR):
-    output = fopen(datetime.now() + " signedApprovePendingTrustlineXDR", "w")
+    output = fopen(datetime.now() + " signedFreezeAssetTrustlinesXDR", "w")
     output.write(bulkTxnXDR)
     output.close()
 
