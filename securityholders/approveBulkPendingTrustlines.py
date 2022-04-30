@@ -9,7 +9,7 @@ secretKey = "ABCD..." # Admin temporary 1-weight signers... execute on offline a
 identityMappingCSV = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
 # that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
 HorizonInstance = "horizon.stellar.org"
-fallbackMinFeeInStroops = 100
+FALLBACK_MIN_STROOPS = 100
 MAX_NUM_TXN_OPS = 100
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" # check for consistency for this field against other scripts
 
@@ -58,7 +58,7 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
   try: 
     fee = server.fetch_base_fee()
   except: 
-    fee = fallbackMinFeeInStroops
+    fee = FALLBACK_MIN_STROOPS
   transaction = TransactionBuilder(
     source_account = issuer,
     network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
