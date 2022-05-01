@@ -11,9 +11,9 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   assert numerator > denominator 
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
   outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, queryAsset)
-  newShareTxnXDRarr = []
-  newShareTxnXDRarr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
-  exportSplitNewShareTransactions(newShareTxnXDRarr)
+  #newShareTxnArr = []
+  newShareTxnArr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
+  exportSplitNewShareTransactions(newShareTxnArr)
   generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, queryAsset)
 
 def grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, queryAsset):
@@ -49,19 +49,19 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
     )
   )
   reason = str(numerator) + "-for-" + str(denominator) + " forward stock split"
-  i = idx = 0
-  #pprint(StellarBlockchainBalances['GDWFWKFOXYGT6EHB2WYUPVKZFV7WDSOJQWMLDRIBQGDAUI3ADQOB5JKZ'])
+  numTxnOps = idx = 0
   for addresses, balances in StellarBlockchainBalances.items():
     sharesToPay = (balances * numerator / denominator) - balances
     if(sharesToPay):
+      numTxnOps += 1
       transactions[idx].append_payment_op(
         destination = addresses,
         asset = Asset(queryAsset, BT_ISSUER),
-        amount = ("{:." + MAX_NUM_DECIMALS + "f}").format(sharesToPay), )
-      i += 1
-    if(i >= MAX_NUM_TXN_OPS):
-      transactions[idx].add_text_memo(reason).set_timeout(7200).build()
-      i = 0
+        amount = ("{:." + MAX_NUM_DECIMALS + "f}").format(sharesToPay),
+      )
+    if(numTxnOps >= MAX_NUM_TXN_OPS):
+      transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
+      numTxnOps = 0
       idx += 1
       transactions.append(
         TransactionBuilder(
@@ -70,13 +70,13 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
           base_fee = fee,
         )
       )
-  transactions[idx].add_text_memo(reason).set_timeout(7200).build()
+  transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
   return transactions
 
-def exportSplitNewShareTransactions(txnXDRarr):
-  for bulkTxnXDR in txnXDRarr:
+def exportSplitNewShareTransactions(txnArr):
+  for txns in txnArr:
     output = open(str(datetime.now()) + " forwardSplitPaymentXDR.txt", "w")
-    output.write(str(bulkTxnXDR))
+    output.write(txns.to_xdr())
     output.close()
 
 def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV, queryAsset):

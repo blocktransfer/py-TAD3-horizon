@@ -33,23 +33,26 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
     base_fee = fee,
   )
   
-  i, idx = 0
+  numTxnOps, idx = 0
   for address in outstandingTrustlines:
     transactions[idx].append_set_trust_line_flags_op(
       trustor = address,
       asset = asset,
       clear_flags = 1
     )
-    if(++i and i >= MAX_NUM_TXN_OPS):
-      transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
-      i = 0
-      idx++
-      transactions[idx] = TransactionBuilder( # todo: might need to do append() here 
-        source_account = issuer,
-        network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-        base_fee = fee,
+    numTxnOps += 1
+    if(numTxnOps += 1 >= MAX_NUM_TXN_OPS):
+      transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
+      numTxnOps += 1 = 0
+      idx += 1
+      transactions.append(
+        TransactionBuilder(
+          source_account = issuer,
+          network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
+          base_fee = fee,
+        )
       )
-  transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
+  transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
   return transactions
 
 def exportTrustlineRevocationTransaction(txnXDRarr):

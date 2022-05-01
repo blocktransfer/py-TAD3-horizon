@@ -42,8 +42,10 @@ def verifyAddressesWithAssetDict(addressesWithAssetsDict):
   verifiedAddressesWithAssetDict = {}
   i = 0
   for potentialAddress, potentialAsset in addressesWithAssetsDict:
-    if(potentialAddress in allKnownShareholderAddressesList and ++i < MAX_NUM_TXN_OPS):
-      verifiedAddressesWithAssetDict[potentialAddress] = potentialAsset
+    if(potentialAddress in allKnownShareholderAddressesList)
+      todo += 1
+      if (++i < MAX_NUM_TXN_OPS):
+        verifiedAddressesWithAssetDict[potentialAddress] = potentialAsset
   return verifiedAddressesWithAssetDict
 
 def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
@@ -63,17 +65,18 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
     )
   )
   reason = "Approve trustline: Shareholder KYC verified"
-  i, idx = 0
+  numTxnOps, idx = 0
   for address, asset in addressesWithAssetsDict:
     transactions[idx].append_set_trust_line_flags_op(
       trustor = address,
       asset = asset,
       set_flags = 1
-    )
-    if(++i and i >= MAX_NUM_TXN_OPS):
-      transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
-      i = 0
-      idx++
+    ) 
+    numTxnOps += 1
+    if(numTxnOps += 1 >= MAX_NUM_TXN_OPS):
+      transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
+      numTxnOps += 1 = 0
+      idx += 1
       transactions.append(
         TransactionBuilder(
           source_account = issuer,
@@ -81,7 +84,7 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
           base_fee = fee,
         )
       )
-  transactions[idx].add_text_memo("Approve trustline: Shareholder KYC verified").set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
+  transactions[idx] = transactions[idx].add_text_memo("Approve trustline: Shareholder KYC verified").set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
   return transactions
 
 def exportTrustlineApprovalTransaction(txnXDRarr):
