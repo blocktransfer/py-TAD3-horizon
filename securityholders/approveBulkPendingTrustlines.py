@@ -54,10 +54,13 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
   except: 
     fee = FALLBACK_MIN_FEE
   
-  transactions[0] = TransactionBuilder(
-    source_account = issuer,
-    network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-    base_fee = fee,
+  transactions = []
+  transactions.append(
+    TransactionBuilder(
+      source_account = issuer,
+      network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
+      base_fee = fee,
+    )
   )
   reason = "Approve trustline: Shareholder KYC verified"
   i, idx = 0
@@ -66,16 +69,17 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
       trustor = address,
       asset = asset,
       set_flags = 1
-        
     )
     if(++i and i >= MAX_NUM_TXN_OPS):
       transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
       i = 0
       idx++
-      transactions[idx] = TransactionBuilder(
-        source_account = issuer,
-        network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-        base_fee = fee,
+      transactions.append(
+        TransactionBuilder(
+          source_account = issuer,
+          network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
+          base_fee = fee,
+        )
       )
   transactions[idx].add_text_memo("Approve trustline: Shareholder KYC verified").set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
   return transactions

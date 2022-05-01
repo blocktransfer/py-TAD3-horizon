@@ -14,7 +14,8 @@ MAX_SEARCH = "200"
 FALLBACK_MIN_FEE = 100
 MAX_NUM_TXN_OPS = 100
 
-#testing: BT_ISSUER = "GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM"
+#testing: 
+BT_ISSUER = "GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM"
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
   requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + queryAsset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH

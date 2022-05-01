@@ -4,15 +4,14 @@ from globals import *
 
 postSplitFileName = "[FORWARD] {} Post-Split Master Securityholder File.csv"
 
-# testing: 
-
+# testing: forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
 def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator > denominator 
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
-  pprint(StellarBlockchainBalances)
   outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, queryAsset)
+  newShareTxnXDRarr = []
   newShareTxnXDRarr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
   exportSplitNewShareTransactions(newShareTxnXDRarr)
   generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, queryAsset)
@@ -46,24 +45,31 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
     TransactionBuilder(
       source_account = distributor,
       network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-      base_fee = fee, ) )
+      base_fee = fee,
+    )
+  )
   reason = str(numerator) + "-for-" + str(denominator) + " forward stock split"
   i = idx = 0
-  for address, balance in StellarBlockchainBalances:
-    sharesToPay = (balance * numerator / denominator) - balance
-    transactions[idx].append_payment_op(
-      destination = address,
-      asset = Asset(queryAsset, BT_ISSUER),
-      amount = ("{:." + MAX_NUM_DECIMALS + "f}").format(sharesToPay), )
-    i += 1
+  #pprint(StellarBlockchainBalances['GDWFWKFOXYGT6EHB2WYUPVKZFV7WDSOJQWMLDRIBQGDAUI3ADQOB5JKZ'])
+  for addresses, balances in StellarBlockchainBalances.items():
+    sharesToPay = (balances * numerator / denominator) - balances
+    if(sharesToPay):
+      transactions[idx].append_payment_op(
+        destination = addresses,
+        asset = Asset(queryAsset, BT_ISSUER),
+        amount = ("{:." + MAX_NUM_DECIMALS + "f}").format(sharesToPay), )
+      i += 1
     if(i >= MAX_NUM_TXN_OPS):
       transactions[idx].add_text_memo(reason).set_timeout(7200).build()
       i = 0
       idx += 1
-      transactions[idx] = TransactionBuilder(
-        source_account = distributor,
-        network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-        base_fee = fee, )
+      transactions.append(
+        TransactionBuilder(
+          source_account = distributor,
+          network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
+          base_fee = fee,
+        )
+      )
   transactions[idx].add_text_memo(reason).set_timeout(7200).build()
   return transactions
 
@@ -85,5 +91,5 @@ def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV, queryAsset):
     if(shareholder[0]):
       finalMSF.write(",".join(shareholder) + "\n")
   finalMSF.close()
-BTissuerAddress = 'GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM'
+
 forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
