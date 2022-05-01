@@ -1,24 +1,8 @@
-from stellar_sdk import Asset, Keypair, Network, Server, TransactionBuilder
-from datetime import datetime
-from decimal import Decimal
-import requests
-import json
-import sys 
-#from root.parent.issuers.mergeBlockchainBalancesWithMSF import getStellarBlockchainBalances
-sys.path.append("../../issuers/")
-import mergeBlockchainBalancesWithMSF
-
-from pprint import pprint 
-
-HORIZON_INST = "horizon.stellar.org"
-MAX_NUM_DECIMALS = "7"
-FALLBACK_MIN_FEE = 100
-MAX_NUM_TXN_OPS = 100
-BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
-BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
+import sys
+sys.path.append("../../")
+from globals import *
 
 postSplitFileName = "{} Post-Split Master Securityholder File.csv"
-
 
 # testing: 
 
@@ -26,7 +10,8 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator > denominator 
-  StellarBlockchainBalances = mergeBlockchainBalancesWithMSF.getStellarBlockchainBalances(queryAsset)
+  StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
+  pprint(StellarBlockchainBalances)
   outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, queryAsset)
   newShareTxnXDRarr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
   exportSplitNewShareTransactions(newShareTxnXDRarr)
