@@ -8,6 +8,7 @@ secretKey = "" # Admin temporary 1-weight signers... execute on offline airgappe
 
 identityMappingCSV = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
 # that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
+MAX_SEARCH = "200"
 HORIZON_INST = "horizon.stellar.org"
 FALLBACK_MIN_FEE = 100
 MAX_NUM_TXN_OPS = 100
