@@ -72,23 +72,24 @@ def exportSplitNewShareTransactions(txnXDRarr):
     output.close()
 
 def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV):
-  
+  finalMSF = open(postSplitFileName.format(queryAsset), "a")
+  oldMSF = open(MSFpreSplitBalancesCSV, "r")
+  readData = oldMSF.read()
+  readData = readData.strip()
+  readData = readData.split("\n")
+  oldMSF.close()
+  for shareholder in readData[1:]:
+    if(shareholder[0]): # todo check logic to reverse equiv. to   != ""   (and amend in fist comp)
+      finalMSF.write(shareholder + "\n")
+  finalMSF.close()
 
 def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator > denominator 
   StellarBlockchainBalances = mergeBlockchainBalancesWithMSF.getStellarBlockchainBalances(queryAsset)
-  
   outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator)
-  # ^ Outputs new postSplitMSF
-  
   newShareTxnXDRarr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
   exportSplitNewShareTransactions(newShareTxnXDRarr)
-  
-  # ... now we use it
   generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV)
-  
-  newMSF = open(postSplitFileName.format(queryAsset), "a")
-  
 
