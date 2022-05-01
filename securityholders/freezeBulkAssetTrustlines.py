@@ -1,16 +1,6 @@
-from stellar_sdk import Asset, Keypair, Server, TransactionBuilder
-from datetime import datetime
-import requests
-import json
-
-searchLimitMax200 = "200" # rem as needed
-
-secretKey = ""
-
-HORIZON_INST = "horizon.stellar.org"
-FALLBACK_MIN_FEE = 100
-MAX_NUM_TXN_OPS = 100
-BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
+import sys
+sys.path.append("../")
+from globals import *
 
 def getOutstandingTrustlines():
   requestAddress = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..."

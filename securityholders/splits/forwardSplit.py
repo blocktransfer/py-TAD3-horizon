@@ -2,7 +2,7 @@ import sys
 sys.path.append("../../")
 from globals import *
 
-postSplitFileName = "{} Post-Split Master Securityholder File.csv"
+postSplitFileName = "[FORWARD] {} Post-Split Master Securityholder File.csv"
 
 # testing: 
 

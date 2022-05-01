@@ -1,18 +1,11 @@
-from stellar_sdk import Asset, Keypair, Server, TransactionBuilder
-from datetime import datetime
-import requests
-import json
+import sys
+sys.path.append("../")
+from globals import *
 
 secretKey = "" # Admin temporary 1-weight signers... execute on offline airgapped sys... then remove from Issuer 
 # todo: set as function input as environmnet var in aigapped HSM 
-
 identityMappingCSV = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
 # that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
-MAX_SEARCH = "200"
-HORIZON_INST = "horizon.stellar.org"
-FALLBACK_MIN_FEE = 100
-MAX_NUM_TXN_OPS = 100
-BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" # check for consistency for this field against other scripts
 
 def getAllPendingTrustlinesWithAsset():
   requestAddress = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..."
