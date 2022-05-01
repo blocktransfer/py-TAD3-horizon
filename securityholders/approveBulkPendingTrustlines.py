@@ -69,7 +69,8 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
     ) 
     numTxnOps += 1
     if(numTxnOps >= MAX_NUM_TXN_OPS):
-      transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
+      transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
+      transactions[idx].sign(Keypair.from_secret(secretKey))
       numTxnOps += 1 = 0
       idx += 1
       transactions.append(
@@ -79,7 +80,8 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
           base_fee = fee,
         )
       )
-  transactions[idx] = transactions[idx].add_text_memo("Approve trustline: Shareholder KYC verified").set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
+  transactions[idx] = transactions[idx].add_text_memo("Approve trustline: Shareholder KYC verified").set_timeout(3600).build()
+  transactions[idx].sign(Keypair.from_secret(secretKey))
   return transactions
 
 def exportTrustlineApprovalTransaction(txnXDRarr):

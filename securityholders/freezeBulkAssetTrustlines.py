@@ -5,7 +5,7 @@ from globals import *
 FREEZING = ""
 
 # testing: freezeBulkAssetTrustlines("StellarMart", "Freezing all accounts prior 5-to-2 forward stock split. Adjust future offers accordingly")
-def freezeBulkAssetTrustlines(asset, reason): # add helper function for inputs ? 
+def freezeBulkAssetTrustlines(asset, reason):
   try:
     secretKey = sys.argv[1]
   except:
@@ -53,7 +53,8 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, reason):
     )
     numTxnOps += 1
     if(numTxnOps >= MAX_NUM_TXN_OPS):
-      transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
+      transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
+      transactions[idx].sign(Keypair.from_secret(secretKey))
       numTxnOps = 0
       idx += 1
       transactions.append(
@@ -63,7 +64,8 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, reason):
           base_fee = fee,
         )
       )
-  transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build().sign(Keypair.from_secret(secretKey))
+  transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()\
+  transactions[idx].sign(Keypair.from_secret(secretKey))
   return transactions
 
 def exportTrustlineRevocationTransaction(txnArr):
