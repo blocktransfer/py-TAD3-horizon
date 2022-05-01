@@ -15,7 +15,6 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   assert numerator > denominator 
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
   outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, queryAsset)
-  #newShareTxnArr = []
   newShareTxnArr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
   exportSplitNewShareTransactions(newShareTxnArr)
   generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, queryAsset)
@@ -98,4 +97,3 @@ def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV, queryAsset):
       finalMSF.write(",".join(shareholder) + "\n")
   finalMSF.close()
 
-forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
