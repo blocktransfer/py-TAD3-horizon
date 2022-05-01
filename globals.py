@@ -14,7 +14,10 @@ MAX_SEARCH = "200"
 FALLBACK_MIN_FEE = 100
 MAX_NUM_TXN_OPS = 100
 
-secretKey = ""
+secretKey = "SBTPLXTXJDMJOXFPYU2ANLZI2ARDPHFKPKK4MJFYVZVBLXYM5AIP3LPK" # -> GCVYJTDFZ6QSLPFUW2LJB2APLICZLMWBH6HGPGH6BDIT7CVTI3TLG6GH
+identityMappingCSV = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
+# that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
+
 
 #testing: 
 BT_ISSUER = "GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM"

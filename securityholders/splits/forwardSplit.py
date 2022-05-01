@@ -13,7 +13,6 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator > denominator 
-  return 1
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
   outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, queryAsset)
   #newShareTxnArr = []
@@ -66,6 +65,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
       )
     if(numTxnOps >= MAX_NUM_TXN_OPS):
       transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
+      transactions[idx].sign(Keypair.from_secret(secretKey))
       numTxnOps = 0
       idx += 1
       transactions.append(
@@ -76,6 +76,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
         )
       )
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
+  transactions[idx].sign(Keypair.from_secret(secretKey))
   return transactions
 
 def exportSplitNewShareTransactions(txnArr):
