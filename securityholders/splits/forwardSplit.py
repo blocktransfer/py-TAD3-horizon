@@ -18,6 +18,16 @@ BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 
 postSplitFileName = "{} Post-Split Master Securityholder File.csv"
 
+def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
+  numerator = Decimal(numerator)
+  denominator = Decimal(denominator)
+  assert numerator > denominator 
+  StellarBlockchainBalances = mergeBlockchainBalancesWithMSF.getStellarBlockchainBalances(queryAsset)
+  outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator)
+  newShareTxnXDRarr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
+  exportSplitNewShareTransactions(newShareTxnXDRarr)
+  generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV)
+
 def grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator):
   MSF = open(MSFpreSplitBalancesCSV, "r")
   oldMSF = MSF.read()
@@ -82,14 +92,4 @@ def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV):
     if(shareholder[0]): # todo check logic to reverse equiv. to   != ""   (and amend in fist comp)
       finalMSF.write(shareholder + "\n")
   finalMSF.close()
-
-def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
-  numerator = Decimal(numerator)
-  denominator = Decimal(denominator)
-  assert numerator > denominator 
-  StellarBlockchainBalances = mergeBlockchainBalancesWithMSF.getStellarBlockchainBalances(queryAsset)
-  outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator)
-  newShareTxnXDRarr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
-  exportSplitNewShareTransactions(newShareTxnXDRarr)
-  generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV)
 
