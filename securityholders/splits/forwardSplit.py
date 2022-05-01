@@ -6,9 +6,14 @@ postSplitFileName = "[FORWARD] {} Post-Split Master Securityholder File.csv"
 
 # testing: forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
 def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
+  try:
+    secretKey = sys.argv[1]
+  except:
+    print("Running without key")
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator > denominator 
+  return 1
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
   outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, queryAsset)
   #newShareTxnArr = []
@@ -48,7 +53,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
       base_fee = fee,
     )
   )
-  reason = str(numerator) + "-for-" + str(denominator) + " forward stock split"
+  reason = "{}-for-{} forward stock split".format(numerator, denominator)
   numTxnOps = idx = 0
   for addresses, balances in StellarBlockchainBalances.items():
     sharesToPay = (balances * numerator / denominator) - balances
