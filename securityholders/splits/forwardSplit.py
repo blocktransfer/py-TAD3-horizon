@@ -8,6 +8,7 @@ import sys
 sys.path.append("../../issuers/")
 import mergeBlockchainBalancesWithMSF
 
+from pprint import pprint 
 
 HORIZON_INST = "horizon.stellar.org"
 MAX_NUM_DECIMALS = "7"
@@ -40,8 +41,8 @@ def grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCS
   newMSF = open(postSplitFileName.format(queryAsset), "w")
   newMSF.write(oldMSF[0] + "\n")
   for shareholder in oldMSF[1:]: # Assume restricted entries are separate from unrestricted entries 
+    shareholder = shareholder.split(",")
     if(shareholder[0] == ""):
-      shareholder = shareholder.split(",")
       sharesAfterSplit = Decimal(shareholder[1]) * numerator / denominator
       shareholder[1] = str(sharesAfterSplit)
       newMSF.write(",".join(shareholder) + "\n")
@@ -95,8 +96,9 @@ def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV, queryAsset):
   readData = readData.split("\n")
   oldMSF.close()
   for shareholder in readData[1:]:
-    if(shareholder[0]): # todo check logic to reverse equiv. to   != ""   (and amend in fist comp)
-      finalMSF.write(shareholder + "\n")
+    shareholder = shareholder.split(",")
+    if(shareholder[0]):
+      finalMSF.write(",".join(shareholder) + "\n")
   finalMSF.close()
-
+BTissuerAddress = 'GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM'
 forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
