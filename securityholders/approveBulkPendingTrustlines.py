@@ -15,8 +15,8 @@ MAX_NUM_TXN_OPS = 100
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7" # check for consistency for this field against other scripts
 
 def getAllPendingTrustlinesWithAsset():
-  r = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..."
-  data = r.json()
+  requestAddress = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..."
+  data = requests.get(requestAddress).json()
   
   allPendingTrustlines = {}
   pendingTrustline = data[...]
@@ -31,8 +31,8 @@ def getAllPendingTrustlinesWithAsset():
     credit_alphanum12_asset = Asset("BANANA", BT_ISSUER)
     
     allPendingTrustlines[potentialAddress] = asset
-    r = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..." -> next
-    data = r.json()
+    requestAddress = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..." -> next
+    data = requests.get(requestAddress).json()
     pendingTrustline = data[...]
   return allPendingTrustlines
 

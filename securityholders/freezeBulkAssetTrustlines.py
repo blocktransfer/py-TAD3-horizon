@@ -13,8 +13,8 @@ MAX_NUM_TXN_OPS = 100
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 
 def getOutstandingTrustlines():
-  r = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..."
-  data = r.json()
+  requestAddress = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..."
+  data = requests.get(requestAddress).json()
   
   allOutstandingTrustlines = []
   outstandingTrustline = data[...]
@@ -22,8 +22,8 @@ def getOutstandingTrustlines():
     address = outstandingTrustline[...]
     outstandingTrustline.append(address)
     
-    r = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..." -> next
-    data = r.json()
+    requestAddress = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..." -> next
+    data = requests.get(requestAddress).json()
     outstandingTrustline = data[...]
 
   return allOutstandingTrustlines
