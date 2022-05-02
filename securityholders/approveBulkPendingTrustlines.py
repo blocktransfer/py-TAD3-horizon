@@ -8,28 +8,66 @@ def approveBulkPendingTrustlines():
   except:
     print("Running without key")
   pendingAddressesWithAssetsDict = getAllPendingTrustlinesWithAsset()
+  return 1
   verifiedAddressesWithAssetsDict = verifyAddressesWithAssetDict(pendingAddressesWithAssetsDict)
   signedTrustlineApprovalXDRarr = signBulkTrustlineApprovalsFromAddressAssetDict(verifiedAddressesWithAssetDict)
   exportTrustlineApprovalTransaction(signedTrustlineApprovalXDRarr)
 
 def getAllPendingTrustlinesWithAsset():
-  requestAddress = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..."
+  
+  
+  requestAddress = "https://horizon.stellar.org/assets?cursor=&limit=200&order=asc"
+  data = requests.get(requestAddress).json()
+  blockchainRecords = data["_embedded"]["records"]
+  while(blockchainRecords != []):
+    for entries in blockchainRecords:
+      if(entries["flags"]["auth_required"] == True and entries["asset_issuer"] != 'GDJ2TPZFWEWXYIR27YMCUUR3KEDM37PUY7KY2MEFGB344EMTIRA7PXXJ'):
+          pprint(entries["asset_issuer"])
+      
+    requestAddress = data["_links"]["next"]["href"].replace("\u0026", "&")
+    data = requests.get(requestAddress).json()
+    blockchainRecords = data["_embedded"]["records"]
+  return 1
+  
+  requestAddress = "https://" + HORIZON_INST + "/assets?asset_issuer=" + BT_ISSUER + "&limit=" + MAX_SEARCH
   data = requests.get(requestAddress).json()
   
-  allPendingTrustlines = {}
-  pendingTrustline = data[...]
-  while(pendingTrustline):
-    potentialAddress = pendingTrustline[...]
-    asset = pendingTrustline[...]
-
-    allPendingTrustlines[potentialAddress] = asset
-    requestAddress = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..." -> next
+  allAssets = []
+  blockchainRecords = data["_embedded"]["records"]
+  while(blockchainRecords != []):
+    for entries in blockchainRecords:
+      allAssets.append(entries["asset_code"])
+    # Go to next cursor
+    requestAddress = data["_links"]["next"]["href"].replace("\u0026", "&")
     data = requests.get(requestAddress).json()
-    pendingTrustline = data[...]
-  return allPendingTrustlines
+    blockchainRecords = data["_embedded"]["records"]
+  
+  allPendingTrustlinesWithAssetArr = {}
+  for assets in allAssets:
+    requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + assets + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
+    data = requests.get(requestAddress).json()
+    blockchainRecords = data["_embedded"]["records"]
+    while(blockchainRecords != []):
+      for accounts in blockchainRecords:
+        address = accounts["id"]
+        requestedAssets = []
+        for assets in accounts["balances"]:
+          try:
+            if assets["is_authorized"] == false and assets["asset_issuer"] == BT_ISSUER:
+              requestedAssets.append(assets["asset_code"])
+          except:
+            continue
+        if(requestedAssets != []):
+          allPendingTrustlinesWithAssetArr[address] = requestedAssets
+      # Go to next cursor
+      requestAddress = data["_links"]["next"]["href"].replace("%3A", ":")
+      data = requests.get(requestAddress).json()
+      blockchainRecords = data["_embedded"]["records"]
+  pprint(allPendingTrustlinesWithAssetArr)
+  return allPendingTrustlinesWithAssetArr
 
 def getKnownAddressesFromIdentityMappingCSV(inputCSV):
-  allVerifiedAddresses[] = ""
+  allVerifiedAddresses = []
   identityMapping = open(inputCSV, "r")
   identityMapping.readline()
   while(identityMapping.readline()):
@@ -71,7 +109,7 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
     if(numTxnOps >= MAX_NUM_TXN_OPS):
       transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
       transactions[idx].sign(Keypair.from_secret(secretKey))
-      numTxnOps += 1 = 0
+      numTxnOps = 0
       idx += 1
       transactions.append(
         TransactionBuilder(
@@ -90,3 +128,5 @@ def exportTrustlineApprovalTransaction(txnXDRarr):
     output.write(bulkTxnXDR)
     output.close()
 
+
+approveBulkPendingTrustlines()

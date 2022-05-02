@@ -20,6 +20,8 @@ identityMappingCSV = "" # todo: make a style for a master identity ledger... sto
 
 
 #testing: BT_ISSUER = "GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM"
+#testing (trustlines): 
+BT_ISSUER = "GD23OEO3CI347UILMGUJFSHGI6NFZRURWQS25ZI6VRL3JAQKPHEOSDSQ"
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
   requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + queryAsset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
