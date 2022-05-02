@@ -2,7 +2,7 @@ import sys
 sys.path.append("../../")
 from globals import *
 
-def generatePostSplitMSFupdatingInvestorsUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName):
+def generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName):
   MSF = open(MSFpreSplitBalancesCSV, "r")
   oldMSF = MSF.read()
   oldMSF = oldMSF.strip()
@@ -10,31 +10,20 @@ def generatePostSplitMSFupdatingInvestorsUnclaimedOnStellarInclRestricted(MSFpre
   MSF.close()
   newMSF = open(postSplitFileName, "w")
   newMSF.write(oldMSF[0] + "\n")
-  for shareholder in oldMSF[1:]: # Assume separate restricted and unrestricted entries
+  for shareholder in oldMSF[1:]:
     shareholder = shareholder.split(",")
-    if(shareholder[0] == ""):
+    if(shareholder[1]):
       sharesAfterSplit = Decimal(shareholder[1]) * numerator / denominator
-      shareholder[1] = str(sharesAfterSplit)
+      shareholder[1] = ("{:." + MAX_NUM_DECIMALS + "f}").format(sharesAfterSplit)
+      newMSF.write(",".join(shareholder) + "\n")
+    else:
       newMSF.write(",".join(shareholder) + "\n")
   newMSF.close()
   return newMSF
 
 def exportSplitNewShareTransactions(txnArr, queryAsset):
   for txns in txnArr:
-    output = open("{} {} stockSplitOutputXDR.txt".format(str(datetime.now()).replace(":","."), queryAsset), "w")
+    output = open("{} {} StockSplitOutputXDR.txt".format(str(datetime.now()).replace(":","."), queryAsset), "w")
     output.write(txns.to_xdr())
     output.close()
-
-def updatePostSplitMSFbyCopyingOverRemainingShareholderInfoForBlockchainHolders(outputMSF, MSFpreSplitBalancesCSV, postSplitFileName):
-  finalMSF = open(postSplitFileName, "a")
-  oldMSF = open(MSFpreSplitBalancesCSV, "r")
-  readData = oldMSF.read()
-  readData = readData.strip()
-  readData = readData.split("\n")
-  oldMSF.close()
-  for shareholder in readData[1:]:
-    shareholder = shareholder.split(",")
-    if(shareholder[0]):
-      finalMSF.write(",".join(shareholder) + "\n")
-  finalMSF.close()
 

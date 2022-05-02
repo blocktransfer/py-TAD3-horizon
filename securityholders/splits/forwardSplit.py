@@ -11,10 +11,9 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   denominator = Decimal(denominator)
   assert numerator > denominator 
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
-  outputPostSplitMSFwithUnclaimedShareholdersOnly = generatePostSplitMSFupdatingInvestorsUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
   newShareTxnArr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
   exportSplitNewShareTransactions(newShareTxnArr, queryAsset)
-  updatePostSplitMSFbyCopyingOverRemainingShareholderInfoForBlockchainHolders(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, postSplitFileName)
+  generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
 
 def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
   server = Server(horizon_url= "https://" + HORIZON_INST)

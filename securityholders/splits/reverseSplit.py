@@ -11,10 +11,9 @@ def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   denominator = Decimal(denominator)
   assert numerator < denominator 
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
-  outputPostSplitMSFwithUnclaimedShareholdersOnly = generatePostSplitMSFupdatingInvestorsUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
   newShareTxnArr = revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
   exportSplitNewShareTransactions(newShareTxnArr, queryAsset)
-  updatePostSplitMSFbyCopyingOverRemainingShareholderInfoForBlockchainHolders(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, postSplitFileName)
+  generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
 
 def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
   server = Server(horizon_url= "https://" + HORIZON_INST)
@@ -31,7 +30,7 @@ def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, 
       base_fee = fee,
     )
   )
-  reason = "{}-for-{} forward stock split".format(numerator, denominator)
+  reason = "{}-for-{} reverse stock split".format(numerator, denominator)
   numTxnOps = idx = 0
   for addresses, balances in StellarBlockchainBalances.items():
     sharesToClawback = balances - (balances * numerator / denominator)
@@ -58,4 +57,3 @@ def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, 
   transactions[idx].sign(Keypair.from_secret(secretKey))
   return transactions
 
-reverseSplit("StellarMart", 1, 10, "preSplitVeryRealStockIncMSF.csv")
