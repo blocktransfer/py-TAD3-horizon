@@ -3,7 +3,7 @@ from splitHelper import *
 # testing: reverseSplit("StellarMart", 1, 10, "preSplitVeryRealStockIncMSF.csv")
 def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   try:
-    secretKey = sys.argv[1]
+    SECRET = sys.argv[1]
   except:
     print("Running without key")
   postSplitFileName = "[REVERSE] {} Post-Split Master Securityholder File.csv".format(queryAsset)
@@ -43,7 +43,7 @@ def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, 
       )
     if(numTxnOps >= MAX_NUM_TXN_OPS):
       transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
-      transactions[idx].sign(Keypair.from_secret(secretKey))
+      transactions[idx].sign(Keypair.from_secret(SECRET))
       numTxnOps = 0
       idx += 1
       transactions.append(
@@ -54,6 +54,6 @@ def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, 
         )
       )
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
-  transactions[idx].sign(Keypair.from_secret(secretKey))
+  transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions
 

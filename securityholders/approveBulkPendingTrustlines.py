@@ -4,7 +4,7 @@ from globals import *
 
 def approveBulkPendingTrustlines():
   try:
-    secretKey = sys.argv[1]
+    SECRET = sys.argv[1]
   except:
     print("Running without key")
   allPendingTrustlinesWithAssetArrDict = getAllPendingTrustlinesWithAsset()
@@ -53,20 +53,21 @@ def getAllPendingTrustlinesWithAsset():
       blockchainRecords = data["_embedded"]["records"]
   return allPendingTrustlinesWithAssetArr
 
-def getKnownAddressesFromIdentityMappingCSV(inputCSV):
+def getKnownAddressesFromIdentityMappingCSV():
   allVerifiedAddresses = []
-  identityMapping = open(inputCSV, "r")
+  identityMapping = open(ID_CSV_INST, "r")
   identityMapping.readline()
   while(identityMapping.readline()):
     allVerifiedAddresses.append(identityMapping.readline().split(',')[0])
   return allVerifiedAddresses
 
 def verifyAddressesWithAssetArrDict(addressesWithAssetsArrDict):
-  allKnownShareholderAddressesList = getKnownAddressesFromIdentityMappingCSV(identityMappingCSV)
+  # TODO: Fix identity mapping schema in globals and uncomment below: 
+  #allKnownShareholderAddressesList = getKnownAddressesFromIdentityMappingCSV()
   verifiedAddressesWithAssetArr = {}
   for potentialAddresses, requestedAssetArrs in addressesWithAssetsArrDict.items():
-    if(potentialAddresses in allKnownShareholderAddressesList):
-      verifiedAddressesWithAssetArr[potentialAddresses] = requestedAssetArrs
+    #if(potentialAddresses in allKnownShareholderAddressesList):
+    verifiedAddressesWithAssetArr[potentialAddresses] = requestedAssetArrs
   return verifiedAddressesWithAssetArr
 
 def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict):
@@ -96,7 +97,7 @@ def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict
       )
       if(numTxnOps >= MAX_NUM_TXN_OPS):
         transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-        transactions[idx].sign(Keypair.from_secret(secretKey))
+        transactions[idx].sign(Keypair.from_secret(SECRET))
         numTxnOps = 0
         idx += 1
         transactions.append(
@@ -107,7 +108,7 @@ def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict
           )
         )
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-  transactions[idx].sign(Keypair.from_secret(secretKey))
+  transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions
 
 def exportTrustlineApprovalTransactions(txnXDRarr):
