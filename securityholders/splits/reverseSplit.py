@@ -1,6 +1,4 @@
-import sys
-sys.path.append("../../")
-from globals import *
+from splitHelper import *
 
 # testing: forwardSplit("StellarMart", 1, 10, "preSplitVeryRealStockIncMSF.csv")
 def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
@@ -8,15 +6,18 @@ def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
     secretKey = sys.argv[1]
   except:
     print("Running without key")
-  postSplitFileName = "[BACKWARDS] {} Post-Split Master Securityholder File.csv".format(queryAsset)
+  postSplitFileName = "[REVERSE] {} Post-Split Master Securityholder File.csv".format(queryAsset)
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator < denominator 
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
-  outputPostSplitMSFwithUnclaimedShareholdersOnly = revokeMSFreverseSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator)
+  outputPostSplitMSFwithUnclaimedShareholdersOnly = generatePostSplitMSFupdatingInvestorsUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator)
+  
+  
+  
   newShareTxnArr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
   exportSplitNewShareTransactions(newShareTxnArr)
-  generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV)
+  generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, postSplitFileName)
   
   # Create burn ops per split ratio
   transactions[idx].append_clawback_op(
@@ -24,26 +25,6 @@ def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
     from = address,
     amount = ("{:." + MAX_NUM_DECIMALS + "f}").format(sharesToClawback),
   )
-
-
-  
-
-def revokeMSFreverseSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, queryAsset):
-  MSF = open(MSFpreSplitBalancesCSV, "r")
-  oldMSF = MSF.read()
-  oldMSF = oldMSF.strip()
-  oldMSF = oldMSF.split("\n")
-  MSF.close()
-  newMSF = open(postSplitFileName, "w")
-  newMSF.write(oldMSF[0] + "\n")
-  for shareholder in oldMSF[1:]: # Assume restricted entries are separate from unrestricted entries 
-    shareholder = shareholder.split(",")
-    if(shareholder[0] == ""):
-      sharesAfterSplit = Decimal(shareholder[1]) * numerator / denominator
-      shareholder[1] = str(sharesAfterSplit)
-      newMSF.write(",".join(shareholder) + "\n")
-  newMSF.close()
-  return newMSF
 
 def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
   server = Server(horizon_url= "https://" + HORIZON_INST)
@@ -86,23 +67,4 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
   transactions[idx].sign(Keypair.from_secret(secretKey))
   return transactions
-
-def exportSplitNewShareTransactions(txnArr):
-  for txns in txnArr:
-    output = open(str(datetime.now()) + " forwardSplitPaymentXDR.txt", "w")
-    output.write(txns.to_xdr())
-    output.close()
-
-def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV, queryAsset):
-  finalMSF = open(postSplitFileName, "a")
-  oldMSF = open(MSFpreSplitBalancesCSV, "r")
-  readData = oldMSF.read()
-  readData = readData.strip()
-  readData = readData.split("\n")
-  oldMSF.close()
-  for shareholder in readData[1:]:
-    shareholder = shareholder.split(",")
-    if(shareholder[0]):
-      finalMSF.write(",".join(shareholder) + "\n")
-  finalMSF.close()
 
