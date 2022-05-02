@@ -8,4 +8,8 @@ Welcome video at http://devs.blocktransfer.io
 
 </div>
 
-You can contact our development team at stellar@blocktransfer.io. For shareholer support, contact support@blocktransfer.io. To work with us, reach out to cv@blocktransfer.io.
+You can contact our development team at stellar@blocktransfer.io. 
+
+For shareholer support, contact support@blocktransfer.io. 
+
+To work with us, reach out to cv@blocktransfer.io.
