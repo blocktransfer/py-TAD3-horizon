@@ -55,7 +55,7 @@ def getAllPendingTrustlinesWithAsset():
 
 def getKnownAddressesFromIdentityMappingCSV():
   allVerifiedAddresses = []
-  identityMapping = open(ID_CSV_INST, "r")
+  identityMapping = open(KYC_CSV_INST, "r")
   identityMapping.readline()
   while(identityMapping.readline()):
     allVerifiedAddresses.append(identityMapping.readline().split(',')[0])
@@ -72,7 +72,7 @@ def verifyAddressesWithAssetArrDict(addressesWithAssetsArrDict):
 
 def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict):
   server = Server(horizon_url= "https://" + HORIZON_INST)
-  issuer = server.load_account(account = BT_ISSUER)
+  issuer = server.load_account(account_id = BT_ISSUER)
   try: 
     fee = server.fetch_base_fee()
   except: 
