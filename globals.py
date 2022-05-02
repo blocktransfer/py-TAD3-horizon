@@ -19,8 +19,7 @@ identityMappingCSV = "" # todo: make a style for a master identity ledger... sto
 # that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
 
 
-#testing: 
-BT_ISSUER = "GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM"
+#testing: BT_ISSUER = "GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM"
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
   requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + queryAsset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
