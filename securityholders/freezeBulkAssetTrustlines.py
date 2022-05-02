@@ -46,7 +46,7 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
     transactions[idx].append_set_trust_line_flags_op(
       trustor = address,
       asset = Asset(asset, BT_ISSUER),
-      clear_flags = 1
+      clear_flags = TrustLineFlags(1),
     )
     numTxnOps += 1
     if(numTxnOps >= MAX_NUM_TXN_OPS):
@@ -67,7 +67,7 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
 
 def exportTrustlineRevocationTransaction(txnArr):
   for txns in txnArr:
-    output = open(str(datetime.now()) + " signedFreezeAssetTrustlinesXDR.txt", "w")
+    output = open("{} signedFreezeAssetTrustlinesXDR.txt".format(datetime.now()), "w")
     output.write(txns.to_xdr())
     output.close()
 

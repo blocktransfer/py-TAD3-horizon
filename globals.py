@@ -1,4 +1,4 @@
-from stellar_sdk import Asset, Keypair, Network, Server, TransactionBuilder
+from stellar_sdk import Asset, Keypair, Network, Server, TransactionBuilder, TrustLineFlags
 from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
@@ -15,7 +15,7 @@ FALLBACK_MIN_FEE = 100
 MAX_NUM_TXN_OPS = 100
 
 SECRET = "SBTPLXTXJDMJOXFPYU2ANLZI2ARDPHFKPKK4MJFYVZVBLXYM5AIP3LPK"
-ID_CSV_INST = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
+KYC_CSV_INST = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
 # that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
 
 

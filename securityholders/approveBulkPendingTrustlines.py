@@ -85,15 +85,15 @@ def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict
       base_fee = fee,
     )
   )
-  reason = "Approve trustline: Shareholder KYC verified"
-  numTxnOps, idx = 0
+  reason = "Securityholder KYC verified"
+  numTxnOps = idx = 0
   for addresses, assetArrs in addressesWithAssetsArrDict.items():
     for assets in assetArrs:
       numTxnOps += 1
       transactions[idx].append_set_trust_line_flags_op(
         trustor = addresses,
         asset = Asset(assets, BT_ISSUER),
-        set_flags = 1
+        set_flags = TrustLineFlags(1),
       )
       if(numTxnOps >= MAX_NUM_TXN_OPS):
         transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
@@ -113,7 +113,7 @@ def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict
 
 def exportTrustlineApprovalTransactions(txnXDRarr):
   for txn in txnXDRarr:
-    output = open(datetime.now() + " signedApprovePendingTrustlineXDR.txt", "w")
+    output = open("{} signedFreezeAssetTrustlinesXDR.txt".format(datetime.now()), "w")
     output.write(txn.to_xdr())
     output.close()
 
