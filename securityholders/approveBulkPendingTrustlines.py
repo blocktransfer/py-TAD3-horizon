@@ -14,19 +14,7 @@ def approveBulkPendingTrustlines():
   exportTrustlineApprovalTransaction(signedTrustlineApprovalXDRarr)
 
 def getAllPendingTrustlinesWithAsset():
-  requestAddress = "https://" + HORIZON_INST + "/assets?asset_issuer=" + BT_ISSUER + "&limit=" + MAX_SEARCH
-  data = requests.get(requestAddress).json()
-  
-  allAssets = []
-  blockchainRecords = data["_embedded"]["records"]
-  while(blockchainRecords != []):
-    for entries in blockchainRecords:
-      allAssets.append(entries["asset_code"])
-    # Go to next cursor
-    requestAddress = data["_links"]["next"]["href"].replace("\u0026", "&")
-    data = requests.get(requestAddress).json()
-    blockchainRecords = data["_embedded"]["records"]
-  
+  allAssets = getAllIssuedAssetsArr(BT_ISSUER)
   allPendingTrustlinesWithAssetArr = {}
   for assets in allAssets:
     requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + assets + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
@@ -35,10 +23,12 @@ def getAllPendingTrustlinesWithAsset():
     while(blockchainRecords != []):
       for accounts in blockchainRecords:
         address = accounts["id"]
+        if address in allPendingTrustlinesWithAssetArr:
+          continue
         requestedAssets = []
         for assets in accounts["balances"]:
           try:
-            if assets["is_authorized"] == false and assets["asset_issuer"] == BT_ISSUER:
+            if ~assets["is_authorized"] and assets["asset_issuer"] == BT_ISSUER:
               requestedAssets.append(assets["asset_code"])
           except:
             continue
@@ -50,6 +40,20 @@ def getAllPendingTrustlinesWithAsset():
       blockchainRecords = data["_embedded"]["records"]
   pprint(allPendingTrustlinesWithAssetArr)
   return allPendingTrustlinesWithAssetArr
+
+def getAllIssuedAssetsArr(issuer):
+  allAssets = []
+  requestAddress = "https://" + HORIZON_INST + "/assets?asset_issuer=" + issuer + "&limit=" + MAX_SEARCH
+  data = requests.get(requestAddress).json()
+  blockchainRecords = data["_embedded"]["records"]
+  while(blockchainRecords != []):
+    for entries in blockchainRecords:
+      allAssets.append(entries["asset_code"])
+    # Go to next cursor
+    requestAddress = data["_links"]["next"]["href"].replace("\u0026", "&")
+    data = requests.get(requestAddress).json()
+    blockchainRecords = data["_embedded"]["records"]
+  return allAssets
 
 def getKnownAddressesFromIdentityMappingCSV(inputCSV):
   allVerifiedAddresses = []
