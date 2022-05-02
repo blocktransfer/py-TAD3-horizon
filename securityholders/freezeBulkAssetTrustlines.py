@@ -71,4 +71,4 @@ def exportTrustlineRevocationTransaction(txnArr):
     output.write(txns.to_xdr())
     output.close()
 
-freezeBulkAssetTrustlines("StellarMart", "Temporary freeze for split")
+freezeBulkAssetTrustlines("DEMO", "Temporary freeze for split")
