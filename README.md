@@ -4,7 +4,7 @@
 <strong>A decentralized stock transfer agent for global financial markets</strong>
 
 <h1>Block Transfer</h1>
-Welcome video at http://devs.blocktransfer.io
+Feel free to commit your own branched improvements!
 </div>
 
 <div align="left">
