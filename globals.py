@@ -20,8 +20,7 @@ KYC_CSV_INST = "" # todo: make a style for a master identity ledger... store on 
 
 
 #testing (accounts): BT_ISSUER = "GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM"
-#testing (trustlines): 
-BT_ISSUER = "GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS"
+#testing (trustlines): BT_ISSUER = "GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS"
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
   requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + queryAsset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
