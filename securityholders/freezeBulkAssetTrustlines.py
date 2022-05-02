@@ -2,46 +2,46 @@ import sys
 sys.path.append("../")
 from globals import *
 
-# testing: freezeBulkAssetTrustlines("StellarMart", "Freezing all accounts prior 5-to-2 forward stock split. Adjust future offers accordingly")
+# testing: freezeBulkAssetTrustlines("StellarMart", "FREEZING: Stock split inbound")
 def freezeBulkAssetTrustlines(asset, reason):
   try:
     SECRET = sys.argv[1]
   except:
     print("Running without key")
-  outstandingTrustlines = getOutstandingTrustlinesForFreezingAsset()
+  outstandingTrustlines = getOutstandingTrustlines(asset)
   revocationTxnXDRarr = signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason)
   exportTrustlineRevocationTransaction(revocationTxnXDRarr)
 
-def getOutstandingTrustlinesForFreezingAsset():
-  requestAddress = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..."
-  data = requests.get(requestAddress).json()
-  
+def getOutstandingTrustlines(asset):
   allOutstandingTrustlines = []
-  outstandingTrustline = data[...]
-  while(outstandingTrustline):
-    address = outstandingTrustline[...]
-    outstandingTrustline.append(address)
-    
-    requestAddress = "https://" + HORIZON_INST + "..." + BT_ISSUER + "..." -> next
+  requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + asset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
+  data = requests.get(requestAddress).json()
+  blockchainRecords = data["_embedded"]["records"]
+  while(blockchainRecords != []):
+    for accounts in blockchainRecords:
+      allOutstandingTrustlines.append(accounts["id"])
+    # Go to next cursor
+    requestAddress = data["_links"]["next"]["href"].replace("%3A", ":")
     data = requests.get(requestAddress).json()
-    outstandingTrustline = data[...]
-
+    blockchainRecords = data["_embedded"]["records"]
   return allOutstandingTrustlines
 
 def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
   server = Server(horizon_url= "https://" + HORIZON_INST)
-  issuer = server.load_account(account = BT_ISSUER)
+  issuer = server.load_account(account_id = BT_ISSUER)
   try: 
     fee = server.fetch_base_fee()
   except: 
     fee = FALLBACK_MIN_FEE
   transactions = []
-  transactions[0] = TransactionBuilder(
-    source_account = issuer,
-    network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-    base_fee = fee,
+  transactions.append(
+    TransactionBuilder(
+      source_account = issuer,
+      network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
+      base_fee = fee,
+    )
   )
-  numTxnOps, idx = 0
+  numTxnOps = idx = 0
   for address in outstandingTrustlines:
     transactions[idx].append_set_trust_line_flags_op(
       trustor = address,
@@ -61,7 +61,7 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
           base_fee = fee,
         )
       )
-  transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()\
+  transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
   transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions
 
@@ -71,3 +71,4 @@ def exportTrustlineRevocationTransaction(txnArr):
     output.write(txns.to_xdr())
     output.close()
 
+freezeBulkAssetTrustlines("StellarMart", "Temporary freeze for split")
