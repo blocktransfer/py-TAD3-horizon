@@ -5,14 +5,12 @@
 
 <h1>Block Transfer</h1>
 Welcome video at http://devs.blocktransfer.io
-
 </div>
 
-
-
-
+<div align="left">
 You can contact our development team at stellar@blocktransfer.io. 
 
 For shareholer support, contact support@blocktransfer.io. 
 
 To work with us, reach out to cv@blocktransfer.io.
+</div>
