@@ -1,6 +1,7 @@
 import sys
 sys.path.append("../../")
 from globals import *
+from splitHelperFunct import *
 
 # testing: forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
 def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
@@ -13,12 +14,12 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   denominator = Decimal(denominator)
   assert numerator > denominator 
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
-  outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
+  outputPostSplitMSFwithUnclaimedShareholdersOnly = generatePostSplitMSFforSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
   newShareTxnArr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
-  exportSplitNewShareTransactions(newShareTxnArr)
-  generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, postSplitFileName)
+  exportSplitNewShareTransactions(newShareTxnArr, queryAsset)
+  updatePostSplitMSFbyCopyingOverRemainingShareholderInfoForBlockchainHolders(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, postSplitFileName)
 
-def grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName):
+def generatePostSplitMSFforSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName):
   MSF = open(MSFpreSplitBalancesCSV, "r")
   oldMSF = MSF.read()
   oldMSF = oldMSF.strip()
@@ -77,22 +78,4 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
   transactions[idx].sign(Keypair.from_secret(secretKey))
   return transactions
 
-def exportSplitNewShareTransactions(txnArr):
-  for txns in txnArr:
-    output = open(str(datetime.now()) + " forwardSplitPaymentXDR.txt", "w")
-    output.write(txns.to_xdr())
-    output.close()
-
-def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV, postSplitFileName):
-  finalMSF = open(postSplitFileName, "a")
-  oldMSF = open(MSFpreSplitBalancesCSV, "r")
-  readData = oldMSF.read()
-  readData = readData.strip()
-  readData = readData.split("\n")
-  oldMSF.close()
-  for shareholder in readData[1:]:
-    shareholder = shareholder.split(",")
-    if(shareholder[0]):
-      finalMSF.write(",".join(shareholder) + "\n")
-  finalMSF.close()
-
+forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
