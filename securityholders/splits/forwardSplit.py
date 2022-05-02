@@ -78,4 +78,3 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
   transactions[idx].sign(Keypair.from_secret(secretKey))
   return transactions
 
-forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
