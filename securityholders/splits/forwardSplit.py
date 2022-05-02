@@ -96,4 +96,3 @@ def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV, postSplitFileNa
       finalMSF.write(",".join(shareholder) + "\n")
   finalMSF.close()
 
-forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
