@@ -28,7 +28,7 @@ def getAllPendingTrustlinesWithAsset():
         requestedAssets = []
         for assets in accounts["balances"]:
           try:
-            if ~assets["is_authorized"] and assets["asset_issuer"] == BT_ISSUER:
+            if not assets["is_authorized"] and assets["asset_issuer"] == BT_ISSUER:
               requestedAssets.append(assets["asset_code"])
           except:
             continue
@@ -119,3 +119,17 @@ def exportTrustlineApprovalTransaction(txnXDRarr):
 
 
 approveBulkPendingTrustlines()
+def testing():
+  requestAddress = "https://horizon.stellar.org/assets?cursor=&limit=200&order=asc"
+  data = requests.get(requestAddress).json()
+  blockchainRecords = data["_embedded"]["records"]
+  while(blockchainRecords != []):
+    for entries in blockchainRecords:
+      if(entries["flags"]["auth_required"] == True and entries["asset_issuer"] != 'GDJ2TPZFWEWXYIR27YMCUUR3KEDM37PUY7KY2MEFGB344EMTIRA7PXXJ'):
+          pprint(entries["asset_issuer"])
+
+    requestAddress = data["_links"]["next"]["href"].replace("\u0026", "&")
+    data = requests.get(requestAddress).json()
+    blockchainRecords = data["_embedded"]["records"]
+  return 1
+#testing()
