@@ -18,7 +18,6 @@ def getAllPendingTrustlinesWithAsset():
   allPendingTrustlinesWithAssetArr = {}
   for assets in allAssets:
     requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + assets + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
-    pprint(requestAddress)
     data = requests.get(requestAddress).json()
     blockchainRecords = data["_embedded"]["records"]
     while(blockchainRecords != []):
@@ -37,10 +36,8 @@ def getAllPendingTrustlinesWithAsset():
           allPendingTrustlinesWithAssetArr[address] = requestedAssets
       # Go to next cursor
       requestAddress = data["_links"]["next"]["href"].replace("%3A", ":")
-      pprint(requestAddress)
       data = requests.get(requestAddress).json()
       blockchainRecords = data["_embedded"]["records"]
-  pprint(allPendingTrustlinesWithAssetArr)
   return allPendingTrustlinesWithAssetArr
 
 def getAllIssuedAssetsArr(issuer):
