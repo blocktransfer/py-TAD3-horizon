@@ -4,11 +4,17 @@
 <strong>A decentralized stock transfer agent for global financial markets</strong>
 
 <h1>Block Transfer</h1>
-Welcome video at http://devs.blocktransfer.io
-
+Feel free to commit your own branched improvements!
 </div>
 
-<h1>PRs/Devs:</h1>
-Todo:
-
-* Technical development help for Stellar [CAP-42](https://github.com/stellar/stellar-protocol/issues/1015)
+<div align="left">
+  <h3>Contact</h3>
+  
+  You can contact our development team at stellar@blocktransfer.io
+  
+  For shareholer support, contact support@blocktransfer.io
+  
+  To work with us, reach out to cv@blocktransfer.io
+  
+  
+</div>
