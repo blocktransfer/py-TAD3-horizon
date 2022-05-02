@@ -8,7 +8,4 @@ Welcome video at http://devs.blocktransfer.io
 
 </div>
 
-<h1>PRs/Devs:</h1>
-Todo:
-
-* Technical development help for Stellar [CAP-42](https://github.com/stellar/stellar-protocol/issues/1015)
+You can contact our development team at stellar@blocktransfer.io. For shareholer support, contact support@blocktransfer.io. To work with us, reach out to cv@blocktransfer.io.
