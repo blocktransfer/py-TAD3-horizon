@@ -2,30 +2,29 @@ import sys
 sys.path.append("../../")
 from globals import *
 
-postSplitFileName = "[FORWARD] {} Post-Split Master Securityholder File.csv"
-
 # testing: forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
 def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   try:
     secretKey = sys.argv[1]
   except:
     print("Running without key")
+  postSplitFileName = "[FORWARD] {} Post-Split Master Securityholder File.csv".format(queryAsset)
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator > denominator 
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
-  outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, queryAsset)
+  outputPostSplitMSFwithUnclaimedShareholdersOnly = grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
   newShareTxnArr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
   exportSplitNewShareTransactions(newShareTxnArr)
-  generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, queryAsset)
+  generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, postSplitFileName)
 
-def grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, queryAsset):
+def grantMSFnewSplitSharesUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName):
   MSF = open(MSFpreSplitBalancesCSV, "r")
   oldMSF = MSF.read()
   oldMSF = oldMSF.strip()
   oldMSF = oldMSF.split("\n")
   MSF.close()
-  newMSF = open(postSplitFileName.format(queryAsset), "w")
+  newMSF = open(postSplitFileName, "w")
   newMSF.write(oldMSF[0] + "\n")
   for shareholder in oldMSF[1:]: # Assume restricted entries are separate from unrestricted entries 
     shareholder = shareholder.split(",")
@@ -84,8 +83,8 @@ def exportSplitNewShareTransactions(txnArr):
     output.write(txns.to_xdr())
     output.close()
 
-def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV, queryAsset):
-  finalMSF = open(postSplitFileName.format(queryAsset), "a")
+def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV, postSplitFileName):
+  finalMSF = open(postSplitFileName, "a")
   oldMSF = open(MSFpreSplitBalancesCSV, "r")
   readData = oldMSF.read()
   readData = readData.strip()
@@ -97,3 +96,4 @@ def generateFinalPostSplitMSF(outputMSF, MSFpreSplitBalancesCSV, queryAsset):
       finalMSF.write(",".join(shareholder) + "\n")
   finalMSF.close()
 
+forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
