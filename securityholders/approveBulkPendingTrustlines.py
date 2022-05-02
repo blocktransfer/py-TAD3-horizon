@@ -7,11 +7,24 @@ def approveBulkPendingTrustlines():
     secretKey = sys.argv[1]
   except:
     print("Running without key")
-  pendingAddressesWithAssetsDict = getAllPendingTrustlinesWithAsset()
-  return 1
-  verifiedAddressesWithAssetsDict = verifyAddressesWithAssetDict(pendingAddressesWithAssetsDict)
-  signedTrustlineApprovalXDRarr = signBulkTrustlineApprovalsFromAddressAssetDict(verifiedAddressesWithAssetDict)
-  exportTrustlineApprovalTransaction(signedTrustlineApprovalXDRarr)
+  allPendingTrustlinesWithAssetArrDict = getAllPendingTrustlinesWithAsset()
+  verifiedAddressesWithAssetArrDict = verifyAddressesWithAssetArrDict(allPendingTrustlinesWithAssetArrDict)
+  signedTrustlineApprovalXDRarr = signBulkTrustlineApprovalsFromAddressAssetArrDict(verifiedAddressesWithAssetArrDict)
+  exportTrustlineApprovalTransactions(signedTrustlineApprovalXDRarr)
+
+def getAllIssuedAssetsArr(issuer):
+  allAssets = []
+  requestAddress = "https://" + HORIZON_INST + "/assets?asset_issuer=" + issuer + "&limit=" + MAX_SEARCH
+  data = requests.get(requestAddress).json()
+  blockchainRecords = data["_embedded"]["records"]
+  while(blockchainRecords != []):
+    for entries in blockchainRecords:
+      allAssets.append(entries["asset_code"])
+    # Go to next cursor
+    requestAddress = data["_links"]["next"]["href"].replace("\u0026", "&")
+    data = requests.get(requestAddress).json()
+    blockchainRecords = data["_embedded"]["records"]
+  return allAssets
 
 def getAllPendingTrustlinesWithAsset():
   allAssets = getAllIssuedAssetsArr(BT_ISSUER)
@@ -40,20 +53,6 @@ def getAllPendingTrustlinesWithAsset():
       blockchainRecords = data["_embedded"]["records"]
   return allPendingTrustlinesWithAssetArr
 
-def getAllIssuedAssetsArr(issuer):
-  allAssets = []
-  requestAddress = "https://" + HORIZON_INST + "/assets?asset_issuer=" + issuer + "&limit=" + MAX_SEARCH
-  data = requests.get(requestAddress).json()
-  blockchainRecords = data["_embedded"]["records"]
-  while(blockchainRecords != []):
-    for entries in blockchainRecords:
-      allAssets.append(entries["asset_code"])
-    # Go to next cursor
-    requestAddress = data["_links"]["next"]["href"].replace("\u0026", "&")
-    data = requests.get(requestAddress).json()
-    blockchainRecords = data["_embedded"]["records"]
-  return allAssets
-
 def getKnownAddressesFromIdentityMappingCSV(inputCSV):
   allVerifiedAddresses = []
   identityMapping = open(inputCSV, "r")
@@ -62,15 +61,15 @@ def getKnownAddressesFromIdentityMappingCSV(inputCSV):
     allVerifiedAddresses.append(identityMapping.readline().split(',')[0])
   return allVerifiedAddresses
 
-def verifyAddressesWithAssetDict(addressesWithAssetsDict):
+def verifyAddressesWithAssetArrDict(addressesWithAssetsArrDict):
   allKnownShareholderAddressesList = getKnownAddressesFromIdentityMappingCSV(identityMappingCSV)
-  verifiedAddressesWithAssetDict = {}
-  for potentialAddress, potentialAsset in addressesWithAssetsDict: # .items() ?
-    if(potentialAddress in allKnownShareholderAddressesList):
-      verifiedAddressesWithAssetDict[potentialAddress] = potentialAsset
-  return verifiedAddressesWithAssetDict
+  verifiedAddressesWithAssetArr = {}
+  for potentialAddresses, requestedAssetArrs in addressesWithAssetsArrDict.items():
+    if(potentialAddresses in allKnownShareholderAddressesList):
+      verifiedAddressesWithAssetArr[potentialAddresses] = requestedAssetArrs
+  return verifiedAddressesWithAssetArr
 
-def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
+def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict):
   server = Server(horizon_url= "https://" + HORIZON_INST)
   issuer = server.load_account(account = BT_ISSUER)
   try: 
@@ -87,30 +86,31 @@ def signBulkTrustlineApprovalsFromAddressAssetDict(addressesWithAssetsDict):
   )
   reason = "Approve trustline: Shareholder KYC verified"
   numTxnOps, idx = 0
-  for addresses, assets in addressesWithAssetsDict.items():
-    transactions[idx].append_set_trust_line_flags_op(
-      trustor = addresses,
-      asset = Asset(assets, BT_ISSUER),
-      set_flags = 1
-    ) 
-    numTxnOps += 1
-    if(numTxnOps >= MAX_NUM_TXN_OPS):
-      transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-      transactions[idx].sign(Keypair.from_secret(secretKey))
-      numTxnOps = 0
-      idx += 1
-      transactions.append(
-        TransactionBuilder(
-          source_account = issuer,
-          network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-          base_fee = fee,
-        )
+  for addresses, assetArrs in addressesWithAssetsArrDict.items():
+    for assets in assetArrs:
+      numTxnOps += 1
+      transactions[idx].append_set_trust_line_flags_op(
+        trustor = addresses,
+        asset = Asset(assets, BT_ISSUER),
+        set_flags = 1
       )
-  transactions[idx] = transactions[idx].add_text_memo("Approve trustline: Shareholder KYC verified").set_timeout(3600).build()
+      if(numTxnOps >= MAX_NUM_TXN_OPS):
+        transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
+        transactions[idx].sign(Keypair.from_secret(secretKey))
+        numTxnOps = 0
+        idx += 1
+        transactions.append(
+          TransactionBuilder(
+            source_account = issuer,
+            network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
+            base_fee = fee,
+          )
+        )
+  transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
   transactions[idx].sign(Keypair.from_secret(secretKey))
   return transactions
 
-def exportTrustlineApprovalTransaction(txnXDRarr):
+def exportTrustlineApprovalTransactions(txnXDRarr):
   for txn in txnXDRarr:
     output = open(datetime.now() + " signedApprovePendingTrustlineXDR.txt", "w")
     output.write(txn.to_xdr())
