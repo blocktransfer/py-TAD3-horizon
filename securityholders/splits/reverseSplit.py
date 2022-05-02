@@ -11,22 +11,12 @@ def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   denominator = Decimal(denominator)
   assert numerator < denominator 
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
-  outputPostSplitMSFwithUnclaimedShareholdersOnly = generatePostSplitMSFupdatingInvestorsUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator)
-  
-  
-  
-  newShareTxnArr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
+  outputPostSplitMSFwithUnclaimedShareholdersOnly = generatePostSplitMSFupdatingInvestorsUnclaimedOnStellarInclRestricted(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
+  newShareTxnArr = revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
   exportSplitNewShareTransactions(newShareTxnArr)
   generateFinalPostSplitMSF(outputPostSplitMSFwithUnclaimedShareholdersOnly, MSFpreSplitBalancesCSV, postSplitFileName)
-  
-  # Create burn ops per split ratio
-  transactions[idx].append_clawback_op(
-    asset = Asset(queryAsset, BT_ISSUER),
-    from = address,
-    amount = ("{:." + MAX_NUM_DECIMALS + "f}").format(sharesToClawback),
-  )
 
-def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
+def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
   server = Server(horizon_url= "https://" + HORIZON_INST)
   distributor = server.load_account(account_id = BT_DISTRIBUTOR)
   try: 
@@ -36,7 +26,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
   transactions = []
   transactions.append(
     TransactionBuilder(
-      source_account = distributor,
+      source_account = issuer,
       network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
       base_fee = fee,
     )
@@ -44,12 +34,12 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
   reason = "{}-for-{} forward stock split".format(numerator, denominator)
   numTxnOps = idx = 0
   for addresses, balances in StellarBlockchainBalances.items():
-    sharesToPay = (balances * numerator / denominator) - balances
-    if(sharesToPay):
+    sharesToClawback = (balances * numerator / denominator) - balances
+    if(sharesToClawback):
       numTxnOps += 1
-      transactions[idx].append_payment_op(
-        destination = addresses,
+      transactions[idx].append_clawback_op(
         asset = Asset(queryAsset, BT_ISSUER),
+        from = addresses,
         amount = ("{:." + MAX_NUM_DECIMALS + "f}").format(sharesToPay),
       )
     if(numTxnOps >= MAX_NUM_TXN_OPS):
@@ -59,7 +49,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
       idx += 1
       transactions.append(
         TransactionBuilder(
-          source_account = distributor,
+          source_account = issuer,
           network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
           base_fee = fee,
         )
