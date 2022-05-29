@@ -16,7 +16,7 @@ def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
 
 def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
-  server = Server(horizon_url= "https://" + HORIZON_INST)
+  server = Server(horizon_url = "https://" + HORIZON_INST)
   issuer = server.load_account(account_id = BT_ISSUER)
   try: 
     fee = server.fetch_base_fee()
