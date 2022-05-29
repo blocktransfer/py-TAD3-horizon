@@ -16,7 +16,7 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
 
 def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
-  server = Server(horizon_url= "https://" + HORIZON_INST)
+  server = Server(horizon_url = "https://" + HORIZON_INST)
   distributor = server.load_account(account_id = BT_DISTRIBUTOR)
   try: 
     fee = server.fetch_base_fee()
