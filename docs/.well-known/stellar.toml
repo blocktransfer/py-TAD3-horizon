@@ -7,9 +7,8 @@ FEDERATION_SERVER = "https://stellarid.io/federation/"
 #KYC_SERVER = "https://testanchor.stellar.org/kyc" #todo: The server used for SEP-12 Anchor/Client customer info transfer
 #WEB_AUTH_ENDPOINT="https://api.anchorusd.com/webauth" #todo: The endpoint used for SEP-10 Web Authentication
 #SIGNING_KEY = "" #todo: The signing key is used for SEP-10 Authentication Protocol
-ACCOUNTS = ["GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7, GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"] # Issuer, Distributor
-#URI_REQUEST_SIGNING_KEY = "" #todo: The signing key is used for SEP-7 delegated signing
-#ANCHOR_QUOTE_SERVER = "https://" #todo: The server used for receiving SEP-38 requests.
+ACCOUNTS = ["GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7, GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6", "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"] # Issuer, Distributor, Treasury
+#ANCHOR_QUOTE_SERVER = "https://" #todo: Perhaps a simple 'last' price quote from Yahoo Finance
 
 [DOCUMENTATION]
 ORG_NAME = "BlockTrans Syndicate"
