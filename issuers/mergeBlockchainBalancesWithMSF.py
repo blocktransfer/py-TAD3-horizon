@@ -2,7 +2,6 @@ import sys
 sys.path.append("../")
 from globals import *
 
-# testing: getMergedReportForAssetWithNumRestrictedSharesUsingMSF("StellarMart", 10000, "VeryRealStockIncMSF.csv")
 def getMergedReportForAssetWithNumRestrictedSharesUsingMSF(queryAsset, numRestrictedShares, MSF):
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
   totalOutstandingShares = getTotalOutstandingShares(queryAsset, numRestrictedShares)
@@ -29,11 +28,12 @@ def mergeBlockchainRecordsWithMSF(queryAsset, MSF, totalOutstandingShares, Stell
     try:
         blockchainBalance = 0 if lines[0] == "" else StellarBlockchainBalances[lines[0]]
     except KeyError:
-        # This address is no longer a securityholder per removed trustline. Prune from merged MSF
+        print("{} is no longer a securityholder per removed trustline. Prune from merged MSF".format(lines[0]))
         continue
     totalBalance = blockchainBalance + sharesNotYetClaimedOnStellar # Redundant given restricted entries are separate from unrestricted entries 
     lines[0] = str(totalBalance)
     lines[1] = str(totalBalance / totalOutstandingShares)
     mergedMSF.write(",".join(lines) + "\n")
   mergedMSF.close()
-  
+
+# Debug: getMergedReportForAssetWithNumRestrictedSharesUsingMSF("StellarMart", 10000, "VeryRealStockIncMSF.csv")
