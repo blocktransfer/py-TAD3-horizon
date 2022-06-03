@@ -3,7 +3,7 @@ sys.path.append("../")
 from globals import *
 from stellar_sdk import exceptions
 
-address = "GBX3X43Q44RLZTTVQYY5VI3XIRZGCE4S52MTBQUY7ZZM2PSKEHFCY35N"
+address = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 newAccountAmount = 4.2069
 
 server = Server(horizon_url= "https://" + HORIZON_INST)
@@ -15,8 +15,6 @@ def createApprovedAccount():
   except Exception:
     print("Running without key")
   alreadyExists = seeIfAccountExists()
-  print(alreadyExists)
-  return 1
   txn = declareApproval() if alreadyExists else createAccount()
   submitUnbuiltTxnToStellar(txn)
 
