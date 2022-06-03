@@ -85,7 +85,7 @@ def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict
       base_fee = fee,
     )
   )
-  reason = "Securityholder KYC verified"
+  reason = "Known securityholder"
   numTxnOps = idx = 0
   for addresses, assetArrs in addressesWithAssetsArrDict.items():
     for assets in assetArrs:
