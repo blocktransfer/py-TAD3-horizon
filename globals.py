@@ -2,7 +2,7 @@ from stellar_sdk import Asset, Keypair, Network, Server, TransactionBuilder, Tru
 from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
-import requests, json
+import os.path, requests, json
 
 # Debug issuers:
 # accounts - GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM
@@ -20,8 +20,8 @@ FALLBACK_MIN_FEE = 100
 MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2
 
-KYC_CSV_INST = "" # todo: make a style for a master identity ledger... store on offline airgapps sys with weekly? updates and sole physical backup monthly? with secure custodians (split btwn with partial images? - registered mail encrypted drives?) and then wipe Persona ea. week? on a 2-mo delayed basis? 
-# that might be a bit much, and we could probably just use an authenticated sftp channel or put in Storj? 
+CSV_PATH = "/../../pii/master-identity-ledger.csv"
+KYC_CSV_INST = open(os.path.dirname(__file__) + CSV_PATH)
 
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
