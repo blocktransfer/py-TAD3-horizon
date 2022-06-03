@@ -1,8 +1,9 @@
 import sys
 sys.path.append("../")
 from globals import *
+from stellar_sdk import exceptions
 
-address = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
+address = "GBX3X43Q44RLZTTVQYY5VI3XIRZGCE4S52MTBQUY7ZZM2PSKEHFCY35N"
 newAccountAmount = 4.2069
 
 server = Server(horizon_url= "https://" + HORIZON_INST)
@@ -14,15 +15,20 @@ def createApprovedAccount():
   except Exception:
     print("Running without key")
   alreadyExists = seeIfAccountExists()
+  print(alreadyExists)
+  return 1
   txn = declareApproval() if alreadyExists else createAccount()
   submitUnbuiltTxnToStellar(txn)
 
 def seeIfAccountExists():
   try:
-    server.load_account(account_id = account)
+    server.load_account(account_id = address)
     return 1
-  except Exception:
-    return 0
+  except exceptions.SdkError as error:
+    if(error.status == 404):
+      return 0
+    else:
+      sys.exit("Breaking - bad error:\n{}".format(error))
 
 def declareApproval():
   transaction = buildTxnEnv()
@@ -36,7 +42,7 @@ def declareApproval():
 def createAccount():
   transaction = buildTxnEnv()
   transaction.append_create_account_op(
-    destination = destination.public_key,
+    destination = address,
     starting_balance = newAccountAmount
   )
   return transaction
