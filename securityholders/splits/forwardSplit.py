@@ -30,7 +30,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
       base_fee = fee,
     )
   )
-  reason = "{}-for-{} forward stock split".format(numerator, denominator)
+  reason = "NOTICE: {}-for-{} forward split".format(numerator, denominator)
   numTxnOps = idx = 0
   for addresses, balances in StellarBlockchainBalances.items():
     sharesToPay = (balances * numerator / denominator) - balances
