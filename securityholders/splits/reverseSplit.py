@@ -30,7 +30,7 @@ def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, 
       base_fee = fee,
     )
   )
-  reason = "{}-for-{} reverse stock split".format(numerator, denominator)
+  reason = "NOTICE: {}-for-{} reverse split".format(numerator, denominator)
   numTxnOps = idx = 0
   for addresses, balances in StellarBlockchainBalances.items():
     sharesToClawback = balances - (balances * numerator / denominator)
