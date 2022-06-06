@@ -20,8 +20,7 @@ FALLBACK_MIN_FEE = 100
 MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2
 
-CSV_PATH = "/../../pii/master-identity-ledger.csv"
-KYC_CSV_INST = open(os.path.dirname(__file__) + CSV_PATH)
+KYC_CSV_INST = os.path.dirname(__file__) + "/../../pii/master-identity-ledger.csv"
 
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
