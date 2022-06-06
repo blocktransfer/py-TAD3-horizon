@@ -55,10 +55,11 @@ def getAllPendingTrustlinesWithAsset():
 
 def getKnownAddressesFromIdentityMappingCSV():
   allVerifiedAddresses = []
-  identityMapping = open(KYC_CSV_INST, "r")
+  identityMapping = open(KYC_CSV_INST)
   identityMapping.readline()
   while(identityMapping.readline()):
     allVerifiedAddresses.append(identityMapping.readline().split(',')[0])
+  identityMapping.close()
   return allVerifiedAddresses
 
 def verifyAddressesWithAssetArrDict(addressesWithAssetsArrDict):
