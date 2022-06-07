@@ -47,7 +47,7 @@ is_asset_anchored = false
 #anchor_asset_type = "stock"
 #anchor_asset = "CUSIP/ISIN-011531"
 attestation_of_reserve = "https://www.sec.gov/edgar/browse/?CIK=1846058"
-redemption_instructions = "Transfer your shares to cede*blocktransfer.io and initiate a transfer request from your legacy broker."
+redemption_instructions = "Transfer your shares to cede*blocktransfer.io and initiate an ACATS transfer request from your legacy broker. NOTE: Only send amounts using five decimal places because after that you won’t be credited (e.g. sending 1.0000099 results in you getting 1)."
 regulated = false
 
 
