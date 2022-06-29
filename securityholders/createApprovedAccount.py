@@ -2,25 +2,54 @@ import sys
 sys.path.append("../")
 from globals import *
 from stellar_sdk import exceptions
+import toml
 
-address = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
+#address = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
+address = "treasury*blocktransfer.io"
 newAccountAmount = 4.2069
-
 server = Server(horizon_url= "https://" + HORIZON_INST)
 treasury = server.load_account(account_id = BT_TREASURY)
+try:
+  SECRET = sys.argv[1]
+except Exception:
+  print("Running without key")
 
 def createApprovedAccount():
-  try:
-    SECRET = sys.argv[1]
-  except Exception:
-    print("Running without key")
-  alreadyExists = seeIfAccountExists()
-  txn = declareApproval() if alreadyExists else createAccount()
+  # todo: read provided addresses from a csv of approved public keys
+  providedAddr = address
+  resolvedAddr = getAddress(providedAddr)
+  print(resolvedAddr)
+  return 1
+  alreadyExists = seeIfAccountExists(resolvedAddr)
+  txn = declareApproval(resolvedAddr) if alreadyExists else createAccount(resolvedAddr)
   submitUnbuiltTxnToStellar(txn)
 
-def seeIfAccountExists():
+def getAddress(providedAddr):
+  splitAddr = providedAddr.split("*")
+  if(len(splitAddr) == 1):
+    return providedAddr
+  elif(len(splitAddr) == 2):
+    federationName = splitAddr[0]
+    federationDomain = splitAddr[1]
+  else: 
+    sys.exit("Bad address: {}".format(providedAddr))
   try:
-    server.load_account(account_id = address)
+    requestAddr = "https://" + federationDomain + "/.well-known/stellar.toml"
+    data = toml.loads(requests.get(requestAddr).content.decode())
+    homeDomainFederationServer = data["FEDERATION_SERVER"]
+  except Exception:
+    sys.exit("Failed to lookup federation server at {}".format(federationDomain))
+  homeDomainFederationServer = homeDomainFederationServer if homeDomainFederationServer.split("/")[-1] else homeDomainFederationServer[:-1]
+  requestAddr = homeDomainFederationServer + "?q=" + providedAddr + "&type=name"
+  data = requests.get(requestAddr).json()
+  try: 
+    return data["account_id"]
+  except Exception:
+    sys.exit("Could not find {}".format(providedAddr))
+
+def seeIfAccountExists(resolvedAddr):
+  try:
+    server.load_account(account_id = resolvedAddr)
     return 1
   except exceptions.SdkError as error:
     if(error.status == 404):
@@ -28,19 +57,19 @@ def seeIfAccountExists():
     else:
       sys.exit("Breaking - bad error:\n{}".format(error))
 
-def declareApproval():
+def declareApproval(resolvedAddr):
   transaction = buildTxnEnv()
   transaction.append_payment_op(
-    destination = address,
+    destination = resolvedAddr,
     asset = Asset.native(),
     amount = newAccountAmount,
   )
   return transaction
 
-def createAccount():
+def createAccount(resolvedAddr):
   transaction = buildTxnEnv()
   transaction.append_create_account_op(
-    destination = address,
+    destination = resolvedAddr,
     starting_balance = newAccountAmount
   )
   return transaction
