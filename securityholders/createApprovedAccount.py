@@ -18,8 +18,6 @@ def createApprovedAccount():
   # todo: read provided addresses from a csv of approved public keys
   providedAddr = address
   resolvedAddr = getAddress(providedAddr)
-  print(resolvedAddr)
-  return 1
   alreadyExists = seeIfAccountExists(resolvedAddr)
   txn = declareApproval(resolvedAddr) if alreadyExists else createAccount(resolvedAddr)
   submitUnbuiltTxnToStellar(txn)
