@@ -6,7 +6,7 @@ import toml
 
 #address = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 address = "treasury*blocktransfer.io"
-newAccountAmount = 4.2069
+approvalAmountXLM = 4.2069
 server = Server(horizon_url= "https://" + HORIZON_INST)
 treasury = server.load_account(account_id = BT_TREASURY)
 try:
@@ -60,7 +60,7 @@ def declareApproval(resolvedAddr):
   transaction.append_payment_op(
     destination = resolvedAddr,
     asset = Asset.native(),
-    amount = newAccountAmount,
+    amount = approvalAmountXLM,
   )
   return transaction
 
@@ -68,7 +68,7 @@ def createAccount(resolvedAddr):
   transaction = buildTxnEnv()
   transaction.append_create_account_op(
     destination = resolvedAddr,
-    starting_balance = newAccountAmount
+    starting_balance = approvalAmountXLM
   )
   return transaction
 
