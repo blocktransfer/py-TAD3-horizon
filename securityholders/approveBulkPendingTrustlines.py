@@ -2,11 +2,12 @@ import sys
 sys.path.append("../")
 from globals import *
 
-def approveBulkPendingTrustlines():
-  try:
+try:
     SECRET = sys.argv[1]
-  except:
-    print("Running without key")
+except:
+  print("Running without key")
+
+def approveBulkPendingTrustlines():
   allPendingTrustlinesWithAssetArrDict = getAllPendingTrustlinesWithAsset()
   verifiedAddressesWithAssetArrDict = verifyAddressesWithAssetArrDict(allPendingTrustlinesWithAssetArrDict)
   signedTrustlineApprovalXDRarr = signBulkTrustlineApprovalsFromAddressAssetArrDict(verifiedAddressesWithAssetArrDict)
@@ -72,12 +73,6 @@ def verifyAddressesWithAssetArrDict(addressesWithAssetsArrDict):
   return verifiedAddressesWithAssetArr
 
 def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict):
-  server = Server(horizon_url= "https://" + HORIZON_INST)
-  issuer = server.load_account(account_id = BT_ISSUER)
-  try: 
-    fee = server.fetch_base_fee()
-  except: 
-    fee = FALLBACK_MIN_FEE
   transactions = []
   transactions.append(
     TransactionBuilder(
