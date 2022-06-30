@@ -2,12 +2,13 @@ import sys
 sys.path.append("../")
 from globals import *
 
+try:
+  SECRET = sys.argv[1]
+except:
+  print("Running without key")
+
 # testing: freezeBulkAssetTrustlines("StellarMart", "FREEZING: Stock split inbound")
 def freezeBulkAssetTrustlines(asset, reason):
-  try:
-    SECRET = sys.argv[1]
-  except:
-    print("Running without key")
   outstandingTrustlines = getOutstandingTrustlines(asset)
   revocationTxnXDRarr = signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason)
   exportTrustlineRevocationTransaction(revocationTxnXDRarr)
@@ -27,12 +28,6 @@ def getOutstandingTrustlines(asset):
   return allOutstandingTrustlines
 
 def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
-  server = Server(horizon_url= "https://" + HORIZON_INST)
-  issuer = server.load_account(account_id = BT_ISSUER)
-  try: 
-    fee = server.fetch_base_fee()
-  except: 
-    fee = FALLBACK_MIN_FEE
   transactions = []
   transactions.append(
     TransactionBuilder(
@@ -42,9 +37,9 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
     )
   )
   numTxnOps = idx = 0
-  for address in outstandingTrustlines:
+  for addresses in outstandingTrustlines:
     transactions[idx].append_set_trust_line_flags_op(
-      trustor = address,
+      trustor = addresses,
       asset = Asset(asset, BT_ISSUER),
       clear_flags = TrustLineFlags(1),
     )
