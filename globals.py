@@ -9,16 +9,21 @@ import os.path, requests, json
 # trustlines - GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
-BT_TREASURY = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
+BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 SECRET = "SBTPLXTXJDMJOXFPYU2ANLZI2ARDPHFKPKK4MJFYVZVBLXYM5AIP3LPK"
 KYC_CSV_INST = os.path.dirname(__file__) + "/../../pii/master-identity-ledger.csv"
 
 HORIZON_INST = "horizon.stellar.org"
 MAX_NUM_DECIMALS = "7"
 MAX_SEARCH = "200"
-FALLBACK_MIN_FEE = 100
 MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2
+
+server = Server(horizon_url= "https://" + HORIZON_INST)
+issuer = server.load_account(account_id = BT_ISSUER)
+distributor = server.load_account(account_id = BT_DISTRIBUTOR)
+treasury = server.load_account(account_id = BT_TREASURY)
+fee = server.fetch_base_fee()*BASE_FEE_MULT
 
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
@@ -41,3 +46,8 @@ def getStellarBlockchainBalances(queryAsset):
     blockchainRecords = data["_embedded"]["records"]
   return StellarBlockchainBalances
 
+#todo: test
+def submitTxnGarunteed(transaction):
+  while(True):
+    if(server.submit_transaction(transaction)):
+      return 1
