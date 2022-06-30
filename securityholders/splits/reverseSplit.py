@@ -1,11 +1,12 @@
 from splitHelper import *
 
+try:
+  SECRET = sys.argv[1]
+except:
+  print("Running without key")
+
 # testing: reverseSplit("StellarMart", 1, 10, "preSplitVeryRealStockIncMSF.csv")
 def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
-  try:
-    SECRET = sys.argv[1]
-  except:
-    print("Running without key")
   postSplitFileName = "[REVERSE] {} Post-Split Master Securityholder File.csv".format(queryAsset)
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
@@ -16,12 +17,6 @@ def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
 
 def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
-  server = Server(horizon_url = "https://" + HORIZON_INST)
-  issuer = server.load_account(account_id = BT_ISSUER)
-  try: 
-    fee = server.fetch_base_fee()
-  except: 
-    fee = FALLBACK_MIN_FEE
   transactions = []
   transactions.append(
     TransactionBuilder(
