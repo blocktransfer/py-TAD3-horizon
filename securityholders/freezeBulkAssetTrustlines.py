@@ -29,13 +29,7 @@ def getOutstandingTrustlines(asset):
 
 def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
   transactions = []
-  transactions.append(
-    TransactionBuilder(
-      source_account = issuer,
-      network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-      base_fee = fee,
-    )
-  )
+  appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   numTxnOps = idx = 0
   for addresses in outstandingTrustlines:
     transactions[idx].append_set_trust_line_flags_op(
@@ -49,13 +43,7 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
       transactions[idx].sign(Keypair.from_secret(SECRET))
       numTxnOps = 0
       idx += 1
-      transactions.append(
-        TransactionBuilder(
-          source_account = issuer,
-          network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-          base_fee = fee,
-        )
-      )
+      appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
   transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions

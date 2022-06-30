@@ -51,3 +51,13 @@ def submitTxnGarunteed(transaction):
   while(True):
     if(server.submit_transaction(transaction)):
       return 1
+
+def appendTransactionEnvelopeToArrayWithSourceAccount(transactionsArray, sourceAccount):
+  transactionsArray.append(
+    TransactionBuilder(
+      source_account = sourceAccount,
+      network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
+      base_fee = fee,
+    )
+  )
+

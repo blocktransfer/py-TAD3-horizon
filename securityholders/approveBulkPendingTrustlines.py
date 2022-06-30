@@ -74,13 +74,7 @@ def verifyAddressesWithAssetArrDict(addressesWithAssetsArrDict):
 
 def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict):
   transactions = []
-  transactions.append(
-    TransactionBuilder(
-      source_account = issuer,
-      network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-      base_fee = fee,
-    )
-  )
+  appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   reason = "Known securityholder"
   numTxnOps = idx = 0
   for addresses, assetArrs in addressesWithAssetsArrDict.items():
@@ -96,13 +90,7 @@ def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict
         transactions[idx].sign(Keypair.from_secret(SECRET))
         numTxnOps = 0
         idx += 1
-        transactions.append(
-          TransactionBuilder(
-            source_account = issuer,
-            network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-            base_fee = fee,
-          )
-        )
+        appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
   transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions

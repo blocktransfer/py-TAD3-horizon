@@ -72,13 +72,7 @@ def createAccount(resolvedAddr, transaction):
 
 def buildTxnsArr(approvedAddresses):
   transactions = []
-  transactions.append(
-    TransactionBuilder(
-      source_account = treasury,
-      network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-      base_fee = fee,
-    )
-  )
+  appendTransactionEnvelopeToArrayWithSourceAccount(transactions, treasury)
   numTxnOps = idx = 0
   for providedAddresses in approvedAddresses:
     resolvedAddresses = getAddress(providedAddresses)
@@ -91,13 +85,7 @@ def buildTxnsArr(approvedAddresses):
       transactions[idx].sign(Keypair.from_secret(SECRET))
       numTxnOps = 0
       idx += 1
-      transactions.append(
-        TransactionBuilder(
-          source_account = treasury,
-          network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-          base_fee = fee,
-        )
-      )
+      appendTransactionEnvelopeToArrayWithSourceAccount(transactions, treasury)
   transactions[idx] = transactions[idx].add_text_memo("Account passed KYC").set_timeout(30).build()
   transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions

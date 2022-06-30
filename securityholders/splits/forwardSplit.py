@@ -18,13 +18,7 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
 
 def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
   transactions = []
-  transactions.append(
-    TransactionBuilder(
-      source_account = distributor,
-      network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-      base_fee = fee,
-    )
-  )
+  appendTransactionEnvelopeToArrayWithSourceAccount(transactions, distributor)
   reason = "NOTICE: {}-for-{} forward split".format(numerator, denominator)
   numTxnOps = idx = 0
   for addresses, balances in StellarBlockchainBalances.items():
@@ -41,13 +35,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
       transactions[idx].sign(Keypair.from_secret(SECRET))
       numTxnOps = 0
       idx += 1
-      transactions.append(
-        TransactionBuilder(
-          source_account = distributor,
-          network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-          base_fee = fee,
-        )
-      )
+      appendTransactionEnvelopeToArrayWithSourceAccount(transactions, distributor)
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
   transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions
