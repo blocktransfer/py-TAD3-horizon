@@ -48,7 +48,7 @@ is_asset_anchored = false
 #anchor_asset = "CUSIP/ISIN-011531"
 attestation_of_reserve = "https://www.sec.gov/edgar/browse/?CIK=1846058"
 redemption_instructions = "Transfer to/from traditional brokers with ACATS. Contact your broker support, and they will set up the transfer plus surety insurance. Ask your broker if they support fractional shares. At most, only send amounts using five decimal places because after that DTC won’t credit your broker (e.g. sending 1.0000099 results in you getting 1)."
-regulated = false
+#regulated = true
 
 
 # [[CURRENCIES]]
