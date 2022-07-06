@@ -26,7 +26,7 @@ more than a mobile phone and five minutes; anyone can easily onboard quickly.
 
 Guarantees are made and verified through private-key cryptographic signatures of
 instructions to transfer an asset or endorse a transfer. Participants can
-automatically generate such digital signatures through an standard Stellar
+automatically generate such digital signatures through any standard Stellar
 wallet, though we recommend Lobstr. So long as the transfer is valid with the
 claimed signing public key, the guarantee is accepted by the network no matter
 (and blind to) the original broadcaster. Otherwise, the transfer is rejected,
