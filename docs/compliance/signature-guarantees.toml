@@ -33,7 +33,7 @@ claimed signing public key, the guarantee is accepted by the network no matter
 and participants are immediately notified by the network why their signature and
 thus transfer was invalid via standard error codes in tandem with a local copy
 of the submitted invalid transfer. Due to (i) local checks for signature
-validity in standard wallet interfaces and (ii) haulted gossip propagation of
+validity in standard wallet interfaces and (ii) halted gossip propagation of
 invalid transactions on the Stellar blockchain, Block Transfer will, in a vast
 bulk of instances, not be made aware of rejected transfers given only a narrow
 range of transfers are invalid by false cryptographic attestation, while valid
