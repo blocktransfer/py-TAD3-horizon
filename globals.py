@@ -2,7 +2,7 @@ from stellar_sdk import Asset, Keypair, Network, Server, TransactionBuilder, Tru
 from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
-import os.path, requests, json
+import os.path, requests, json, toml
 G_DIR = os.path.dirname(__file__)
 
 # Debug issuers:
@@ -61,6 +61,27 @@ def appendTransactionEnvelopeToArrayWithSourceAccount(transactionsArray, sourceA
       base_fee = fee,
     )
   )
+
+def resolveFederationAddress(properlyFormattedAddr):
+  splitAddr = properlyFormattedAddr.split("*")
+  federationName = splitAddr[0]
+  federationDomain = splitAddr[1]
+  homeDomainFederationServer = getFederationServerFromDomain(federationDomain)
+  requestAddr = homeDomainFederationServer + "?q=" + properlyFormattedAddr + "&type=name"
+  data = requests.get(requestAddr).json()
+  try: 
+    return data["account_id"]
+  except Exception:
+    sys.exit("Could not find {}".format(properlyFormattedAddr))
+
+def getFederationServerFromDomain(federationDomain):
+  try:
+    requestAddr = "https://" + federationDomain + "/.well-known/stellar.toml"
+    data = toml.loads(requests.get(requestAddr).content.decode())
+    homeDomainFederationServer = data["FEDERATION_SERVER"]
+  except Exception:
+    sys.exit("Failed to lookup federation server at {}".format(federationDomain))
+  return homeDomainFederationServer if homeDomainFederationServer.split("/")[-1] else homeDomainFederationServer[:-1]
 
 def toFullAddress(street, streetExtra, city, state, postal, country):
   uncheckedArr = [street, streetExtra, city, state, postal, country]

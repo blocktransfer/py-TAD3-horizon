@@ -2,7 +2,6 @@ import sys
 sys.path.append("../")
 from globals import *
 from stellar_sdk import exceptions
-import toml
 
 APPROVED_ADDR_CSV_INS_NAME = "exampleListApprovedAddresses.csv"
 approvalAmountXLM = Decimal("4.2069")
@@ -27,23 +26,9 @@ def getAddress(providedAddr):
   if(len(splitAddr) == 1):
     return providedAddr
   elif(len(splitAddr) == 2):
-    federationName = splitAddr[0]
-    federationDomain = splitAddr[1]
+    return resolveFederationAddress(providedAddr)
   else: 
     sys.exit("Bad address: {}".format(providedAddr))
-  try:
-    requestAddr = "https://" + federationDomain + "/.well-known/stellar.toml"
-    data = toml.loads(requests.get(requestAddr).content.decode())
-    homeDomainFederationServer = data["FEDERATION_SERVER"]
-  except Exception:
-    sys.exit("Failed to lookup federation server at {}".format(federationDomain))
-  homeDomainFederationServer = homeDomainFederationServer if homeDomainFederationServer.split("/")[-1] else homeDomainFederationServer[:-1]
-  requestAddr = homeDomainFederationServer + "?q=" + providedAddr + "&type=name"
-  data = requests.get(requestAddr).json()
-  try: 
-    return data["account_id"]
-  except Exception:
-    sys.exit("Could not find {}".format(providedAddr))
 
 def seeIfAccountExists(resolvedAddr):
   try:
