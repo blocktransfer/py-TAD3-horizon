@@ -9,7 +9,10 @@ def countProxyVotes(queryAsset, numVotingItems):
   votingFederationAddress = queryAsset + "*proxyvote.io"
   recordDateInvestorBalancesCSV = queryAsset + " Record Date List.csv"
   numUnrestrictedShares = getNumUnrestrictedShares(queryAsset)
-  blockchainBalancesOnRecordDate = getBalancesOnRecordDate()
+  blockchainBalancesOnRecordDate = getBalancesOnRecordDate(queryAsset)
+  
+  
+  ...returnTally
 
 def getNumUnrestrictedShares(queryAsset): # TODO: change diction to numOutstandingSharesElidgibleToVote per 8-K review
   requestAddress = "https://" + HORIZON_INST + "/assets?asset_code=" + queryAsset + "&asset_issuer=" + BT_ISSUER
@@ -18,15 +21,12 @@ def getNumUnrestrictedShares(queryAsset): # TODO: change diction to numOutstandi
 
 def getBalancesOnRecordDate(queryAsset):
   balancesOnRecordDate = {}
-  
   internalRecordDateCSV = G_DIR + "/../../pii/" + datetime.today().year + "/internal-record-date-snapshots/" + queryAsset + ".csv"
-  
   inFile = open(internalRecordDateCSV)
   internalRecordDateHoldings = inFile.read().strip().split("\n")
   inFile.close()
   for lines in internalRecordDateHoldings:
-    balancesOnRecordDate[lines[0]] = lines[1]
-  
+    balancesOnRecordDate[lines[0]] = Decimal(lines[1])
   return balancesOnRecordDate
 
 countProxyVotes("DEMO", 7)
