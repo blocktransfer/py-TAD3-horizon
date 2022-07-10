@@ -41,8 +41,5 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
     mergedMSF.write(",".join(output) + "\n")
   mergedMSF.close()
 
-def getPercentOutstanding(unclaimedShares, totalOutstandingShares):
-  return Decimal("100") * Decimal(unclaimedShares) / totalOutstandingShares
-
 # Debug: 
 getMergedReportForAssetWithNumRestrictedSharesUsingMSF("StellarMart", "10000", "VeryRealStockIncUnclaimedMSF.csv")

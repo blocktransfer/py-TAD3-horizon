@@ -68,5 +68,5 @@ def toFullAddress(street, streetExtra, city, state, postal, country):
   for items in uncheckedArr:
     if(items):
       cleanArr.append(items)
-  return ", ".join(cleanArr)
+  return ". ".join(cleanArr)
 
