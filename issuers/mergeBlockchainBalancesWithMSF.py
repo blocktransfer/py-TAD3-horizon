@@ -46,9 +46,9 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
 
 def generateInternalRecord(queryAsset, StellarBlockchainBalances):
   internalRecord = open("{}.csv".format(queryAsset), "w")
-  internalRecord.write("Public Key,Blockchain Balance on {}\n".format(datetime.now().strftime("%Y-%m-%d at %H-%M-%S local")))
-  for addresses, balances in StellarBlockchainBalances:
-    internalRecord.write(",".join([addresses, balances]) + "\n")
+  internalRecord.write("Public Key,Balance,,Blockchain snapshot: {}\n".format(datetime.now()))
+  for addresses, balances in StellarBlockchainBalances.items():
+    internalRecord.write(",".join([addresses, str(balances)]) + "\n")
   internalRecord.close()
 
 # Debug: 
