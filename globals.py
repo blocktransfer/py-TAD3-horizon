@@ -3,15 +3,16 @@ from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
 import os.path, requests, json
+G_DIR = os.path.dirname(__file__)
 
 # Debug issuers:
 # accounts - GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM
 # trustlines - GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS
-BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
+BT_ISSUER = "GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM"
 BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 SECRET = "SBTPLXTXJDMJOXFPYU2ANLZI2ARDPHFKPKK4MJFYVZVBLXYM5AIP3LPK"
-KYC_CSV_INST = os.path.dirname(__file__) + "/../../pii/master-identity-ledger.csv"
+MICR_CSV = G_DIR + "/../../pii/master-identity-catalog-records.csv"
 
 HORIZON_INST = "horizon.stellar.org"
 MAX_NUM_DECIMALS = "7"
@@ -60,4 +61,12 @@ def appendTransactionEnvelopeToArrayWithSourceAccount(transactionsArray, sourceA
       base_fee = fee,
     )
   )
+
+def toFullAddress(street, streetExtra, city, state, postal, country):
+  uncheckedArr = [street, streetExtra, city, state, postal, country]
+  cleanArr = []
+  for items in uncheckedArr:
+    if(items):
+      cleanArr.append(items)
+  return ", ".join(cleanArr)
 
