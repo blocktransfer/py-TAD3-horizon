@@ -8,16 +8,16 @@ import hashlib
 
 def countProxyVotes(queryAsset, numVotingItems):
   votingFederationAddress = queryAsset + "*proxyvote.io"
-  recordDateInvestorBalancesCSV = queryAsset + " Record Date List.csv"
   numUnrestrictedShares = getNumUnrestrictedShares(queryAsset)
   blockchainBalancesOnRecordDate = getBalancesOnRecordDate(queryAsset)
   delegationHashmap = makeHashmapForDelegation()
-  addressesMappedToVoteMemos = getAddressesMappedToVotes(queryAsset, votingFederationAddress)
+  addressesMappedToMemos = getAddressesMappedToMemos(queryAsset, votingFederationAddress)
+  balancesMappedToMemos = replaceAddressesWithRecordDateBalances(queryAsset, recordDateInvestorBalancesCSV)
   
 
 def getNumUnrestrictedShares(queryAsset): # TODO: change diction to numOutstandingSharesElidgibleToVote per 8-K review
-  requestAddress = "https://" + HORIZON_INST + "/assets?asset_code=" + queryAsset + "&asset_issuer=" + BT_ISSUER
-  data = requests.get(requestAddress).json()
+  requestAddr = "https://" + HORIZON_INST + "/assets?asset_code=" + queryAsset + "&asset_issuer=" + BT_ISSUER
+  data = requests.get(requestAddr).json()
   return Decimal(data["_embedded"]["records"][0]["amount"]) # Assume no voting of restricted shares
 
 def getBalancesOnRecordDate(queryAsset):
@@ -42,17 +42,30 @@ def makeHashmapForDelegation():
     delegationHashmap[SHA256ofPublicKey.hexdigest()] = lines[0]
   return delegationHashmap
 
-def getAddressesMappedToVotes(queryAsset, votingFederationAddress):
+def getAddressesMappedToMemos(queryAsset, votingFederationAddress):
+  addressesMappedToMemos = {}
   votingAddr = resolveFederationAddress(votingFederationAddress)
   # get all txns inbound to address
-  requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + queryAsset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
-  data = requests.get(requestAddress).json()
-  blockchainRecords = data["_embedded"]["records"]["transactions"]
-  
-  print(blockchainRecords)
-  # parse source
-  
-  queryAssetOnStellar = Asset(queryAsset, BT_ISSUER)
-  # parse memo
+  requestAddr = "https://" + HORIZON_INST + "/accounts?asset=" + queryAsset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
+  votingAddrData = requests.get(requestAddr).json()
+  paymentsAddr = votingAddrData["_embedded"]["records"][0]["_links"]["payments"]["href"]
+  paymentsAddr = paymentsAddr.replace("{?cursor,limit,order}", "?limit=" + MAX_SEARCH)
+  paymentData = requests.get(paymentsAddr).json()
+  paymentRecords = paymentData["_embedded"]["records"]
+  while(paymentRecords != []):
+    for payments in paymentRecords:
+      try:
+        if(payments["to"] == votingAddr):
+          transactionEnvelopeAddr = payments["_links"]["transaction"]["href"]
+          vote = requests.get(transactionEnvelopeAddr).json()["memo"]
+          addressesMappedToMemos[payments["from"]] = vote
+      except KeyError:
+        continue
+    # Go to next cursor
+    paymentsAddr = paymentData["_links"]["next"]["href"].replace("\u0026", "&")
+    paymentData = requests.get(paymentsAddr).json()
+    paymentRecords = paymentData["_embedded"]["records"]
+  return addressesMappedToMemos
 
+#queryAssetOnStellar = Asset(queryAsset, BT_ISSUER)
 countProxyVotes("StellarMart", 7)
