@@ -34,6 +34,8 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
     lines = lines.split(",")
     try:
       blockchainBalance = StellarBlockchainBalances[lines[0]]
+      if(not blockchainBalance):
+        continue
     except KeyError:
       continue
     address = toFullAddress(lines[4], lines[5], lines[6], lines[7], lines[8], lines[9])
