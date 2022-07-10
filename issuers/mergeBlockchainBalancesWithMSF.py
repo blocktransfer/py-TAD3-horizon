@@ -6,6 +6,7 @@ def getMergedReportForAssetWithNumRestrictedSharesUsingMSF(queryAsset, numRestri
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
   totalOutstandingShares = getTotalOutstandingShares(queryAsset, numRestrictedShares)
   mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSF, totalOutstandingShares, StellarBlockchainBalances)
+  generateInternalRecord(queryAsset, StellarBlockchainBalances)
 
 def getTotalOutstandingShares(queryAsset, numRestrictedShares):
   requestAddress = "https://" + HORIZON_INST + "/assets?asset_code=" + queryAsset + "&asset_issuer=" + BT_ISSUER
@@ -42,6 +43,13 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
     output = [lines[1], address, str(blockchainBalance)]
     mergedMSF.write(",".join(output) + "\n")
   mergedMSF.close()
+
+def generateInternalRecord(queryAsset, StellarBlockchainBalances):
+  internalRecord = open("{}.csv".format(queryAsset), "w")
+  internalRecord.write("Public Key,Blockchain Balance on {}\n".format(datetime.now().strftime("%Y-%m-%d at %H-%M-%S local")))
+  for addresses, balances in StellarBlockchainBalances:
+    internalRecord.write(",".join([addresses, balances]) + "\n")
+  internalRecord.close()
 
 # Debug: 
 getMergedReportForAssetWithNumRestrictedSharesUsingMSF("StellarMart", "10000", "VeryRealStockIncUnclaimedMSF.csv")
