@@ -3,7 +3,7 @@ sys.path.append("../")
 from globals import *
 import hashlib
 
-# Commission NEW account with voting federation address [ticker]*proxyvote.io circa sending the affidavit of notice.
+# Commission new account with voting federation address [ticker]*proxyvote.io circa sending the affidavit of notice.
 # Afterwards, merge account into BT_TREASURY (single use simplifies tally logic). Remove old federation record.
 
 def countProxyVotes(queryAsset, numVotingItems):
@@ -12,7 +12,7 @@ def countProxyVotes(queryAsset, numVotingItems):
   blockchainBalancesOnRecordDate = getBalancesOnRecordDate(queryAsset)
   addressesMappedToMemos = getAddressesMappedToMemos(queryAsset, votingFederationAddress)
   balancesMappedToMemos = replaceAddressesWithRecordDateBalances(addressesMappedToMemos, blockchainBalancesOnRecordDate)
-  voteResults = parseMemosToVotes(balancesMappedToMemos, numVotingItems)
+  voteResults = parseMemosToVotes(balancesMappedToMemos, addressesMappedToMemos, numVotingItems)
   
   print(numUnrestrictedShares)
   print("---")
@@ -83,7 +83,7 @@ def replaceAddressesWithRecordDateBalances(addressesMappedToMemos, blockchainBal
       continue
   return balancesMappedToMemos
 
-def parseMemosToVotes(balancesMappedToMemos, numVotingItems):
+def parseMemosToVotes(balancesMappedToMemos, numVotingItems): # this function is too big
   delegationHashmap = makeHashmapForDelegation()
   delegeesPublicKeysMappedToSharesAllocated = {}
   propositionYays = propositionNays = propositionAbstains = [0] * numVotingItems
@@ -110,8 +110,10 @@ def parseMemosToVotes(balancesMappedToMemos, numVotingItems):
         print("Debug: Exception on vote parser with memo {}".format(memo))
         continue
   for delegees, sharesAllocated in delegeesPublicKeysMappedToSharesAllocated.items():
+    # addressesMappedToMemos[delegees] ...
     if(sharesAllocated):
       sys.exit("todo: DELEGATION FUNCTIONALITY REQUIRED")
+    # edge test if a delegee delegates to another delegee (requires internal looping)
   voteResults = []
   numSharesVoted = Decimal(numSharesVoted)
   oneH = Decimal(100)
