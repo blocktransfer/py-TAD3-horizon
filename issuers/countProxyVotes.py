@@ -22,6 +22,7 @@ def countProxyVotes(queryAsset, numVotingItems):
   print("---")
   pprint(balancesMappedToMemos)
 
+  # getNumSharesEntitledToVote(...)
 def getNumUnrestrictedShares(queryAsset): # TODO: change diction to numOutstandingSharesElidgibleToVote pending 8-K review
   requestAddr = "https://" + HORIZON_INST + "/assets?asset_code=" + queryAsset + "&asset_issuer=" + BT_ISSUER
   data = requests.get(requestAddr).json()
