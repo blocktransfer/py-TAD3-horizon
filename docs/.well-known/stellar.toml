@@ -15,12 +15,12 @@ ORG_NAME = "BlockTrans Syndicate"
 ORG_DBA = "Block Transfer"
 ORG_URL = "https://www.blocktransfer.io"
 ORG_LOGO = "https://blocktransfer.io/logo.png"
-ORG_DESCRIPTION = "A decentralized stock transfer agent protocol for global financial markets."
-ORG_PHYSICAL_ADDRESS = "131 Ponce de Leon Ave NE, Ste 405, Atlanta, GA, 30308."
+ORG_DESCRIPTION = "A decentralized stock transfer agent protocol for global financial markets"
+ORG_PHYSICAL_ADDRESS = "99 Wall Street #4640, New York, NY 10005"
 # ORG_PHONE_NUMBER = ""
 # ORG_PHONE_NUMBER_ATTESTATION = "https://www.sec.gov/edgar/browse/?CIK=1846058"
 ORG_GITHUB = "blocktransfer"
-# ORG_OFFICIAL_EMAIL = "stellar@blocktransfer.io"
+ORG_OFFICIAL_EMAIL = "stellar@blocktransfer.io"
 ORG_SUPPORT_EMAIL = "support@blocktransfer.io"
 ORG_LICENSING_AUTHORITY = "U.S. Securities and Exchange Commission"
 ORG_LICENSE_TYPE = "Central Index Key"
@@ -57,10 +57,3 @@ is_asset_anchored = false
 #GIVEN THE LIVELIHOOD OF THIS ASSET AND BOUNDS OF SECURITIES LAW,
 #THIS IS THE OFFICIAL STOCK REGISTER FOR SOME COMPANY WIDGETS CO INC.
 #CLASS A COMMON STOCK, PAR $0.000001, CUSIP 55302P202, TICKER $WDGT."
-
-#[[VALIDATORS]]
-#ALIAS	= "bt1"
-#DISPLAY_NAME = "BT 1"
-#PUBLIC_KEY = "G..."
-#HOST = "validators.blocktransfer.io:port"
-#HISTORY = "https://validators.blocktransfer.io/live1/"
