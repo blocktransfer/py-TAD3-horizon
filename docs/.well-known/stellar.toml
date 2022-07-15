@@ -40,20 +40,11 @@ status = "live"
 display_decimals = 7
 name = "Example Security"
 desc = "This is an example stock used interally for product demos."
-#conditions = "Complete KYC at shareholders.blocktransfer.io to hold this security. We do not issue or support paper certificates. INTERACTING WITH THIS ASSET BINDINGLY EQUATES TO IRREVOCABLE WRITTEN CONSENT TO BLOCKTRANS SYNDICATE'S TERMS OF SERVICE, PRIVACY POLICY, AND TRANSFER STANDARDS."
+#conditions = "Complete KYC at investors.blocktransfer.io to hold this security."
 image = "https://blocktransfer.io/assets/demo.png"
 is_unlimited = true
 is_asset_anchored = false
 #anchor_asset_type = "stock"
-#anchor_asset = "CUSIP/ISIN-011531"
-#attestation_of_reserve = "https://www.sec.gov/edgar/browse/?CIK=1846058"
-#redemption_instructions = "Transfer to/from traditional brokers with ACATS. Contact your broker support, and they will set up the transfer plus surety insurance. Ask your broker if they support fractional shares. At most, only send amounts using five decimal places because after that DTC won’t credit your broker (e.g. sending 1.0000099 results in you getting 1)."
+#anchor_asset = "US0000000000"
+#redemption_instructions = "Transfer to/from traditional brokers with ACATS. Contact your broker support, and they will set up the transfer plus surety insurance. Ask your broker if they support fractional shares. Only send amounts using five decimal places because after that DTC won’t credit your broker (e.g. sending 1.0000099 results in you getting 1)."
 #regulated = true
-
-
-# [[CURRENCIES]]
-#E.x. desc
-#"IT IS HEREBY SET FORTH BY BLOCKTRANS SYNDICATE THAT,
-#GIVEN THE LIVELIHOOD OF THIS ASSET AND BOUNDS OF SECURITIES LAW,
-#THIS IS THE OFFICIAL STOCK REGISTER FOR SOME COMPANY WIDGETS CO INC.
-#CLASS A COMMON STOCK, PAR $0.000001, CUSIP 55302P202, TICKER $WDGT."
