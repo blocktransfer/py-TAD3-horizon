@@ -3,7 +3,7 @@ sys.path.append("../")
 from globals import *
 from stellar_sdk import exceptions
 
-APPROVED_ADDR_CSV_INS_NAME = "exampleListApprovedAddresses.csv"
+APPROVED_PUBLIC_KEY_CSV = "exampleListApprovedAddresses.csv"
 approvalAmountXLM = Decimal("4.2069")
 try:
   SECRET = sys.argv[1]
@@ -16,7 +16,7 @@ def createApprovedAccount():
   submitTxnsToStellar(transactionsArr)
 
 def fetchApprovedAddrFromCSV():
-  addrCSV = open(APPROVED_ADDR_CSV_INS_NAME)
+  addrCSV = open(MICR)
   approvedAddr = addrCSV.read().strip().split("\n")
   addrCSV.close()
   return approvedAddr
