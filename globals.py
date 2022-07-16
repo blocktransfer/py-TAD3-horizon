@@ -93,3 +93,13 @@ def toFullAddress(street, streetExtra, city, state, postal, country):
       cleanArr.append(items)
   return ". ".join(cleanArr)
 
+def getValidAccountPublicKeys():
+  validAccountPublicKeys = []
+  inFile = open(MICR_CSV)
+  MICR = inFile.read().strip().split("\n")
+  inFile.close()
+  for lines in MICR[1:]:
+    lines = lines.split(",")
+    validAccountPublicKeys.append(lines[0])
+  return validAccountPublicKeys
+
