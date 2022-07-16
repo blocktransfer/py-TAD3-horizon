@@ -13,19 +13,8 @@ def countProxyVotes(queryAsset, numVotingItems):
   blockchainBalancesOnRecordDate = getBalancesOnRecordDate(queryAsset)
   addrsMappedToMemos = getaddrsMappedToMemos(queryAsset, votingFederationAddress)
   balancesMappedToMemos = replaceAddressesWithRecordDateBalances(addrsMappedToMemos, blockchainBalancesOnRecordDate)
-  voteResults = parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
-  print("---")
-  print("---")
-  print("---")
-  print("---")
-  print("---")
-  print(numUnrestrictedShares)
-  print("---")
-  pprint(blockchainBalancesOnRecordDate)
-  print("---")
-  pprint(addrsMappedToMemos)
-  print("---")
-  pprint(balancesMappedToMemos)
+  voteTallies = parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
+  displayResults(voteTallies)
 
   # getNumSharesEntitledToVote(...)
 def getNumUnrestrictedShares(queryAsset): # TODO: change diction to numOutstandingSharesElidgibleToVote pending 8-K review
@@ -107,9 +96,7 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
   propositionNays = [0] * numVotingItems
   propositionAbstains = [0] * numVotingItems
   sharesVoted = Decimal("0")
-  
   for numShares, memos in balancesMappedToMemos.items():
-
     if(len(memos) > numVotingItems):
       if(memos in delegationHashmap.keys()):
         expandedAddr = delegationHashmap[memos]
@@ -134,16 +121,16 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
         print("! Invalid memo: {}".format(memos))
         continue
       sharesVoted += numShares
-  
   for delegeeAddrs, sharesAllocated in delegeeAddrsMappedToSharesAllocated.items():
     if(delegeeAddrs in validAccountPublicKeys):
       voteMemo = addrsMappedToMemos[delegeeAddrs]
       try:
         while(len(voteMemo) > numVotingItems):
+          print("H")
           voteMemo = addrsMappedToMemos[voteMemo]
       except KeyError:
         sys.exit("Could not resolve voteMemo for {}".format(delegeeAddrs))
-      voteList = [votes.upper() for votes in list(memos)]
+      voteList = [votes.upper() for votes in list(voteMemo)]
       try:
         for i, votes in enumerate(voteList):
           match votes:
@@ -157,16 +144,23 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
         print("! Invalid memo: {}".format(memos))
         continue
       sharesVoted += sharesAllocated
-  voteResults = []
-  sharesVoted = Decimal(sharesVoted)
+  voteTallies = []
+  ratio = Decimal("100")/sharesVoted
   for i in range(numVotingItems):
     yays = propositionYays[i]
     nays = propositionNays[i]
     abstains = propositionAbstains[i]
-    voteResults.append((yays, nays, abstains))
-    ratio = 1 if not sharesVoted else Decimal("100")/sharesVoted
-    voteResults.append((format(yays*ratio, ".2f"), format(nays*ratio, ".2f"), format(abstains*ratio, ".2f")))
-  return voteResults
+    voteTallies.append((yays, nays, abstains))
+  return voteTallies
 
+def displayResults(voteTallies):
+  i = 0
+  for (y, n, a) in voteTallies:
+    i += 1
+    ratio = Decimal("100")/Decimal(y+n+a)
+    print("\nIn the matter of proposition {}:".format(i))
+    print("For: {} ({}%)".format(y, format(y*ratio, ".2f")))
+    print("Against: {} ({}%)".format(n, format(n*ratio, ".2f")))
+    print("Abstain: {} ({}%)".format(a, format(a*ratio, ".2f")))
 
 countProxyVotes("DEMO", 15)
