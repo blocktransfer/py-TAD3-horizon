@@ -46,5 +46,5 @@ is_unlimited = true
 is_asset_anchored = false
 #anchor_asset_type = "stock"
 #anchor_asset = "US0000000000"
-#redemption_instructions = "Transfer to/from traditional brokers with ACATS. Contact your broker support, and they will set up the transfer plus surety insurance. Ask your broker if they support fractional shares. Only send amounts using five decimal places because after that DTC won’t credit your broker (e.g. sending 1.0000099 results in you getting 1)."
+#redemption_instructions = "Transfer to/from traditional brokers with ACATS. Contact your broker support, and they will set up the transfer plus surety insurance. Ask your broker if they support fractional shares. Only send amounts using five decimal places because after that DTC will not credit your broker (e.g. sending 1.0000099 results in you getting 1)."
 #regulated = true
