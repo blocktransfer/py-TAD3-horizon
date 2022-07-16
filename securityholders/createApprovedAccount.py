@@ -11,6 +11,11 @@ try:
 except Exception:
   print("Running without key")
 
+try:
+  MEMO = sys.argv[2]
+except Exception:
+  MEMO = "Account verified"
+
 def createApprovedAccount():
   approvedAddrsArr = fetchNewApprovedAddrs()
   transactionsArr = buildTxnsArr(approvedAddrsArr)
@@ -67,12 +72,12 @@ def buildTxnsArr(approvedAddresses): # todo: similarly, globalize
     declareApproval(*pairedInput) if alreadyExists else createAccount(*pairedInput)
     numTxnOps += 1
     if(numTxnOps >= MAX_NUM_TXN_OPS):
-      transactions[idx] = transactions[idx].add_text_memo("Valid account").set_timeout(30).build()
+      transactions[idx] = transactions[idx].add_text_memo(MEMO).set_timeout(30).build()
       transactions[idx].sign(Keypair.from_secret(SECRET))
       numTxnOps = 0
       idx += 1
       appendTransactionEnvelopeToArrayWithSourceAccount(transactions, treasury)
-  transactions[idx] = transactions[idx].add_text_memo("Valid account").set_timeout(30).build()
+  transactions[idx] = transactions[idx].add_text_memo(MEMO).set_timeout(30).build()
   transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions
 

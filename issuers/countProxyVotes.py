@@ -1,10 +1,12 @@
 import sys
 sys.path.append("../")
 from globals import *
+import pandas
 
 # Commission new account with voting federation address [ticker]*proxyvote.io circa sending the affidavit of notice.
 # Afterwards, merge account into BT_TREASURY (single use simplifies tally logic). Remove old federation record.
 
+CUTOFF_TIME_UTC = pandas.to_datetime("2022-07-16T10:25:00Z") # + 4hrs from ET
 validAccountPublicKeys = getValidAccountPublicKeys()
 
 def countProxyVotes(queryAsset, numVotingItems):
@@ -64,7 +66,7 @@ def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
         while(accountPaymentRecords != []):
           for payments in accountPaymentRecords:
             try:
-              if(payments["asset_type"] == "native" and payments["to"] == votingAddr):
+              if(payments["asset_type"] == "native" and payments["to"] == votingAddr and pandas.to_datetime(payments["created_at"]) < CUTOFF_TIME_UTC):
                 transactionEnvelopeAddr = payments["_links"]["transaction"]["href"]
                 vote = requests.get(transactionEnvelopeAddr).json()["memo"]
                 addrsMappedToMemos[payments["from"]] = vote
