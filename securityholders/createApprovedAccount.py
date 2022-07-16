@@ -3,23 +3,24 @@ sys.path.append("../")
 from globals import *
 from stellar_sdk import exceptions
 
-APPROVED_PUBLIC_KEY_CSV = "exampleListApprovedAddresses.csv"
-approvalAmountXLM = Decimal("4.2069")
+APPROVED_PUBLIC_KEY_CSV = G_DIR + "/../../pii/production-approved-public-keys.csv"
+approvalAmountXLM = Decimal("2.3")
+
 try:
   SECRET = sys.argv[1]
 except Exception:
   print("Running without key")
 
 def createApprovedAccount():
-  approvedAddressesArr = fetchApprovedAddrFromCSV()
-  transactionsArr = buildTxnsArr(approvedAddressesArr)
+  approvedAddrsArr = fetchNewApprovedAddrs()
+  transactionsArr = buildTxnsArr(approvedAddrsArr)
   submitTxnsToStellar(transactionsArr)
 
-def fetchApprovedAddrFromCSV():
-  addrCSV = open(MICR)
-  approvedAddr = addrCSV.read().strip().split("\n")
-  addrCSV.close()
-  return approvedAddr
+def fetchNewApprovedAddrs():
+  approvedAddrsCSV = open(APPROVED_PUBLIC_KEY_CSV)
+  approvedAddrs = approvedAddrsCSV.read().strip().split("\n")
+  approvedAddrsCSV.close()
+  return approvedAddrs
 
 def getAddress(providedAddr):
   splitAddr = providedAddr.split("*")
@@ -55,7 +56,7 @@ def createAccount(resolvedAddr, transaction):
     starting_balance = approvalAmountXLM
   )
 
-def buildTxnsArr(approvedAddresses):
+def buildTxnsArr(approvedAddresses): # todo: similarly, globalize
   transactions = []
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, treasury)
   numTxnOps = idx = 0
@@ -66,19 +67,17 @@ def buildTxnsArr(approvedAddresses):
     declareApproval(*pairedInput) if alreadyExists else createAccount(*pairedInput)
     numTxnOps += 1
     if(numTxnOps >= MAX_NUM_TXN_OPS):
-      transactions[idx] = transactions[idx].add_text_memo("Account passed KYC").set_timeout(30).build()
+      transactions[idx] = transactions[idx].add_text_memo("Valid account").set_timeout(30).build()
       transactions[idx].sign(Keypair.from_secret(SECRET))
       numTxnOps = 0
       idx += 1
       appendTransactionEnvelopeToArrayWithSourceAccount(transactions, treasury)
-  transactions[idx] = transactions[idx].add_text_memo("Account passed KYC").set_timeout(30).build()
+  transactions[idx] = transactions[idx].add_text_memo("Valid account").set_timeout(30).build()
   transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions
 
-def submitTxnsToStellar(txnArr):
+def submitTxnsToStellar(txnArr): # globalize
   for txns in txnArr:
-    print("Transaction:")
-    print(txns.to_xdr())
-    #submitTxnGarunteed(transaction)
+    submitTxnGarunteed(txns)
 
 createApprovedAccount()
