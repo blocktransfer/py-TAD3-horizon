@@ -51,5 +51,4 @@ def generateInternalRecord(queryAsset, StellarBlockchainBalances):
     internalRecord.write(",".join([addresses, str(balances)]) + "\n")
   internalRecord.close()
 
-# Debug: 
-getMergedReportForAssetWithNumRestrictedSharesUsingMSF("StellarMart", "10000", "VeryRealStockIncUnclaimedMSF.csv")
+getMergedReportForAssetWithNumRestrictedSharesUsingMSF("DEMO", "0", "VeryRealStockIncUnclaimedMSF.csv")
