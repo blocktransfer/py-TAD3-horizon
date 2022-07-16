@@ -16,8 +16,8 @@ def countProxyVotes(queryAsset, numVotingItems):
   voteTallies = parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
   displayResults(voteTallies)
 
-  # getNumSharesEntitledToVote(...)
-def getNumUnrestrictedShares(queryAsset): # TODO: change diction to numOutstandingSharesElidgibleToVote pending 8-K review
+# Assume eligibility of all unrestricted outstanding shares on record date
+def getNumUnrestrictedShares(queryAsset):
   requestAddr = "https://" + HORIZON_INST + "/assets?asset_code=" + queryAsset + "&asset_issuer=" + BT_ISSUER
   data = requests.get(requestAddr).json()
   try: 
@@ -64,7 +64,7 @@ def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
         while(accountPaymentRecords != []):
           for payments in accountPaymentRecords:
             try:
-              if(payments["to"] == votingAddr):
+              if(payments["asset_type"] == "native" and payments["to"] == votingAddr):
                 transactionEnvelopeAddr = payments["_links"]["transaction"]["href"]
                 vote = requests.get(transactionEnvelopeAddr).json()["memo"]
                 addrsMappedToMemos[payments["from"]] = vote
@@ -155,12 +155,12 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
 
 def displayResults(voteTallies):
   i = 0
-  for (y, n, a) in voteTallies:
+  for (Y, N, A) in voteTallies:
     i += 1
-    ratio = Decimal("100")/Decimal(y+n+a)
-    print("\nIn the matter of proposition {}:".format(i))
-    print("For: {} ({}%)".format(y, format(y*ratio, ".2f")))
-    print("Against: {} ({}%)".format(n, format(n*ratio, ".2f")))
-    print("Abstain: {} ({}%)".format(a, format(a*ratio, ".2f")))
+    ratio = Decimal("100")/Decimal(Y+N+A)
+    print("In the matter of proposition {}:".format(i))
+    print("For:\t\t{}%\t({} shares)".format(format(Y*ratio, ".2f"), Y))
+    print("Against:\t{}%\t({} shares)".format(format(N*ratio, ".2f"), N))
+    print("Abstain:\t{}%\t({} shares)\n".format(format(A*ratio, ".2f"), A))
 
 countProxyVotes("DEMO", 15)
