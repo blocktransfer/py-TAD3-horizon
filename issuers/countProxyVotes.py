@@ -139,7 +139,7 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
     if(delegeeAddrs in validAccountPublicKeys):
       voteMemo = addrsMappedToMemos[delegeeAddrs]
       try:
-        while(voteMemo > numVotingItems):
+        while(len(voteMemo) > numVotingItems):
           voteMemo = addrsMappedToMemos[voteMemo]
       except KeyError:
         sys.exit("Could not resolve voteMemo for {}".format(delegeeAddrs))
