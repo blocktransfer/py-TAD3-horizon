@@ -1,7 +1,6 @@
 import sys
 sys.path.append("../")
 from globals import *
-import hashlib
 
 # Commission new account with voting federation address [ticker]*proxyvote.io circa sending the affidavit of notice.
 # Afterwards, merge account into BT_TREASURY (single use simplifies tally logic). Remove old federation record.
@@ -13,7 +12,11 @@ def countProxyVotes(queryAsset, numVotingItems):
   addressesMappedToMemos = getAddressesMappedToMemos(queryAsset, votingFederationAddress)
   balancesMappedToMemos = replaceAddressesWithRecordDateBalances(addressesMappedToMemos, blockchainBalancesOnRecordDate)
   voteResults = parseMemosToVotes(balancesMappedToMemos, addressesMappedToMemos, numVotingItems)
-  
+  print("---")
+  print("---")
+  print("---")
+  print("---")
+  print("---")
   print(numUnrestrictedShares)
   print("---")
   pprint(blockchainBalancesOnRecordDate)
@@ -26,7 +29,10 @@ def countProxyVotes(queryAsset, numVotingItems):
 def getNumUnrestrictedShares(queryAsset): # TODO: change diction to numOutstandingSharesElidgibleToVote pending 8-K review
   requestAddr = "https://" + HORIZON_INST + "/assets?asset_code=" + queryAsset + "&asset_issuer=" + BT_ISSUER
   data = requests.get(requestAddr).json()
-  return Decimal(data["_embedded"]["records"][0]["amount"]) # Assume no voting of restricted shares
+  try: 
+    return Decimal(data["_embedded"]["records"][0]["amount"]) # Assume no voting of restricted shares
+  except Exception:
+    sys.exit("Input parameter error")
 
 def getBalancesOnRecordDate(queryAsset):
   balancesOnRecordDate = {}
@@ -39,40 +45,45 @@ def getBalancesOnRecordDate(queryAsset):
     balancesOnRecordDate[lines[0]] = Decimal(lines[1])
   return balancesOnRecordDate
 
-def makeHashmapForDelegation():
+def makeFirst28byteMapping():
   delegationHashmap = {}
   inFile = open(MICR_CSV)
   MICR = inFile.read().strip().split("\n")
   inFile.close()
   for lines in MICR[1:]:
     lines = lines.split(",")
-    SHA256ofPublicKey = hashlib.sha256(lines[0].encode()).hexdigest()
-    delegationHashmap[SHA256ofPublicKey] = lines[0]
+    delegationHashmap[lines[0][:28]] = lines[0]
   return delegationHashmap
 
 def getAddressesMappedToMemos(queryAsset, votingFederationAddress):
   addressesMappedToMemos = {}
   votingAddr = resolveFederationAddress(votingFederationAddress)
-  # get all txns inbound to address
   requestAddr = "https://" + HORIZON_INST + "/accounts?asset=" + queryAsset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
   votingAddrData = requests.get(requestAddr).json()
-  paymentsAddr = votingAddrData["_embedded"]["records"][0]["_links"]["payments"]["href"]
-  paymentsAddr = paymentsAddr.replace("{?cursor,limit,order}", "?limit=" + MAX_SEARCH)
-  paymentData = requests.get(paymentsAddr).json()
-  paymentRecords = paymentData["_embedded"]["records"]
-  while(paymentRecords != []):
-    for payments in paymentRecords:
-      try:
-        if(payments["to"] == votingAddr):
-          transactionEnvelopeAddr = payments["_links"]["transaction"]["href"]
-          vote = requests.get(transactionEnvelopeAddr).json()["memo"]
-          addressesMappedToMemos[payments["from"]] = vote
-      except KeyError:
-        continue
-    # Go to next cursor
-    paymentsAddr = paymentData["_links"]["next"]["href"].replace("\u0026", "&")
-    paymentData = requests.get(paymentsAddr).json()
-    paymentRecords = paymentData["_embedded"]["records"]
+  blockchainRecords = votingAddrData["_embedded"]["records"]
+  while(blockchainRecords != []):
+    for everyInvestorData in blockchainRecords:
+      paymentsAddrs = everyInvestorData["_links"]["payments"]["href"]
+      paymentsAddrs = paymentsAddrs.replace("{?cursor,limit,order}", "?limit=" + MAX_SEARCH)
+      paymentData = requests.get(paymentsAddrs).json()
+      accountPaymentRecords = paymentData["_embedded"]["records"]
+      while(accountPaymentRecords != []):
+        for payments in accountPaymentRecords:
+          try:
+            if(payments["to"] == votingAddr):
+              transactionEnvelopeAddr = payments["_links"]["transaction"]["href"]
+              vote = requests.get(transactionEnvelopeAddr).json()["memo"]
+              addressesMappedToMemos[payments["from"]] = vote
+          except KeyError:
+            continue
+        # Go to next payments cursor
+        paymentsAddrs = paymentData["_links"]["next"]["href"].replace("\u0026", "&")
+        paymentData = requests.get(paymentsAddrs).json()
+        paymentRecords = paymentData["_embedded"]["records"]
+    # Go to next votingAddrData cursor
+    requestAddr = votingAddrData["_links"]["next"]["href"].replace("\u0026", "&")
+    votingAddrData = requests.get(requestAddr).json()
+    blockchainRecords = votingAddrData["_embedded"]["records"]
   return addressesMappedToMemos
 
 def replaceAddressesWithRecordDateBalances(addressesMappedToMemos, blockchainBalancesOnRecordDate):
@@ -84,21 +95,22 @@ def replaceAddressesWithRecordDateBalances(addressesMappedToMemos, blockchainBal
       continue
   return balancesMappedToMemos
 
-def parseMemosToVotes(balancesMappedToMemos, numVotingItems): # this function is too big
-  delegationHashmap = makeHashmapForDelegation()
+def parseMemosToVotes(balancesMappedToMemos, addressesMappedToMemos, numVotingItems): # this function is too big
+  delegationHashmap = makeFirst28byteMapping()
   delegeesPublicKeysMappedToSharesAllocated = {}
   propositionYays = propositionNays = propositionAbstains = [0] * numVotingItems
-  numSharesVoted = 0
-  for numShares, memos in balancesMappedToMemos:
-    if(len(memo) > numVotingItems):
-      if(memo in delegationHashmap.keys()):
-        delegeesPublicKeysMappedToSharesAllocated[delegationHashmap[memo]] += numShares
+  numSharesVoted = 1  # 0
+  # initial count & collect any delegation instructions
+  for numShares, memos in balancesMappedToMemos.items():
+    if(len(memos) > numVotingItems):
+      if(memos in delegationHashmap.keys()):
+        delegeesPublicKeysMappedToSharesAllocated[delegationHashmap[memos]] += numShares
         # numSharesVoted += numShares
     else:
       numSharesVoted += numShares
-      voteList = [votes.upper() for votes in list(memo)]
+      voteList = [votes.upper() for votes in list(memos)]
       try:
-        for i, votes in enumerate(voteList()):
+        for i, votes in enumerate(voteList):
           match status:
             case "Y":
               propositionYays[i] += numShares
@@ -110,6 +122,9 @@ def parseMemosToVotes(balancesMappedToMemos, numVotingItems): # this function is
       except Exception:
         print("Debug: Exception on vote parser with memo {}".format(memo))
         continue
+  # delegation instructions -> memo
+  # then adjust counts based on parse
+  pprint(delegeesPublicKeysMappedToSharesAllocated)
   for delegees, sharesAllocated in delegeesPublicKeysMappedToSharesAllocated.items():
     # addressesMappedToMemos[delegees] ...
     if(sharesAllocated):
@@ -117,14 +132,14 @@ def parseMemosToVotes(balancesMappedToMemos, numVotingItems): # this function is
     # edge test if a delegee delegates to another delegee (requires internal looping)
   voteResults = []
   numSharesVoted = Decimal(numSharesVoted)
-  oneH = Decimal(100)
   for i in range(numVotingItems):
     yays = propositionYays[i]
     nays = propositionNays[i]
     abstains = propositionAbstains[i]
     voteResults.append((yays, nays, abstains))
-    voteResults.append((oneH*Decimal(yays)/numSharesVoted, oneH*Decimal(nays)/numSharesVoted, oneH*Decimal(abstains)/numSharesVoted))
+    ratio = Decimal("100")/numSharesVoted
+    voteResults.append((format(yays*ratio, ".2f"), format(nays*ratio, ".2f"), format(abstains*ratio, ".2f")))
     
   return voteResults
 
-countProxyVotes("StellarMart", 7)
+countProxyVotes("DEMO", 7)
