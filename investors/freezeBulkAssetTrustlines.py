@@ -15,7 +15,7 @@ def freezeBulkAssetTrustlines(asset, reason):
 
 def getOutstandingTrustlines(asset):
   allOutstandingTrustlines = []
-  requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + asset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
+  requestAddress = f"https://{HORIZON_INST}/accounts?asset={asset}:{BT_ISSUER}&limit={MAX_SEARCH}"
   data = requests.get(requestAddress).json()
   blockchainRecords = data["_embedded"]["records"]
   while(blockchainRecords != []):
@@ -50,7 +50,7 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
 
 def exportTrustlineRevocationTransaction(txnArr):
   for txns in txnArr:
-    output = open("{} signedFreezeAssetTrustlinesXDR.txt".format(datetime.now()), "w")
+    output = open(f"{datetime.now()} signedFreezeAssetTrustlinesXDR.txt", "w")
     output.write(txns.to_xdr())
     output.close()
 

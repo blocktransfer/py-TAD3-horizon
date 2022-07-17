@@ -7,7 +7,7 @@ except:
 
 # testing: forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
 def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
-  postSplitFileName = "[FORWARD] {} Post-Split Master Securityholder File.csv".format(queryAsset)
+  postSplitFileName = f"[FORWARD] {queryAsset} Post-Split Master Securityholder File.csv"
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator > denominator 
@@ -19,7 +19,7 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
 def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
   transactions = []
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, distributor)
-  reason = "NOTICE: {}-for-{} forward split".format(numerator, denominator)
+  reason = f"NOTICE: {numerator}-for-{denominator} forward split"
   numTxnOps = idx = 0
   for addresses, balances in StellarBlockchainBalances.items():
     sharesToPay = (balances * numerator / denominator) - balances

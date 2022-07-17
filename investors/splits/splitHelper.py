@@ -23,7 +23,7 @@ def generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSpl
 
 def exportSplitNewShareTransactions(txnArr, queryAsset):
   for txns in txnArr:
-    output = open("{} {} StockSplitOutputXDR.txt".format(str(datetime.now()).replace(":","."), queryAsset), "w")
+    output = open(f"{str(datetime.now()).replace(":",".")} {queryAsset} StockSplitOutputXDR.txt", "w")
     output.write(txns.to_xdr())
     output.close()
 

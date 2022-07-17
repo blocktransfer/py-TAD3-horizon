@@ -30,7 +30,7 @@ fee = server.fetch_base_fee()*BASE_FEE_MULT
 
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
-  requestAddr = "https://" + HORIZON_INST + "/accounts?asset=" + queryAsset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
+  requestAddress = f"https://{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
   while(blockchainRecords != []):
@@ -69,7 +69,7 @@ def resolveFederationAddress(properlyFormattedAddr):
   federationName = splitAddr[0]
   federationDomain = splitAddr[1]
   homeDomainFederationServer = getFederationServerFromDomain(federationDomain)
-  requestAddr = homeDomainFederationServer + "?q=" + properlyFormattedAddr + "&type=name"
+  requestAddr = f"{homeDomainFederationServer}?q={properlyFormattedAddr}&type=name"
   data = requests.get(requestAddr).json()
   try: 
     return data["account_id"]
@@ -78,11 +78,11 @@ def resolveFederationAddress(properlyFormattedAddr):
 
 def getFederationServerFromDomain(federationDomain):
   try:
-    requestAddr = "https://" + federationDomain + "/.well-known/stellar.toml"
+    requestAddr = f"https://{federationDomain}/.well-known/stellar.toml"
     data = toml.loads(requests.get(requestAddr).content.decode())
     homeDomainFederationServer = data["FEDERATION_SERVER"]
   except Exception:
-    sys.exit("Failed to lookup federation server at {}".format(federationDomain))
+    sys.exit(f"Failed to lookup federation server at {federationDomain}")
   return homeDomainFederationServer if homeDomainFederationServer.split("/")[-1] else homeDomainFederationServer[:-1]
 
 def toFullAddress(street, streetExtra, city, state, postal, country):
@@ -91,7 +91,7 @@ def toFullAddress(street, streetExtra, city, state, postal, country):
   for items in uncheckedArr:
     if(items):
       cleanArr.append(items)
-  return ". ".join(cleanArr)
+  return "! ".join(cleanArr)
 
 def getValidAccountPublicKeys():
   validAccountPublicKeys = []

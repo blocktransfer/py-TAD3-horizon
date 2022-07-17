@@ -7,7 +7,7 @@ except:
 
 # testing: reverseSplit("StellarMart", 1, 10, "preSplitVeryRealStockIncMSF.csv")
 def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
-  postSplitFileName = "[REVERSE] {} Post-Split Master Securityholder File.csv".format(queryAsset)
+  postSplitFileName = f"[REVERSE] {queryAsset} Post-Split Master Securityholder File.csv"
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator < denominator 
@@ -19,7 +19,7 @@ def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
 def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
   transactions = []
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
-  reason = "NOTICE: {}-for-{} reverse split".format(numerator, denominator)
+  reason = f"NOTICE: {numerator}-for-{denominator} reverse split"
   numTxnOps = idx = 0
   for addresses, balances in StellarBlockchainBalances.items():
     sharesToClawback = balances - (balances * numerator / denominator)

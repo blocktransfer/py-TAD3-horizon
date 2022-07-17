@@ -22,16 +22,16 @@ def reinvestStellarUSDCdividendsToEquityViaDEX(stock, shareholdersReinvestingFil
       destination = lines[0],
       asset_code = stock,
       asset_issuer = BT_ISSUER,
-      amount = '{:.7f}'.format(shareholderReinvestedShares),
+      amount = ("{:." + MAX_NUM_DECIMALS + "f}").format(shareholderReinvestedShares),
     )
-    print( '*** Transaction added: {} reinvested ${:.2f} from dividend of ${} per share into {:.7f} new shares of stock ***\n'.format(lines[2], shareholderDividend, perShareDividend, shareholderReinvestedShares))
+    print(f"*** Transaction added: {lines[2]} reinvested ${shareholderDividend:.2f} from dividend of ${perShareDividend} per share into {shareholderReinvestedShares:.7f} new shares of stock ***\n")
     # TODO: Caution - not updated for bulk outputs
     divSum += shareholderDividend
     sharesSum += shareholderReinvestedShares
     investorSum += 1
   DRIPmemo = "${:.2f} @ ${}".format(divSum, averageBulkFillPriceFINAL)
   bulkTransferMax100preSegmentedXDR.add_text_memo(DRIPmemo).set_timeout(900).build()
-  print('\n*****\n\nTotal of ${:.2f} from dividends reinvested into {:.7f} shares at ${}/share for {} securityholders\n'.format(divSum, sharesSum, averageBulkFillPriceFINAL, investorSum))
+  print(f"\n*****\n\nTotal of ${divSum:.2f} from dividends reinvested into {sharesSum:.7f} shares at ${averageBulkFillPriceFINAL}/share for {investorSum} securityholders\n")
   print('TO EXECUTE BULK TRANSFER: Sign returned message offline and broadcast to blockchain\n\n*****\n')
   return bulkTransferMax100preSegmentedXDR
 

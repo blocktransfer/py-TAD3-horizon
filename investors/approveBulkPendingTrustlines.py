@@ -15,7 +15,7 @@ def approveBulkPendingTrustlines():
 
 def getAllIssuedAssetsArr(issuer):
   allAssets = []
-  requestAddress = "https://" + HORIZON_INST + "/assets?asset_issuer=" + issuer + "&limit=" + MAX_SEARCH
+  requestAddress = f"https://{HORIZON_INST}/assets?asset_issuer={BT_ISSUER}&limit={MAX_SEARCH}"
   data = requests.get(requestAddress).json()
   blockchainRecords = data["_embedded"]["records"]
   while(blockchainRecords != []):
@@ -31,7 +31,7 @@ def getAllPendingTrustlinesWithAsset():
   allAssets = getAllIssuedAssetsArr(BT_ISSUER)
   allPendingTrustlinesWithAssetArr = {}
   for assets in allAssets:
-    requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + assets + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
+    requestAddress = f"https://{HORIZON_INST}/accounts?asset={assets}:{BT_ISSUER}&limit={MAX_SEARCH}"
     data = requests.get(requestAddress).json()
     blockchainRecords = data["_embedded"]["records"]
     while(blockchainRecords != []):
@@ -56,7 +56,7 @@ def getAllPendingTrustlinesWithAsset():
 
 def getKnownAddressesFromIdentityMappingCSV():
   allVerifiedAddresses = []
-  identityMapping = open(KYC_CSV_INST)
+  identityMapping = open(MICR_CSV)
   identityMapping.readline()
   while(identityMapping.readline()):
     allVerifiedAddresses.append(identityMapping.readline().split(',')[0])
@@ -65,7 +65,7 @@ def getKnownAddressesFromIdentityMappingCSV():
 
 def verifyAddressesWithAssetArrDict(addressesWithAssetsArrDict):
   # TODO: Fix identity mapping schema in globals and uncomment below: 
-  #allKnownShareholderAddressesList = getKnownAddressesFromIdentityMappingCSV()
+  #allKnownShareholderAddressesList = getKnownAddressesFromIdentityMappingCSV()                        # globalize get all known from countProxyVotes ; see above func
   verifiedAddressesWithAssetArr = {}
   for potentialAddresses, requestedAssetArrs in addressesWithAssetsArrDict.items():
     #if(potentialAddresses in allKnownShareholderAddressesList):
@@ -97,7 +97,7 @@ def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict
 
 def exportTrustlineApprovalTransactions(txnXDRarr):
   for txn in txnXDRarr:
-    output = open("{} signedFreezeAssetTrustlinesXDR.txt".format(datetime.now()), "w")
+    output = open(f"{datetime.now()} signedFreezeAssetTrustlinesXDR.txt", "w")
     output.write(txn.to_xdr())
     output.close()
 

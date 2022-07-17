@@ -3,7 +3,7 @@ sys.path.append("../")
 from globals import *
 from stellar_sdk import exceptions
 
-APPROVED_PUBLIC_KEY_CSV = G_DIR + "/../../pii/production-approved-public-keys.csv"
+APPROVED_PUBLIC_KEY_CSV = f"{G_DIR}/../../pii/production-approved-public-keys.csv"
 approvalAmountXLM = Decimal("2.3")
 
 try:
@@ -34,19 +34,19 @@ def getAddress(providedAddr):
   elif(len(splitAddr) == 2):
     return resolveFederationAddress(providedAddr)
   else: 
-    sys.exit("Bad address: {}".format(providedAddr))
+    sys.exit(f"Bad address: {providedAddr}")
 
 def seeIfAccountExists(resolvedAddr):
   try:
     server.load_account(account_id = resolvedAddr)
     return 1
   except exceptions.Ed25519PublicKeyInvalidError:
-    sys.exit("Breaking - invalid public key: {}".format(resolvedAddr))
+    sys.exit(f"Breaking - invalid public key: {resolvedAddr}")
   except exceptions.SdkError as error:
     if(error.status == 404):
       return 0
     else:
-      sys.exit("Breaking - bad error from server:\n{}".format(error))
+      sys.exit(f"Breaking - bad error from server:\n{error}")
 
 def declareApproval(resolvedAddr, transaction):
   transaction.append_payment_op(

@@ -51,7 +51,7 @@ def makeFirst28byteMapping():
 def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
   addrsMappedToMemos = {}
   votingAddr = resolveFederationAddress(votingFederationAddress)
-  requestAddr = "https://" + HORIZON_INST + "/accounts?asset=" + queryAsset + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
+  requestAddr = f"https://{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&limit={MAX_SEARCH}"
   votingAddrData = requests.get(requestAddr).json()
   blockchainRecords = votingAddrData["_embedded"]["records"]
   numInvestorsOnboard = numInvestorsVoted = 0
@@ -91,7 +91,7 @@ def replaceAddressesWithRecordDateBalances(addrsMappedToMemos, blockchainBalance
       continue
   return balancesMappedToMemos
 
-def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems): # this function is too big
+def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems):
   delegeeAddrsMappedToSharesAllocated = {}
   delegationHashmap = makeFirst28byteMapping()
   propositionYays = [0] * numVotingItems
