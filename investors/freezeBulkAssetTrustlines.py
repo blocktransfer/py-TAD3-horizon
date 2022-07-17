@@ -13,28 +13,28 @@ def freezeBulkAssetTrustlines(asset, reason):
   revocationTxnXDRarr = signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason)
   exportTrustlineRevocationTransaction(revocationTxnXDRarr)
 
-def getOutstandingTrustlines(asset):
+def getOutstandingTrustlines(queryAsset):
   allOutstandingTrustlines = []
-  requestAddress = f"https://{HORIZON_INST}/accounts?asset={asset}:{BT_ISSUER}&limit={MAX_SEARCH}"
-  data = requests.get(requestAddress).json()
+  requestAddr = getInitialAccountsRequestAddr(queryAsset)
+  data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
   while(blockchainRecords != []):
     for accounts in blockchainRecords:
       allOutstandingTrustlines.append(accounts["id"])
     # Go to next cursor
-    requestAddress = data["_links"]["next"]["href"].replace("%3A", ":")
-    data = requests.get(requestAddress).json()
+    requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
+    data = requests.get(requestAddr).json()
     blockchainRecords = data["_embedded"]["records"]
   return allOutstandingTrustlines
 
-def signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason):
+def signBulkTrustlineRevocationTxn(outstandingTrustlines, queryAsset, reason):
   transactions = []
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   numTxnOps = idx = 0
   for addresses in outstandingTrustlines:
     transactions[idx].append_set_trust_line_flags_op(
       trustor = addresses,
-      asset = Asset(asset, BT_ISSUER),
+      asset = Asset(queryAsset, BT_ISSUER),
       clear_flags = TrustLineFlags(1),
     )
     numTxnOps += 1

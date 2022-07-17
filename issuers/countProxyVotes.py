@@ -51,7 +51,7 @@ def makeFirst28byteMapping():
 def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
   addrsMappedToMemos = {}
   votingAddr = resolveFederationAddress(votingFederationAddress)
-  requestAddr = f"https://{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&limit={MAX_SEARCH}"
+  requestAddr = getInitialAccountsRequestAddr(queryAsset)
   votingAddrData = requests.get(requestAddr).json()
   blockchainRecords = votingAddrData["_embedded"]["records"]
   numInvestorsOnboard = numInvestorsVoted = 0

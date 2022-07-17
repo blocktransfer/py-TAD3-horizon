@@ -28,9 +28,12 @@ fee = server.fetch_base_fee()*BASE_FEE_MULT
 
 # Todo: clean up globals by moving functions to imports under main dir
 
+def getInitialAccountsRequestAddr(queryAsset):
+  return f"https://{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&limit={MAX_SEARCH}"
+
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
-  requestAddress = f"https://{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&limit={MAX_SEARCH}"
+  requestAddr = getInitialAccountsRequestAddr(queryAsset)
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
   while(blockchainRecords != []):
@@ -102,4 +105,3 @@ def getValidAccountPublicKeys():
     lines = lines.split(",")
     validAccountPublicKeys.append(lines[0])
   return validAccountPublicKeys
-
