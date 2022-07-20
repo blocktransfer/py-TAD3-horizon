@@ -2,14 +2,16 @@ import sys
 sys.path.append("../")
 from globals import *
 
+validAccountPublicKeys = getValidAccountPublicKeys()
+
 try:
     SECRET = sys.argv[1]
 except:
   print("Running without key")
 
 def approveBulkPendingTrustlines():
-  allPendingTrustlinesWithAssetArrDict = getAllPendingTrustlinesWithAsset()
-  verifiedAddressesWithAssetArrDict = verifyAddressesWithAssetArrDict(allPendingTrustlinesWithAssetArrDict)
+  allPendingTrustlinesMappedToAssetArr = getAllPendingTrustlinesWithAsset()
+  verifiedAddressesWithAssetArrDict = verifyAddressesFromAssetDict(allPendingTrustlinesMappedToAssetArr)
   signedTrustlineApprovalXDRarr = signBulkTrustlineApprovalsFromAddressAssetArrDict(verifiedAddressesWithAssetArrDict)
   exportTrustlineApprovalTransactions(signedTrustlineApprovalXDRarr)
 
@@ -63,14 +65,12 @@ def getKnownAddressesFromIdentityMappingCSV():
   identityMapping.close()
   return allVerifiedAddresses
 
-def verifyAddressesWithAssetArrDict(addressesWithAssetsArrDict):
-  # TODO: Fix identity mapping schema in globals and uncomment below: 
-  #allKnownShareholderAddressesList = getKnownAddressesFromIdentityMappingCSV()                        # globalize get all known from countProxyVotes ; see above func
-  verifiedAddressesWithAssetArr = {}
+def verifyAddressesFromAssetDict(addressesWithAssetsArrDict):
+  verifiedAddressesMappedToAssetArr = {}
   for potentialAddresses, requestedAssetArrs in addressesWithAssetsArrDict.items():
-    #if(potentialAddresses in allKnownShareholderAddressesList):
-    verifiedAddressesWithAssetArr[potentialAddresses] = requestedAssetArrs
-  return verifiedAddressesWithAssetArr
+    if(potentialAddresses in validAccountPublicKeys):
+      verifiedAddressesMappedToAssetArr[potentialAddresses] = requestedAssetArrs
+  return verifiedAddressesMappedToAssetArr
 
 def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict):
   transactions = []
