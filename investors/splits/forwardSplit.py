@@ -1,12 +1,13 @@
 from splitHelper import *
 
+try:
+  SECRET = sys.argv[1]
+except:
+  print("Running without key")
+
 # testing: forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
 def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
-  try:
-    SECRET = sys.argv[1]
-  except:
-    print("Running without key")
-  postSplitFileName = "[FORWARD] {} Post-Split Master Securityholder File.csv".format(queryAsset)
+  postSplitFileName = f"[FORWARD] {queryAsset} Post-Split Master Securityholder File.csv"
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator > denominator 
@@ -16,21 +17,9 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
 
 def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
-  server = Server(horizon_url = "https://" + HORIZON_INST)
-  distributor = server.load_account(account_id = BT_DISTRIBUTOR)
-  try: 
-    fee = server.fetch_base_fee()
-  except: 
-    fee = FALLBACK_MIN_FEE
   transactions = []
-  transactions.append(
-    TransactionBuilder(
-      source_account = distributor,
-      network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-      base_fee = fee,
-    )
-  )
-  reason = "{}-for-{} forward stock split".format(numerator, denominator)
+  appendTransactionEnvelopeToArrayWithSourceAccount(transactions, distributor)
+  reason = f"NOTICE: {numerator}-for-{denominator} forward split"
   numTxnOps = idx = 0
   for addresses, balances in StellarBlockchainBalances.items():
     sharesToPay = (balances * numerator / denominator) - balances
@@ -46,13 +35,7 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
       transactions[idx].sign(Keypair.from_secret(SECRET))
       numTxnOps = 0
       idx += 1
-      transactions.append(
-        TransactionBuilder(
-          source_account = distributor,
-          network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-          base_fee = fee,
-        )
-      )
+      appendTransactionEnvelopeToArrayWithSourceAccount(transactions, distributor)
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
   transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions

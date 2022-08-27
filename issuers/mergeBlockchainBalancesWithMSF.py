@@ -2,38 +2,57 @@ import sys
 sys.path.append("../")
 from globals import *
 
-def getMergedReportForAssetWithNumRestrictedSharesUsingMSF(queryAsset, numRestrictedShares, MSF):
+def getMergedReportForAssetWithNumRestrictedSharesUsingMSF(queryAsset, numRestrictedShares, unclaimedMSF):
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
   totalOutstandingShares = getTotalOutstandingShares(queryAsset, numRestrictedShares)
-  mergeBlockchainRecordsWithMSF(queryAsset, MSF, totalOutstandingShares, StellarBlockchainBalances)
+  mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSF, totalOutstandingShares, StellarBlockchainBalances)
+  generateInternalRecord(queryAsset, StellarBlockchainBalances)
 
 def getTotalOutstandingShares(queryAsset, numRestrictedShares):
-  requestAddress = "https://" + HORIZON_INST + "/assets?asset_code=" + queryAsset + "&asset_issuer=" + BT_ISSUER
+  requestAddress = f"https://{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
   data = requests.get(requestAddress).json()
-  numUnrestrictedShares = Decimal(data["_embedded"]["records"][0]["amount"])
-  totalOutstandingShares = numRestrictedShares + numUnrestrictedShares
+  try:
+    numUnrestrictedShares = Decimal(data["_embedded"]["records"][0]["amount"])
+  except Exception:
+    sys.exit("Input parameter error")
+  totalOutstandingShares = Decimal(numRestrictedShares) + numUnrestrictedShares
   return totalOutstandingShares
 
-def mergeBlockchainRecordsWithMSF(queryAsset, MSF, totalOutstandingShares, StellarBlockchainBalances):
-  inFile = open(MSF)
-  readFile = inFile.read()
-  readFile = readFile.strip()
-  readFile = readFile.split("\n")
+def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstandingShares, StellarBlockchainBalances):
+  inFile = open(unclaimedMSFinst)
+  unclaimedMSF = inFile.read().strip().split("\n")
   inFile.close()
-  mergedMSF = open("{} Master Securityholder File as of {}.csv".format(queryAsset, datetime.now().strftime("%Y-%m-%d at %H%MZ")), "w")
-  mergedMSF.write("Shares,Percent of Outstanding Shares,Registration,Email,Date of Birth / Organization,Address,Address Extra,City,State,Postal Code,Country,Onboarded Date,Issue Date of Security,Cancellation Date of Security,Dividends,Restricted Shares Notes\n")
-  for lines in readFile[1:]:
+  inFile = open(MICR_CSV)
+  MICR = inFile.read().strip().split("\n")
+  inFile.close()
+  day = datetime.now().strftime("%Y-%m-%d at %H%M")
+  mergedMSF = open(f"{G_DIR}/../../pii/outputs/{queryAsset} MSF as of {day}.csv", "w")
+  mergedMSF.write("Registration,Address,Email,Shares\n")
+  for lines in unclaimedMSF[1:]:
     lines = lines.split(",")
-    sharesNotYetClaimedOnStellar = 0 if lines[1] == "" else Decimal(lines[1])
+    cancelled = lines[10]
+    if(not cancelled):
+      address = toFullAddress(lines[3], lines[4], lines[5], lines[6], lines[7], lines[8])
+      output = [lines[1], address, "", lines[0], lines[11]] # assume no email from old TA
+      mergedMSF.write(",".join(output) + "\n")
+  for lines in MICR[1:]:
+    lines = lines.split(",")
     try:
-        blockchainBalance = 0 if lines[0] == "" else StellarBlockchainBalances[lines[0]]
-    except KeyError:
-        print("{} is no longer a securityholder per removed trustline. Prune from merged MSF".format(lines[0]))
+      blockchainBalance = StellarBlockchainBalances[lines[0]]
+      if(not blockchainBalance):
         continue
-    totalBalance = blockchainBalance + sharesNotYetClaimedOnStellar # Redundant given restricted entries are separate from unrestricted entries 
-    lines[0] = str(totalBalance)
-    lines[1] = str(totalBalance / totalOutstandingShares)
-    mergedMSF.write(",".join(lines) + "\n")
+    except KeyError:
+      continue
+    address = toFullAddress(lines[4], lines[5], lines[6], lines[7], lines[8], lines[9])
+    output = [lines[1], address, lines[2], str(blockchainBalance)]
+    mergedMSF.write(",".join(output) + "\n")
   mergedMSF.close()
 
-# Debug: getMergedReportForAssetWithNumRestrictedSharesUsingMSF("StellarMart", 10000, "VeryRealStockIncMSF.csv")
+def generateInternalRecord(queryAsset, StellarBlockchainBalances):
+  internalRecord = open(f"{G_DIR}/../../pii/outputs/{queryAsset}.csv", "w")
+  internalRecord.write(f"Public Key,Balance,,Blockchain snapshot: {datetime.now()}\n")
+  for addresses, balances in StellarBlockchainBalances.items():
+    internalRecord.write(",".join([addresses, str(balances)])+"\n")
+  internalRecord.close()
+
+getMergedReportForAssetWithNumRestrictedSharesUsingMSF("DEMO", "0", "VeryRealStockIncUnclaimedMSF.csv")

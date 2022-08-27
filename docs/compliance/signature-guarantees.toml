@@ -26,14 +26,14 @@ more than a mobile phone and five minutes; anyone can easily onboard quickly.
 
 Guarantees are made and verified through private-key cryptographic signatures of
 instructions to transfer an asset or endorse a transfer. Participants can
-automatically generate such digital signatures through an standard Stellar
+automatically generate such digital signatures through any standard Stellar
 wallet, though we recommend Lobstr. So long as the transfer is valid with the
 claimed signing public key, the guarantee is accepted by the network no matter
 (and blind to) the original broadcaster. Otherwise, the transfer is rejected,
 and participants are immediately notified by the network why their signature and
 thus transfer was invalid via standard error codes in tandem with a local copy
 of the submitted invalid transfer. Due to (i) local checks for signature
-validity in standard wallet interfaces and (ii) haulted gossip propagation of
+validity in standard wallet interfaces and (ii) halted gossip propagation of
 invalid transactions on the Stellar blockchain, Block Transfer will, in a vast
 bulk of instances, not be made aware of rejected transfers given only a narrow
 range of transfers are invalid by false cryptographic attestation, while valid
@@ -73,7 +73,7 @@ material fact in the control books and master securityholder files of issuers.
 
 Upon change from a given issuer's prior transfer agent, all certificate-holding
 shareholders must validate their Stellar blockchain account at no cost to them
-through Block Transfer's KYC onboarding. Block Transfer will credit physcial
+through Block Transfer's KYC onboarding. Block Transfer will credit physical
 shareholders with their ownership stakes in DRS form on the Stellar blockchain.
 Old paper certificates are thus null and void. We will never issue certificates.
 

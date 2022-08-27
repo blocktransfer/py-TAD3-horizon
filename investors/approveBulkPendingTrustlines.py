@@ -2,19 +2,22 @@ import sys
 sys.path.append("../")
 from globals import *
 
-def approveBulkPendingTrustlines():
-  try:
+validAccountPublicKeys = getValidAccountPublicKeys()
+
+try:
     SECRET = sys.argv[1]
-  except:
-    print("Running without key")
-  allPendingTrustlinesWithAssetArrDict = getAllPendingTrustlinesWithAsset()
-  verifiedAddressesWithAssetArrDict = verifyAddressesWithAssetArrDict(allPendingTrustlinesWithAssetArrDict)
+except:
+  print("Running without key")
+
+def approveBulkPendingTrustlines():
+  allPendingTrustlinesMappedToAssetArr = getAllPendingTrustlinesWithAsset()
+  verifiedAddressesWithAssetArrDict = verifyAddressesFromAssetDict(allPendingTrustlinesMappedToAssetArr)
   signedTrustlineApprovalXDRarr = signBulkTrustlineApprovalsFromAddressAssetArrDict(verifiedAddressesWithAssetArrDict)
   exportTrustlineApprovalTransactions(signedTrustlineApprovalXDRarr)
 
 def getAllIssuedAssetsArr(issuer):
   allAssets = []
-  requestAddress = "https://" + HORIZON_INST + "/assets?asset_issuer=" + issuer + "&limit=" + MAX_SEARCH
+  requestAddress = f"https://{HORIZON_INST}/assets?asset_issuer={BT_ISSUER}&limit={MAX_SEARCH}"
   data = requests.get(requestAddress).json()
   blockchainRecords = data["_embedded"]["records"]
   while(blockchainRecords != []):
@@ -30,7 +33,7 @@ def getAllPendingTrustlinesWithAsset():
   allAssets = getAllIssuedAssetsArr(BT_ISSUER)
   allPendingTrustlinesWithAssetArr = {}
   for assets in allAssets:
-    requestAddress = "https://" + HORIZON_INST + "/accounts?asset=" + assets + ":" + BT_ISSUER + "&limit=" + MAX_SEARCH
+    requestAddress = f"https://{HORIZON_INST}/accounts?asset={assets}:{BT_ISSUER}&limit={MAX_SEARCH}"
     data = requests.get(requestAddress).json()
     blockchainRecords = data["_embedded"]["records"]
     while(blockchainRecords != []):
@@ -55,36 +58,23 @@ def getAllPendingTrustlinesWithAsset():
 
 def getKnownAddressesFromIdentityMappingCSV():
   allVerifiedAddresses = []
-  identityMapping = open(KYC_CSV_INST, "r")
+  identityMapping = open(MICR_CSV)
   identityMapping.readline()
   while(identityMapping.readline()):
     allVerifiedAddresses.append(identityMapping.readline().split(',')[0])
+  identityMapping.close()
   return allVerifiedAddresses
 
-def verifyAddressesWithAssetArrDict(addressesWithAssetsArrDict):
-  # TODO: Fix identity mapping schema in globals and uncomment below: 
-  #allKnownShareholderAddressesList = getKnownAddressesFromIdentityMappingCSV()
-  verifiedAddressesWithAssetArr = {}
+def verifyAddressesFromAssetDict(addressesWithAssetsArrDict):
+  verifiedAddressesMappedToAssetArr = {}
   for potentialAddresses, requestedAssetArrs in addressesWithAssetsArrDict.items():
-    #if(potentialAddresses in allKnownShareholderAddressesList):
-    verifiedAddressesWithAssetArr[potentialAddresses] = requestedAssetArrs
-  return verifiedAddressesWithAssetArr
+    if(potentialAddresses in validAccountPublicKeys):
+      verifiedAddressesMappedToAssetArr[potentialAddresses] = requestedAssetArrs
+  return verifiedAddressesMappedToAssetArr
 
 def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict):
-  server = Server(horizon_url= "https://" + HORIZON_INST)
-  issuer = server.load_account(account_id = BT_ISSUER)
-  try: 
-    fee = server.fetch_base_fee()
-  except: 
-    fee = FALLBACK_MIN_FEE
   transactions = []
-  transactions.append(
-    TransactionBuilder(
-      source_account = issuer,
-      network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-      base_fee = fee,
-    )
-  )
+  appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   reason = "Known securityholder"
   numTxnOps = idx = 0
   for addresses, assetArrs in addressesWithAssetsArrDict.items():
@@ -100,20 +90,14 @@ def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict
         transactions[idx].sign(Keypair.from_secret(SECRET))
         numTxnOps = 0
         idx += 1
-        transactions.append(
-          TransactionBuilder(
-            source_account = issuer,
-            network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-            base_fee = fee,
-          )
-        )
+        appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
   transactions[idx].sign(Keypair.from_secret(SECRET))
   return transactions
 
 def exportTrustlineApprovalTransactions(txnXDRarr):
   for txn in txnXDRarr:
-    output = open("{} signedFreezeAssetTrustlinesXDR.txt".format(datetime.now()), "w")
+    output = open(f"{datetime.now()} signedFreezeAssetTrustlinesXDR.txt", "w")
     output.write(txn.to_xdr())
     output.close()
 
