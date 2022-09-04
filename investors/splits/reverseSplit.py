@@ -1,10 +1,5 @@
 from splitHelper import *
 
-try:
-  SECRET = sys.argv[1]
-except:
-  print("Running without key")
-
 # testing: reverseSplit("StellarMart", 1, 10, "preSplitVeryRealStockIncMSF.csv")
 def reverseSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   postSplitFileName = f"[REVERSE] {queryAsset} Post-Split Master Securityholder File.csv"
@@ -32,11 +27,11 @@ def revokeOldSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, 
       )
     if(numTxnOps >= MAX_NUM_TXN_OPS):
       transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
-      transactions[idx].sign(Keypair.from_secret(SECRET))
+      transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
       numTxnOps = 0
       idx += 1
       appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
-  transactions[idx].sign(Keypair.from_secret(SECRET))
+  transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
   return transactions
 

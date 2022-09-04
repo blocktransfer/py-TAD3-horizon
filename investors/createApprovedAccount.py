@@ -7,12 +7,7 @@ APPROVED_PUBLIC_KEY_CSV = f"{G_DIR}/../../pii/production-approved-public-keys.cs
 approvalAmountXLM = Decimal("2.3")
 
 try:
-  SECRET = sys.argv[1]
-except Exception:
-  print("Running without key")
-
-try:
-  MEMO = sys.argv[2]
+  MEMO = sys.argv[1]
 except Exception:
   MEMO = "Account verified"
 
@@ -73,12 +68,12 @@ def buildTxnsArr(approvedAddresses): # todo: similarly, globalize
     numTxnOps += 1
     if(numTxnOps >= MAX_NUM_TXN_OPS):
       transactions[idx] = transactions[idx].add_text_memo(MEMO).set_timeout(30).build()
-      transactions[idx].sign(Keypair.from_secret(SECRET))
+      transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
       numTxnOps = 0
       idx += 1
       appendTransactionEnvelopeToArrayWithSourceAccount(transactions, treasury)
   transactions[idx] = transactions[idx].add_text_memo(MEMO).set_timeout(30).build()
-  transactions[idx].sign(Keypair.from_secret(SECRET))
+  transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
   return transactions
 
 def submitTxnsToStellar(txnArr): # globalize

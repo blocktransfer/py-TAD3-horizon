@@ -4,11 +4,6 @@ from globals import *
 
 validAccountPublicKeys = getValidAccountPublicKeys()
 
-try:
-    SECRET = sys.argv[1]
-except:
-  print("Running without key")
-
 def approveBulkPendingTrustlines():
   allPendingTrustlinesMappedToAssetArr = getAllPendingTrustlinesWithAsset()
   verifiedAddressesWithAssetArrDict = verifyAddressesFromAssetDict(allPendingTrustlinesMappedToAssetArr)
@@ -87,12 +82,12 @@ def signBulkTrustlineApprovalsFromAddressAssetArrDict(addressesWithAssetsArrDict
       )
       if(numTxnOps >= MAX_NUM_TXN_OPS):
         transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-        transactions[idx].sign(Keypair.from_secret(SECRET))
+        transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
         numTxnOps = 0
         idx += 1
         appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-  transactions[idx].sign(Keypair.from_secret(SECRET))
+  transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
   return transactions
 
 def exportTrustlineApprovalTransactions(txnXDRarr):

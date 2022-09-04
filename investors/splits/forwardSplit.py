@@ -1,10 +1,5 @@
 from splitHelper import *
 
-try:
-  SECRET = sys.argv[1]
-except:
-  print("Running without key")
-
 # testing: forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
 def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
   postSplitFileName = f"[FORWARD] {queryAsset} Post-Split Master Securityholder File.csv"
@@ -32,11 +27,11 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, q
       )
     if(numTxnOps >= MAX_NUM_TXN_OPS):
       transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
-      transactions[idx].sign(Keypair.from_secret(SECRET))
+      transactions[idx].sign(Keypair.from_secret(DISTRIBUTOR_KEY))
       numTxnOps = 0
       idx += 1
       appendTransactionEnvelopeToArrayWithSourceAccount(transactions, distributor)
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(7200).build()
-  transactions[idx].sign(Keypair.from_secret(SECRET))
+  transactions[idx].sign(Keypair.from_secret(DISTRIBUTOR_KEY))
   return transactions
 

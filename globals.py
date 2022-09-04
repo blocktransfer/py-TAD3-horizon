@@ -18,8 +18,7 @@ except NameError:
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
-SECRET = "SBTPLXTXJDMJOXFPYU2ANLZI2ARDPHFKPKK4MJFYVZVBLXYM5AIP3LPK"
-MICR_CSV = G_DIR + "/../../pii/master-identity-catalog-records.csv"
+MICR_CSV = G_DIR + "/../../pii/master-identity-catalog-records.csv" #todo: modify here to load from Box; set auth
 
 HORIZON_INST = "horizon.stellar.org"
 MAX_NUM_DECIMALS = "7"
@@ -27,11 +26,11 @@ MAX_SEARCH = "200"
 MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2
 
-server = Server(horizon_url= "https://" + HORIZON_INST)
+server = Server(horizon_url = "https://" + HORIZON_INST)
 issuer = server.load_account(account_id = BT_ISSUER)
 distributor = server.load_account(account_id = BT_DISTRIBUTOR)
 treasury = server.load_account(account_id = BT_TREASURY)
-fee = server.fetch_base_fee()*BASE_FEE_MULT
+fee = server.fetch_base_fee() * BASE_FEE_MULT
 
 # Todo: clean up globals by moving functions to imports under main dir
 

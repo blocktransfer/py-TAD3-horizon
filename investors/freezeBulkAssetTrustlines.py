@@ -2,11 +2,6 @@ import sys
 sys.path.append("../")
 from globals import *
 
-try:
-  SECRET = sys.argv[1]
-except:
-  print("Running without key")
-
 # testing: freezeBulkAssetTrustlines("StellarMart", "FREEZING: Stock split inbound")
 def freezeBulkAssetTrustlines(asset, reason):
   outstandingTrustlines = getOutstandingTrustlines(asset)
@@ -40,12 +35,12 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, queryAsset, reason):
     numTxnOps += 1
     if(numTxnOps >= MAX_NUM_TXN_OPS):
       transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-      transactions[idx].sign(Keypair.from_secret(SECRET))
+      transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
       numTxnOps = 0
       idx += 1
       appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-  transactions[idx].sign(Keypair.from_secret(SECRET))
+  transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
   return transactions
 
 def exportTrustlineRevocationTransaction(txnArr):

@@ -1,6 +1,3 @@
-# I, John Wooten of my own free will, hereby authorize U.S. Bank to freely use any materials
-# disclosed herein for the distribution of secuirty dividends among its clients or affiliates.
-
 # Import MSF -> Record Date via StellarNonNative in blocktransfer/record-date repo
 
 import requests
