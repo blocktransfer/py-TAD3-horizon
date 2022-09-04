@@ -3,7 +3,14 @@ from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
 import sys, os.path, requests, json, toml
+from local_secrets import *
+
 G_DIR = os.path.dirname(__file__)
+TRIAL_KEY = "SBTPLXTXJDMJOXFPYU2ANLZI2ARDPHFKPKK4MJFYVZVBLXYM5AIP3LPK"
+try:
+  ISSUER_KEY
+except NameError:
+  ISSUER_KEY = DISTRIBUTOR_KEY = TREASURY_KEY = TRIAL_KEY
 
 # Debug issuers:
 # accounts - GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM
