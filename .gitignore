@@ -1,1 +1,3 @@
-local-secrets.py
+local_secrets.py
+__pycache__
+
