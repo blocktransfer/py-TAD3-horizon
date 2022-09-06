@@ -97,6 +97,7 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
   propositionYays = [0] * numVotingItems
   propositionNays = [0] * numVotingItems
   propositionAbstains = [0] * numVotingItems
+  propositionWitholds = [0] * numVotingItems
   sharesVoted = Decimal("0")
   for numShares, memos in balancesMappedToMemos.items():
     if(len(memos) > numVotingItems):
@@ -119,6 +120,8 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
               propositionNays[i] += numShares
             case "A":
               propositionAbstains[i] += numShares
+            case "W":
+              propositionWitholds[i] += sharesAllocated
       except Exception:
         print("! Invalid memo: {}".format(memos))
         continue
@@ -142,6 +145,8 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
               propositionNays[i] += sharesAllocated
             case "A":
               propositionAbstains[i] += sharesAllocated
+            case "W":
+              propositionWitholds[i] += sharesAllocated
       except Exception:
         print("! Invalid memo: {}".format(memos))
         continue
@@ -152,17 +157,19 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
     yays = propositionYays[i]
     nays = propositionNays[i]
     abstains = propositionAbstains[i]
-    voteTallies.append((yays, nays, abstains))
+    witholds = propositionWitholds[i]
+    voteTallies.append((yays, nays, abstains, witholds))
   return voteTallies
 
 def displayResults(voteTallies):
   i = 0
-  for (Y, N, A) in voteTallies:
+  for (Y, N, A, W) in voteTallies:
     i += 1
-    ratio = Decimal("100")/Decimal(Y+N+A)
+    ratio = Decimal("100")/Decimal(Y+N+A+W)
     print("In the matter of proposition {}:".format(i))
     print("For:\t\t{}%\t({} shares)".format(format(Y*ratio, ".2f"), Y))
     print("Against:\t{}%\t({} shares)".format(format(N*ratio, ".2f"), N))
     print("Abstain:\t{}%\t({} shares)\n".format(format(A*ratio, ".2f"), A))
+    print("Withold:\t{}%\t({} shares)\n".format(format(W*ratio, ".2f"), W))
 
 countProxyVotes("DEMO", 15)
