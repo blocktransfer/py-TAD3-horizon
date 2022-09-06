@@ -3,14 +3,15 @@ sys.path.append("../")
 from globals import *
 import pandas
 
-# Commission new account with voting federation address [ticker]*proxyvote.io circa sending the affidavit of notice.
-# Afterwards, merge account into BT_TREASURY (single use simplifies tally logic). Remove old federation record.
+ # Record date at 8pm ET / Midnight UTC
+# Send affidavit of notice. todo: move to comprehensive meeting checklist with auto calendar events
 
-CUTOFF_TIME_UTC = pandas.to_datetime("2022-07-16T10:25:00Z") # + 4hrs from ET
+VOTE_CUTOFF_TIME_UTC = pandas.to_datetime("2031-04-29T12:30:00Z") # set to meeting time for audits
 validAccountPublicKeys = getValidAccountPublicKeys()
 
-def countProxyVotes(queryAsset, numVotingItems):
-  votingFederationAddress = queryAsset + "*proxyvote.io"
+#testing: countProxyVotes("DEMO", 15, "annual")
+def countProxyVotes(queryAsset, numVotingItems, meetingType):
+  votingFederationAddress = f"{queryAsset}-{meetingType}-{datetime.date.today().year}*proxyvote.io" #breaks for year-end
   numUnrestrictedShares = getNumUnrestrictedShares(queryAsset)
   blockchainBalancesOnRecordDate = getBalancesOnRecordDate(queryAsset)
   addrsMappedToMemos = getaddrsMappedToMemos(queryAsset, votingFederationAddress)
@@ -66,7 +67,7 @@ def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
         while(accountPaymentRecords != []):
           for payments in accountPaymentRecords:
             try:
-              if(payments["asset_type"] == "native" and payments["to"] == votingAddr and pandas.to_datetime(payments["created_at"]) < CUTOFF_TIME_UTC):
+              if(payments["asset_type"] == "native" and payments["to"] == votingAddr and pandas.to_datetime(payments["created_at"]) < VOTE_CUTOFF_TIME_UTC):
                 transactionEnvelopeAddr = payments["_links"]["transaction"]["href"]
                 vote = requests.get(transactionEnvelopeAddr).json()["memo"]
                 addrsMappedToMemos[payments["from"]] = vote
@@ -171,5 +172,3 @@ def displayResults(voteTallies):
     print("Against:\t{}%\t({} shares)".format(format(N*ratio, ".2f"), N))
     print("Abstain:\t{}%\t({} shares)\n".format(format(A*ratio, ".2f"), A))
     print("Withold:\t{}%\t({} shares)\n".format(format(W*ratio, ".2f"), W))
-
-countProxyVotes("DEMO", 15)
