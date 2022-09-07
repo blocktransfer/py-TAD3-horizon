@@ -3,15 +3,28 @@ sys.path.append("../")
 from globals import *
 import pandas
 
- # Record date at 8pm ET / Midnight UTC
-# Send affidavit of notice. todo: move to comprehensive meeting checklist with auto calendar events
+# Record date at 8pm ET / Midnight UTC
+# Voting cutoff/report 8pm ET / Midnight UTC day prior meeting
+
+# have client terms incl. approval of digital proxy
+
+# Comprehensive meeting checklist (todo - auto calendar events):
+# T-64  Receive text for message box in email template
+# T-60  Record date
+# T-58  Share record-date list; request annual report/proxy statement
+# T-54  Submit postgrid campaign
+# T-47  Commence e-mailing
+# T-42  Send signed affidavit of notice
+# T-1   Send vote results
+
+# (shareable tabulating widget - simple executable GUI?)
 
 VOTE_CUTOFF_TIME_UTC = pandas.to_datetime("2031-04-29T12:30:00Z") # set to meeting time for audits
 validAccountPublicKeys = getValidAccountPublicKeys()
 
 #testing: countProxyVotes("DEMO", 15, "annual")
 def countProxyVotes(queryAsset, numVotingItems, meetingType):
-  votingFederationAddress = f"{queryAsset}-{meetingType}-{datetime.date.today().year}*proxyvote.io" #breaks for year-end
+  votingFederationAddress = f"{queryAsset}-{meetingType}-{datetime.today().year}*proxyvote.io" # +1 for year-end meeting
   numUnrestrictedShares = getNumUnrestrictedShares(queryAsset)
   blockchainBalancesOnRecordDate = getBalancesOnRecordDate(queryAsset)
   addrsMappedToMemos = getaddrsMappedToMemos(queryAsset, votingFederationAddress)
@@ -21,7 +34,7 @@ def countProxyVotes(queryAsset, numVotingItems, meetingType):
 
 # Assume eligibility of all unrestricted outstanding shares on record date
 def getNumUnrestrictedShares(queryAsset):
-  requestAddr = "https://" + HORIZON_INST + "/assets?asset_code=" + queryAsset + "&asset_issuer=" + BT_ISSUER
+  requestAddr = f"https://{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
   data = requests.get(requestAddr).json()
   try: 
     return Decimal(data["_embedded"]["records"][0]["amount"]) # Assume no voting of restricted shares
@@ -30,7 +43,7 @@ def getNumUnrestrictedShares(queryAsset):
 
 def getBalancesOnRecordDate(queryAsset):
   balancesOnRecordDate = {}
-  internalRecordDateCSV = G_DIR + "/../../pii/internal-record-date-snapshots/" + str(datetime.today().year) + "/" + queryAsset + ".csv"
+  internalRecordDateCSV = f"{G_DIR}/../../pii/internal-record-date-snapshots/{str(datetime.today().year)}/{queryAsset}.csv"
   inFile = open(internalRecordDateCSV)
   internalRecordDateHoldings = inFile.read().strip().split("\n")
   inFile.close()
