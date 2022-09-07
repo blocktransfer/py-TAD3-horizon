@@ -6,15 +6,66 @@ import pandas
 # Record date at 8pm ET / Midnight UTC
 # Voting cutoff/report 8pm ET / Midnight UTC day prior meeting
 
-# have client terms incl. approval of digital proxy
+# have client terms include:
+#   approval of digital proxy
+#   indenmity of broker search per 14a-13
+#                    We encourage you to indicate the following on the back cover of your annual report:
+#                    TRANSFER AGENT AND REGISTRAR
+#                    Block Transfer
+#                    99 Wall Street #4640
+#                    New York, NY 10005
+#                    Online: www.blocktransfer.io
+#                    Telephone: (844) 42-STOCK
+#               Please cc to proxyannouncements@blocktransfer.io and Broadridge contact:
+#                    Firm Name / Letterhead
+#                    
+#                    Date
+#                    
+#                    The Depository Trust Company
+#                    via email to: proxyannouncements@dtcc.com
+#                    
+#                    cc:
+#                    {Contact Name}
+#                    Broadridge Proxy Services
+#                    51 Mercedes Way
+#                    Edgewood, NY 11717
+#                    
+#                    
+#                    Please be advised that {company} has set the following dates relative to its meeting.
+#                    
+#                    Record Date:
+#                    Meeting Date:
+#                    Meeting Type:
+#                    
+#                    Classes of stock eligible to vote include:
+#                    CLASS / CUSIP
+#                    
+#                    Broadridge:
+#                    You are hereby authorized to electronically transmit, on a daily basis, the voting results received on behalf of
+#                    your clients to our transfer agent, BlockTrans Syndicate.
+#
+#                    Please provide same day hard copy confirmation of each transmission to:
+#                    Block Transfer
+#                    99 Wall Street #4640
+#                    New York, NY 10005
+#                    Attn: Proxy Department
+#                    
+#                    If you have any questions, please contact me via the phone number or email address included below.
+#                    
+#                    Sincerely,
+#                    Officer’s name, title
+#                    Physical address to which Omnibus Proxy should be sent.
+#                    Phone number, fax, email address
 
 # Comprehensive meeting checklist (todo - auto calendar events):
 # T-64  Receive text for message box in email template
 # T-60  Record date
-# T-58  Share record-date list; request annual report/proxy statement
-# T-54  Submit postgrid campaign
+# T-59  Share record-date list; request combined digital annual report and 10K/digital proxy statement and card [portal to upload to?]
+# T-55  Upload docs and establish proper addresses incl. federation
+# T-54  Submit postgrid campaign (5-10 biz days for delivery, including 2-day processing)
 # T-47  Commence e-mailing
-# T-42  Send signed affidavit of notice
+# T-45  Send postcards to undeliverable emails
+# T-43  Send signed affidavit of notice 
 # T-1   Send vote results
 
 # (shareable tabulating widget - simple executable GUI?)
