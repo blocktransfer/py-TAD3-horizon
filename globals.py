@@ -18,7 +18,7 @@ except NameError:
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
-MICR_CSV = G_DIR + "/../../pii/master-identity-catalog-records.csv" #todo: modify here to load from Box; set auth
+MICR_CSV = f"{G_DIR}/../../pii/master-identity-catalog-records.csv" #todo: modify here to load from Box; set auth
 
 HORIZON_INST = "horizon.stellar.org"
 MAX_NUM_DECIMALS = "7"
