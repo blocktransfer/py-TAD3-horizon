@@ -3,8 +3,7 @@ sys.path.append("../")
 from globals import *
 import pandas
 
-# Record date at 8pm ET / Midnight UTC
-# Voting cutoff/report 8pm ET / Midnight UTC day prior meeting
+# Record dates at midnight UTC
 
 # have client terms include:
 #   approval of digital proxy
@@ -16,8 +15,8 @@ import pandas
 #                    New York, NY 10005
 #                    [Internal] Attn: Proxy Department
 #                    (844) 42-STOCK
-#                    [Internal] proxyannouncements@blocktransfer.io
-#                    [Internal] issuersupport@blocktransfer.io
+#                    [Internal] proxy.announcements@blocktransfer.io
+#                    [Internal] issuer.support@blocktransfer.io
 
 # Comprehensive meeting checklist (todo - auto calendar events):
 # T-64  Receive text for message box in email template
@@ -25,8 +24,8 @@ import pandas
 # T-59  Share record-date list; request combined digital annual report and 10K/digital proxy statement and card [portal to upload to?]
 # T-55  Upload docs and establish proper addresses incl. federation
 # T-54  Submit postgrid campaign (5-10 biz days for delivery, including 2-day processing)
-# T-47  Commence e-mailing
-# T-45  Send postcards to undeliverable emails
+# T-47  Send emails
+# T-45  Submit new postgrid campaign for undeliverable emails
 # T-43  Send signed affidavit of notice 
 # T-1   Send vote results
 
