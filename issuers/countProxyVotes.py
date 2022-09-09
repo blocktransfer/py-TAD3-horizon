@@ -14,49 +14,10 @@ import pandas
 #                    www.blocktransfer.io
 #                    99 Wall Street #4640
 #                    New York, NY 10005
+#                    [Internal] Attn: Proxy Department
 #                    (844) 42-STOCK
 #                    [Internal] proxyannouncements@blocktransfer.io
 #                    [Internal] issuersupport@blocktransfer.io
-#               Please cc to  and Broadridge contact:
-#                    Firm Name / Letterhead
-#                    
-#                    Date
-#                    
-#                    The Depository Trust Company
-#                    via email to: proxyannouncements@dtcc.com
-#                    
-#                    cc:
-#                    {Contact Name}
-#                    Broadridge Proxy Services
-#                    51 Mercedes Way
-#                    Edgewood, NY 11717
-#                    
-#                    
-#                    Please be advised that {company} has set the following dates relative to its meeting.
-#                    
-#                    Record Date:
-#                    Meeting Date:
-#                    Meeting Type:
-#                    
-#                    Classes of stock eligible to vote include:
-#                    CLASS / CUSIP
-#                    
-#                    Broadridge:
-#                    You are hereby authorized to electronically transmit, on a daily basis, the voting results received on behalf of
-#                    your clients to our transfer agent, BlockTrans Syndicate.
-#
-#                    Please provide same day hard copy confirmation of each transmission to:
-#                    Block Transfer
-#                    99 Wall Street #4640
-#                    New York, NY 10005
-#                    Attn: Proxy Department
-#                    
-#                    If you have any questions, please contact me via the phone number or email address included below.
-#                    
-#                    Sincerely,
-#                    Officer’s name, title
-#                    Physical address to which Omnibus Proxy should be sent.
-#                    Phone number, fax, email address
 
 # Comprehensive meeting checklist (todo - auto calendar events):
 # T-64  Receive text for message box in email template
