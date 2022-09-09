@@ -9,14 +9,15 @@ import pandas
 # have client terms include:
 #   approval of digital proxy
 #   indenmity of broker search per 14a-13
-#                    We encourage you to indicate the following on the back cover of your annual report:
-#                    TRANSFER AGENT AND REGISTRAR
+#              Information you migth need:
 #                    Block Transfer
+#                    www.blocktransfer.io
 #                    99 Wall Street #4640
 #                    New York, NY 10005
-#                    Online: www.blocktransfer.io
-#                    Telephone: (844) 42-STOCK
-#               Please cc to proxyannouncements@blocktransfer.io and Broadridge contact:
+#                    (844) 42-STOCK
+#                    [Internal] proxyannouncements@blocktransfer.io
+#                    [Internal] issuersupport@blocktransfer.io
+#               Please cc to  and Broadridge contact:
 #                    Firm Name / Letterhead
 #                    
 #                    Date
