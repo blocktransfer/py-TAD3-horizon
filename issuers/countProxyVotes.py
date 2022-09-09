@@ -8,28 +8,34 @@ import pandas
 # have client terms include:
 #   approval of digital proxy
 #   indenmity of broker search per 14a-13
-#              Information you migth need:
-#                    Block Transfer
-#                    www.blocktransfer.io
-#                    99 Wall Street #4640
-#                    New York, NY 10005
-#                    [Internal] Attn: Proxy Department
-#                    (844) 42-STOCK
-#                    [Internal] proxy.announcements@blocktransfer.io
-#                    [Internal] issuer.support@blocktransfer.io
+#     meeting notice 10-60 days prior
+#     via Broadridge: search requests to intermediaries for mailing counts rip,
+#     20 days prior to Record Date
+#   Information you migth need:
+#     Block Transfer
+#     www.blocktransfer.io
+#     99 Wall Street #4640
+#     New York, NY 10005
+#     [Internal] Attn: Proxy Department
+#     (844) 42-STOCK
+#     [Internal] proxy.announcements@blocktransfer.io
+#     [Internal] issuer.support@blocktransfer.io
 
-# Comprehensive meeting checklist (todo - auto calendar events):
-# T-64  Receive text for message box in email template
+# Comprehensive meeting checklist (todo: auto calendar events -> CRM?):
+# T-64  Request text for message box in email template
 # T-60  Record date
 # T-59  Share record-date list; request combined digital annual report and 10K/digital proxy statement and card [portal to upload to?]
-# T-55  Upload docs and establish proper addresses incl. federation
+# T-55  Upload docs and establish proper web addresses incl. federation
 # T-54  Submit postgrid campaign (5-10 biz days for delivery, including 2-day processing)
 # T-47  Send emails
-# T-45  Submit new postgrid campaign for undeliverable emails
+# T-46  Submit new postgrid campaign for undeliverable emails
 # T-43  Send signed affidavit of notice 
-# T-1   Send vote results
+# T-15  Send preliminary vote results
+# T-1   Send day-prior vote results
+# T     Send final vote results
 
 # (shareable tabulating widget - simple executable GUI?)
+# Last day reasonable for mailing materisl T-9?
 
 VOTE_CUTOFF_TIME_UTC = pandas.to_datetime("2031-04-29T12:30:00Z") # set to meeting time for audits
 validAccountPublicKeys = getValidAccountPublicKeys()
