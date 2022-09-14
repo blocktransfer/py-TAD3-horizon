@@ -7,7 +7,8 @@ import pandas
 
 # have client terms include:
 #   approval of digital proxy
-#   indenmity of broker search per 14a-13
+#   them-indenmity of cost basis reporting; escheatment
+#   us-indenmity of broker search per 14a-13
 #     meeting notice 10-60 days prior
 #     via Broadridge: search requests to intermediaries for mailing counts rip,
 #     20 days prior to Record Date
@@ -16,10 +17,15 @@ import pandas
 #     www.blocktransfer.io
 #     99 Wall Street #4640
 #     New York, NY 10005
-#     [Internal] Attn: Proxy Department
-#     (844) 42-STOCK
+#     Email: support@blocktransfer.io
+#     Call or Text: (844) 42-STOCK
 #     [Internal] proxy.announcements@blocktransfer.io
 #     [Internal] issuer.support@blocktransfer.io
+#  Limitation of Liability (for a Stock Transfer Agent)
+#  Support transfer agents in their common practice of limiting their own liability on wayward stock transfers to the amount of fees the corporate client paid the agent in the preceding 12 months.
+#  Dividend Payments
+#  Should the Company pay dividends , ... Transfer agents can require the company to fund 100% of the  dividend money on mail date, or 100% on payable date, or a hybrid arrangement  where, say, funding of checks and electronic credit advices happens on mail  date, and funding of the remainder (mostly for institutional investors owning  through the Depository Trust Company) takes place on payable date
+#  Mail date is when dividend checks and advices  of electronic dividend payment are mailed by the transfer agent.    Payable date is when dividend payment by the company officially happens.
 
 # Comprehensive meeting checklist (todo: auto calendar events -> CRM?):
 # T-64  Request text for message box in email template

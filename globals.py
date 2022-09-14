@@ -5,11 +5,10 @@ from pprint import pprint
 import sys, os.path, requests, json, toml
 G_DIR = os.path.dirname(__file__)
 sys.path.append("../")
-from local_secrets import *
-TRIAL_KEY = "SBTPLXTXJDMJOXFPYU2ANLZI2ARDPHFKPKK4MJFYVZVBLXYM5AIP3LPK"
 try:
-  ISSUER_KEY
-except NameError:
+  from local_secrets import *
+except ModuleNotFoundError:
+  TRIAL_KEY = "SBTPLXTXJDMJOXFPYU2ANLZI2ARDPHFKPKK4MJFYVZVBLXYM5AIP3LPK"
   ISSUER_KEY = DISTRIBUTOR_KEY = TREASURY_KEY = TRIAL_KEY
 
 # Debug issuers:
