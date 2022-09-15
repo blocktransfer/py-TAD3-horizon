@@ -2,6 +2,8 @@ import sys
 sys.path.append("../")
 from globals import *
 
+# TODO: Impliment some kind of caching for offerIDsMappedToChiefMemosForAccount associated with investor data
+
 publicKey = "GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG" #BT_TREASURY # testing
 
 lastYear = datetime.today().year - 1
@@ -170,24 +172,22 @@ def mapSellOfferIDsToMemos():
 # todo: gain from path payments to self
 # liquidity pools = interest income?
 
+# getMemoFromMakerOfferID(publicKey, 1063202185) #48629595
 
 
-
-def getMemoFromMakerOfferID(publicKey, investorOfferID):
+def mapOfferIDsToChiefMemosForAccount(publicKey):
+  offerIDsMappedToChiefMemosForAccount = {}
   requestAddr = f"https://{HORIZON_INST}/accounts/{publicKey}/transactions?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
-  
-  ab = 1063202185
-  offerID = 9
-  # go through an find first instance of investorOfferID
   while(blockchainRecords != []):
-    #print(requestAddr)
     for txns in blockchainRecords:
-      resultXDR = TransactionResult.from_xdr(txns["result_xdr"])      
+      pprint(txns)
+      resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
       for ops in resultXDR.result.results:
         try:
           offerID = ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
+          print(offerID)
         except AttributeError:
           try:
             offerID = ops.tr.manage_buy_offer_result.success.offer.offer.offer_id.int64
@@ -196,23 +196,13 @@ def getMemoFromMakerOfferID(publicKey, investorOfferID):
               offerID = ops.tr.create_passive_sell_offer_op.success.offer.offer.offer_id.int64
             except AttributeError:
               continue
-        if(offerID == investorOfferID):
-          break
+        if(offerID not in offerIDsMappedToChiefMemosForAccount.keys()):
+          offerIDsMappedToChiefMemosForAccount[offerID] = (txns["memo"], txns["paging-token"])
     # Go to next cursor
     requestAddr = data["_links"]["next"]["href"].replace("\u0026", "&")
     data = requests.get(requestAddr).json()
     blockchainRecords = data["_embedded"]["records"]
-
-getMemoFromMakerOfferID(publicKey, "48629595")
-
-
-
-
-
-
-
-
-
+  return offerIDsMappedToChiefMemosForAccount
 
 
 
