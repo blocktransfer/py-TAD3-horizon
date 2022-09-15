@@ -2,7 +2,7 @@ import sys
 sys.path.append("../")
 from globals import *
 
-publicKey = BT_TREASURY # testing
+publicKey = "GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG" #BT_TREASURY # testing
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
@@ -11,33 +11,49 @@ taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here f
 
 
 # - assume prior calendar year
-def getAllTxnsFromLastYear():
-  # - fetch account
+def mapOfferIDsToProceeds():
   requestAddr = f"https://{HORIZON_INST}/accounts/{publicKey}/trades?limit={MAX_SEARCH}"
-  print(requestAddr)
+  #print(requestAddr)
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
-  b=9
+  a = b = ""
   while(blockchainRecords != []):
+    #print(requestAddr)
     for trades in blockchainRecords:
-      IDs = trades["id"].split("-")[0]
+      
+      
+      opID = trades["id"].split("-")[0]
+
       settlementTime = trades["ledger_close_time"]
-      baseAddr = trades["base_account": "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY",
-      trades["base_amount": "129.9633530",
-      trades["base_asset_type": "credit_alphanum4",
-      trades["base_asset_code": "USDC",
-      trades["base_asset_issuer": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
-      trades["counter_offer_id": "997080830",
-      trades["counter_account": "GBEZLZV7VUKAPQ5LME2SIGG5ER5RH5P22SRF5OP3HQCY6H6V6GCHISIN",
-      trades["counter_amount": "129.9698449",
-      trades["counter_asset_type": "credit_alphanum12",
-      trades["counter_asset_code": "yUSDC",
-      trades["counter_asset_issuer": "GDGTVWSM4MGS4T7Z6W4RPWOCHE2I6RDFCIFZGS3DOA63LWQTRNZNTTFF",
-      : false,
-      if():
-        i am counter
+
+      baseOfferID = trades["base_offer_id"]
+      baseAddr = trades["base_account"]
+      baseAmount = trades["base_amount"]
+      try:
+        baseAsset = Asset(trades["base_asset_code"], trades["base_asset_issuer"])
+      except KeyError:
+        baseAsset = Asset.native()
+      
+      counterOfferID = trades["counter_offer_id"]
+      counterAddr = trades["counter_account"]
+      counterAmount = trades["counter_amount"]
+      
+      try:
+        counterAsset = Asset(trades["counter_asset_code"], trades["counter_asset_issuer"])
+      except KeyError:
+        counterAsset = Asset.native()
+      
+      investorOfferID = baseOfferID if baseAddr == publicKey else counterOfferID
+      if(len(investorOfferID) > 12):
+        a = trades
       else:
-        i am base
+        b = trades
+      
+
+#      if():
+#        i am counter
+#      else:
+#        i am base
       
       
       # extract asset
@@ -59,11 +75,12 @@ def getAllTxnsFromLastYear():
       
       
       
-      bis = trades["trade_type"]
-      if(bis != "orderbook"):
-        pprint(trades)
-      else:
-        b += 1
+      #bis = trades["trade_type"]
+      #if(bis != "orderbook"):
+      #  pprint(trades)
+      #else:
+      
+      
       #for balances in accounts["balances"]:
       #  try:
       #    if balances["asset_code"] == queryAsset and balances["asset_issuer"] == BT_ISSUER:
@@ -88,13 +105,15 @@ def getAllTxnsFromLastYear():
   
     #- cycle through txns using taxYearStart to 
   
-  
+  pprint(b)
   
   taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd for 52-53 week
   return 0
 
+def mapOfferIDsToMemos():
+  return 1
 
-getAllTxnsFromLastYear()
+mapOfferIDsToProceeds()
 # - figure out le tax
 #   - sale proceeds 
 #     - from purchase on Stellar
