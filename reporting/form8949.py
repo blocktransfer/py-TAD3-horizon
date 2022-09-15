@@ -174,53 +174,44 @@ def mapSellOfferIDsToMemos():
 
 
 def getMemoFromMakerOfferID(publicKey, investorOfferID):
-  offerAddr = f"https://{HORIZON_INST}/offers/investorOfferID"
-  data = requests.get(requestAddr).json()
-  offer = 
   requestAddr = f"https://{HORIZON_INST}/accounts/{publicKey}/transactions?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
-  #print(requestAddr)
-  a= "1063202185"
+  
+  ab = 1063202185
+  offerID = 9
   # go through an find first instance of investorOfferID
   while(blockchainRecords != []):
+    #print(requestAddr)
     for txns in blockchainRecords:
-    
-      operationsAddr = txns["_links"]["operations"]["href"].replace("{?cursor,limit,order}", f"?limit={MAX_SEARCH}")
-      data = requests.get(operationsAddr).json()
-      opType = data["_embedded"]["records"][0]["type"]
+      resultXDR = TransactionResult.from_xdr(txns["result_xdr"])      
+      for ops in resultXDR.result.results:
+        try:
+          offerID = ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
+        except AttributeError:
+          try:
+            offerID = ops.tr.manage_buy_offer_result.success.offer.offer.offer_id.int64
+          except AttributeError:
+            try:
+              offerID = ops.tr.create_passive_sell_offer_op.success.offer.offer.offer_id.int64
+            except AttributeError:
+              continue
+        if(offerID == investorOfferID):
+          break
+      opAddr = txns["_links"]["operations"]["href"].replace("{?cursor,limit,order}", f"?limit={MAX_SEARCH}")
+      opData = requests.get(opAddr).json()
+      opType = opData["_embedded"]["records"][0]["type"]
       
-      #pprint(opType)
-      
-      tradingOps = ["manage_sell_offer", "create_passive_sell_offer", "manage_buy_offer", "create_passive_buy_offer"]
-      if(opType in tradingOps):
-        offID = data["_embedded"]["records"][0]["offer_id"]
-        #z=data["_embedded"]["records"][0]['created_at']
-        #print(f"{z}:\t{offID}")
         
-        
-        
-        
-        
-        
-        
-        
-        
-        if(not offID):
-          data["_embedded"]["records"][0]["paging_token"]
-        #if(offID=="0"):
-        #  pprint(data)
         
       # manage buy offer
       # manage sell offer
       # those again but passive
     
-    a=requestAddr
     # Go to next cursor
-    requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
+    requestAddr = data["_links"]["next"]["href"].replace("\u0026", "&")
     data = requests.get(requestAddr).json()
     blockchainRecords = data["_embedded"]["records"]
-  print(a)
 
 getMemoFromMakerOfferID(publicKey, "48629595")
 
