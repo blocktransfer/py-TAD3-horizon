@@ -6,19 +6,44 @@ publicKey = "GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG" #BT_TREAS
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
+taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd for 52-53 week
+
+
+
+
+# get buy offerIDs
+
+# get sell offerIDs
+
+# get lot sale instr. from memo using offerID txns
+# -- full takes = easy memo id from op
+# -- makes = shows other guy SO we need the original sell offer txn obj
+
+
+
 
 # - input public key
-
+def mapBuyOfferIDsToCostBasis():
+  return 1
 
 # - assume prior calendar year
-def mapOfferIDsToProceeds():
+def mapSellOfferIDsToProceeds():
+  offerIDsMappedToProceeds = {}
+  
+  
+  
+  
+  
+  
   requestAddr = f"https://{HORIZON_INST}/accounts/{publicKey}/trades?limit={MAX_SEARCH}"
   #print(requestAddr)
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
-  a = b = ""
+  lastOfferID = totalProceeds = 0
   while(blockchainRecords != []):
     #print(requestAddr)
+    proceeds = 3000000
+    cost = 10
     for trades in blockchainRecords:
       
       
@@ -44,10 +69,23 @@ def mapOfferIDsToProceeds():
         counterAsset = Asset.native()
       
       investorOfferID = baseOfferID if baseAddr == publicKey else counterOfferID
-      if(len(investorOfferID) > 12):
-        a = trades
+      if(investorOfferID == lastOfferID):
+        totalProceeds += proceeds
+        totalCost += cost
       else:
-        b = trades
+        if(not totalProceeds):
+          totalProceeds = proceeds
+          totalCost = cost
+        else:
+          offerIDsMappedToProceeds[lastOfferID] = totalProceeds / totalCost
+          totalProceeds = totalCost = 0
+      
+      
+      
+      if(len(investorOfferID) < 12):
+        print(trades["_links"]["operation"])
+        print(investorOfferID)
+      
       
 
 #      if():
@@ -107,13 +145,12 @@ def mapOfferIDsToProceeds():
   
   pprint(b)
   
-  taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd for 52-53 week
   return 0
 
-def mapOfferIDsToMemos():
+def mapSellOfferIDsToMemos():
   return 1
 
-mapOfferIDsToProceeds()
+mapSellOfferIDsToProceeds()
 # - figure out le tax
 #   - sale proceeds 
 #     - from purchase on Stellar
