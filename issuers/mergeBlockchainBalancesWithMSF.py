@@ -9,8 +9,8 @@ def getMergedReportForAssetWithNumRestrictedSharesUsingMSF(queryAsset, numRestri
   generateInternalRecord(queryAsset, StellarBlockchainBalances)
 
 def getTotalOutstandingShares(queryAsset, numRestrictedShares):
-  requestAddress = f"https://{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
-  data = requests.get(requestAddress).json()
+  requestAddr = f"https://{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
+  data = requests.get(requestAddr).json()
   try:
     numUnrestrictedShares = Decimal(data["_embedded"]["records"][0]["amount"])
   except Exception:
