@@ -198,16 +198,6 @@ def getMemoFromMakerOfferID(publicKey, investorOfferID):
               continue
         if(offerID == investorOfferID):
           break
-      opAddr = txns["_links"]["operations"]["href"].replace("{?cursor,limit,order}", f"?limit={MAX_SEARCH}")
-      opData = requests.get(opAddr).json()
-      opType = opData["_embedded"]["records"][0]["type"]
-      
-        
-        
-      # manage buy offer
-      # manage sell offer
-      # those again but passive
-    
     # Go to next cursor
     requestAddr = data["_links"]["next"]["href"].replace("\u0026", "&")
     data = requests.get(requestAddr).json()
