@@ -1,4 +1,5 @@
 from stellar_sdk import Asset, Keypair, Network, Server, TransactionBuilder, TrustLineFlags
+from stellar_sdk.xdr import TransactionResult
 from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
