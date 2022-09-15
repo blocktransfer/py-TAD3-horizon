@@ -1,7 +1,6 @@
 import sys
 sys.path.append("../")
 from globals import *
-import pandas
 
 # Record dates at midnight UTC
 
@@ -67,7 +66,7 @@ def getNumUnrestrictedShares(queryAsset):
 
 def getBalancesOnRecordDate(queryAsset):
   balancesOnRecordDate = {}
-  internalRecordDateCSV = f"{G_DIR}/../../pii/internal-record-date-snapshots/{str(datetime.today().year)}/{queryAsset}.csv"
+  internalRecordDateCSV = f"{G_DIR}/../pii/internal-record-date-snapshots/{str(datetime.today().year)}/{queryAsset}.csv"
   inFile = open(internalRecordDateCSV)
   internalRecordDateHoldings = inFile.read().strip().split("\n")
   inFile.close()
@@ -130,6 +129,8 @@ def replaceAddressesWithRecordDateBalances(addrsMappedToMemos, blockchainBalance
   return balancesMappedToMemos
 
 def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems):
+  pprint(addrsMappedToMemos)
+  print(balancesMappedToMemos) 
   delegeeAddrsMappedToSharesAllocated = {}
   delegationHashmap = makeFirst28byteMapping()
   propositionYays = [0] * numVotingItems
@@ -209,3 +210,4 @@ def displayResults(voteTallies):
     print("Against:\t{}%\t({} shares)".format(format(N*ratio, ".2f"), N))
     print("Abstain:\t{}%\t({} shares)\n".format(format(A*ratio, ".2f"), A))
     print("Withold:\t{}%\t({} shares)\n".format(format(W*ratio, ".2f"), W))
+

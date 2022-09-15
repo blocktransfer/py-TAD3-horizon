@@ -2,11 +2,23 @@ import sys
 sys.path.append("../")
 from globals import *
 
-publicKey = BT_TREASURY
-print(publicKey)
+publicKey = BT_TREASURY # testing
+
+lastYear = datetime.today().year - 1
+taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
 
 # - input public key
+
+
 # - assume prior calendar year
+def getAllTxnsFromLastYear():
+  - fetch account
+  - cycle through txns using taxYearStart to 
+  taxYearEnd = taxYearStart + # modify here for 52-53-week tax year
+  return 0
+
+
+
 # - figure out le tax
 #   - sale proceeds 
 #     - from purchase on Stellar

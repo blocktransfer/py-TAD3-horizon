@@ -26,7 +26,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
   MICR = inFile.read().strip().split("\n")
   inFile.close()
   day = datetime.now().strftime("%Y-%m-%d at %H%M")
-  mergedMSF = open(f"{G_DIR}/../../pii/outputs/{queryAsset} MSF as of {day}.csv", "w")
+  mergedMSF = open(f"{G_DIR}/../pii/outputs/{queryAsset} MSF as of {day}.csv", "w")
   mergedMSF.write("Registration,Address,Email,Shares\n")
   for lines in unclaimedMSF[1:]:
     lines = lines.split(",")
@@ -49,7 +49,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
   mergedMSF.close()
 
 def generateInternalRecord(queryAsset, StellarBlockchainBalances):
-  internalRecord = open(f"{G_DIR}/../../pii/outputs/{queryAsset}.csv", "w")
+  internalRecord = open(f"{G_DIR}/../pii/outputs/{queryAsset}.csv", "w")
   internalRecord.write(f"Public Key,Balance,,Blockchain snapshot: {datetime.now()}\n")
   for addresses, balances in StellarBlockchainBalances.items():
     internalRecord.write(",".join([addresses, str(balances)])+"\n")

@@ -2,7 +2,7 @@ from stellar_sdk import Asset, Keypair, Network, Server, TransactionBuilder, Tru
 from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
-import sys, os.path, requests, json, toml
+import json, os.path, pandas, requests, sys, toml
 G_DIR = os.path.dirname(__file__)
 sys.path.append("../")
 try:
@@ -17,7 +17,7 @@ except ModuleNotFoundError:
 BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
-MICR_CSV = f"{G_DIR}/../../pii/master-identity-catalog-records.csv" #todo: modify here to load from Box; set auth
+MICR_CSV = f"{G_DIR}/../pii/master-identity-catalog-records.csv" #todo: modify here to load from Box; set auth
 
 HORIZON_INST = "horizon.stellar.org"
 MAX_NUM_DECIMALS = "7"
