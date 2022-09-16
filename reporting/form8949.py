@@ -155,17 +155,13 @@ def mapOfferIDsToChiefMemosForAccount(publicKey):
             offerID = ops.tr.manage_buy_offer_result.success.offer.offer.offer_id.int64
           except AttributeError:
             try:
-              #taker placeholder
-              offerID = 1 
+              if(len(ops.tr.manage_sell_offer_result.success.offers_claimed)):
+                sys.exit(f"Taker tried to claim partials in {txns}")
+              takerContraOfferID = ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
+              # query further
+              offerID = 1
             except AttributeError:
-              try:
-                if(len(ops.tr.manage_sell_offer_result.success.offers_claimed)):
-                  sys.exit(f"Taker tried to claim partials in {txns}")
-                takerContraOfferID = ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
-                # query further
-                offerID = 1
-              except AttributeError:
-                continue
+              continue
         if(offerID not in makerOfferIDsMappedToChiefMemos.keys()):
           try:
             memo = txns["memo"]
