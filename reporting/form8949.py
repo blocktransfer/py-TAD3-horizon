@@ -148,57 +148,66 @@ def getAllOfferIDsMappedToChiefMemosForAccount(publicKey):
         continue
       resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
       for ops in resultXDR.result.results:
-        try:
-          offerID = ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
-        except AttributeError:
-          try:
-            offerID = ops.tr.manage_buy_offer_result.success.offer.offer.offer_id.int64
-          except AttributeError:
+        offerIDarr = []
+        getOfferIDfromTxnOp(ops, offerIDarr)
+        for offerIDs in offerIDarr:
+          if(not offerIDs):
+            print(offerIDarr)
+            continue
+          if(offerIDs not in allOfferIDsMappedToChiefMemosForAccount.keys()):
             try:
-              atomsClaimed = len(ops.tr.manage_sell_offer_result.success.offers_claimed)
-              match atomsClaimed:
-                case 0:
-                  takerContraOfferID = ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
-                case 1:
-                  takerContraOfferID = ops.tr.manage_sell_offer_result.success.offers_claimed[0].order_book.offer_id.int64
-                case other:
-                  sys.exit(f"Taker tried to claim multiple partials in\n{txns}")
-              queryFurtherAddr = f"https://{HORIZON_INST}/offers/{takerContraOfferID}/trades?limit={MAX_SEARCH}"
-              #print("\n\n\n\n")
-              #print(queryFurtherAddr)
-              contraData = requests.get(queryFurtherAddr).json()
-              contraTradeRecords = contraData["_embedded"]["records"]
-              while(contraTradeRecords != []):
-                for trades in contraTradeRecords:
-                  #pprint(trades)
-                  try:
-                    if(trades["counter_account"] == publicKey):
-                      offerID = trades["counter_offer_id"]
-                      print(f"DID CONTRA {offerID}")
-                  except KeyError:
-                    continue
-                    #print(queryFurtherAddr)
-                    #pprint(trades)
-                requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
-                data = requests.get(requestAddr).json()
-                contraTradeRecords = data["_embedded"]["records"]
-              #
-              offerID = 69
-              #print(takerContraOfferID)
-              #print(offerID)
-            except AttributeError:
-              continue
-        if(offerID not in makerOfferIDsMappedToChiefMemos.keys()):
-          try:
-            memo = txns["memo"]
-          except KeyError:
-            memo = ""
-          makerOfferIDsMappedToChiefMemos[offerID] = memo
+              memo = txns["memo"]
+            except KeyError:
+              memo = ""
+            allOfferIDsMappedToChiefMemosForAccount[offerIDs] = memo
     # Go to next cursor
     requestAddr = data["_links"]["next"]["href"].replace("\u0026", "&")
     data = requests.get(requestAddr).json()
     blockchainRecords = data["_embedded"]["records"]
   return 1
+
+def getOfferIDfromTxnOp(op, offerIDarr):
+  try:
+    offerID = op.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
+  except AttributeError:
+    try:
+      offerID = op.tr.manage_buy_offer_result.success.offer.offer.offer_id.int64
+    except AttributeError:
+      try:
+        atomsClaimed = len(op.tr.manage_sell_offer_result.success.offers_claimed)
+        match atomsClaimed:
+          case 0:
+            takerContraOfferID = op.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
+          case 1:
+            takerContraOfferID = op.tr.manage_sell_offer_result.success.offers_claimed[0].order_book.offer_id.int64
+          case other:
+            for atomTxns in op.tr.manage_sell_offer_result.success.offers_claimed:
+              offerIDarr.append(getOfferIDfromContraOfferID(atomTxns.order_book.offer_id.int64))
+              return 1
+            # sys.exit(f"Taker tried to claim multiple partials in\n{txns}")
+        offerID = getOfferIDfromContraOfferID(takerContraOfferID)
+      except AttributeError:
+        return 0
+  offerIDarr.append(offerID)
+  return 1
+
+def getOfferIDfromContraOfferID(contraOfferID):
+  offerID = 0 # can replace with contraOfferID given no bugs
+  requestAddr = f"https://{HORIZON_INST}/offers/{contraOfferID}/trades?limit={MAX_SEARCH}"
+  data = requests.get(requestAddr).json()
+  blockchainRecords = data["_embedded"]["records"]
+  while(blockchainRecords != []):
+    for trades in blockchainRecords:
+      try:
+        if(trades["counter_account"] == publicKey):
+          offerID = trades["counter_offer_id"]
+          print(f"DID CONTRA {offerID}")
+      except KeyError:
+        continue
+    requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
+    data = requests.get(requestAddr).json()
+    blockchainRecords = data["_embedded"]["records"]
+  return offerID
 
 def getBasisOrProceedsFromTrade():
   return 1
