@@ -37,6 +37,13 @@ def form8949forAccount():
 
 # - assume prior calendar year
 def calculateTaxYearPNL():
+  # figure out which offer IDs where sales this tax year 
+  getTradesWithBasisOrProceedsFromOfferID
+  
+  
+  
+  
+  
   offerIDsMappedToProceeds = {}
   
   requestAddr = f"https://{HORIZON_INST}/accounts/{publicKey}/trades?limit={MAX_SEARCH}"
@@ -150,9 +157,6 @@ def getAllOfferIDsMappedToChiefMemosForAccount(publicKey):
       for ops in resultXDR.result.results:
         offerIDarr = []
         getOfferIDfromTxnOp(ops, offerIDarr)
-        if(not len(offerIDarr)):
-          pprint(txns["result_xdr"])
-          break
         for offerIDs in offerIDarr:
           if(offerIDs and offerIDs not in allOfferIDsMappedToChiefMemosForAccount.keys()):
             try:
@@ -188,7 +192,22 @@ def getOfferIDfromTxnOp(op, offerIDarr):
         else:
           offerID = getOfferIDfromOmnibusContraOfferID(op.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64)
       except AttributeError:
-        return 0
+        try:
+          taker = len(op.tr.manage_buy_offer_result.success.offers_claimed)
+          if(taker):
+            for trades in op.tr.manage_buy_offer_result.success.offers_claimed:
+              try:
+                offerID = getOfferIDfromOmnibusContraOfferID(trades.order_book.offer_id.int64)
+              except AttributeError:
+                try:
+                  offerID = getOfferIDfromOmnibusContraOfferID(trades.liquidity_pool.offer_id.int64)
+                except AttributeError:
+                  offerID = getOfferIDfromOmnibusContraOfferID(trades.v0.offer_id.int64)
+              offerIDarr.append(offerID)
+          else:
+            offerID = getOfferIDfromOmnibusContraOfferID(op.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64)
+        except:
+          return 0
   offerIDarr.append(offerID)
   return 1
 
@@ -213,7 +232,13 @@ def getOfferIDfromOmnibusContraOfferID(offerID):
 def getBasisOrProceedsFromTrade():
   return 1
 
-def getTradesQQQFromOfferID():
+def getTradeProceedsFromOfferID(): # call if in tax year
+  return 1
+
+def getTradeQuantityAndBasisFromOfferID():
+  return 1
+
+def getTrades_Date_FromOfferID():
   totalFiatCost = totalFiatProceeds = totalSharesPurchased = totalSharesSold = Decimal("0")
   requestAddr = f"https://{HORIZON_INST}/offers/{offerIDs}/trades?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
@@ -257,7 +282,8 @@ def getTradesQQQFromOfferID():
 
 # step 1: get everything working
 # step 2: deal with wash sales :)
-# future features: support liquidity pools
+# future features: support liquidity pool D/W
+#                     (as interest income or cap gains? many aquisitions/dispositions?)
 #                  path payments (incl. to self)
 
 getAllOfferIDsMappedToChiefMemosForAccount(publicKey)
