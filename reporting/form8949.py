@@ -151,10 +151,7 @@ def getAllOfferIDsMappedToChiefMemosForAccount(publicKey):
         offerIDarr = []
         getOfferIDfromTxnOp(ops, offerIDarr)
         for offerIDs in offerIDarr:
-          if(not offerIDs):
-            print(offerIDarr)
-            continue
-          if(offerIDs not in allOfferIDsMappedToChiefMemosForAccount.keys()):
+          if(offerIDs and offerIDs not in allOfferIDsMappedToChiefMemosForAccount.keys()):
             try:
               memo = txns["memo"]
             except KeyError:
@@ -184,7 +181,6 @@ def getOfferIDfromTxnOp(op, offerIDarr):
             for atomTxns in op.tr.manage_sell_offer_result.success.offers_claimed:
               offerIDarr.append(getOfferIDfromContraOfferID(atomTxns.order_book.offer_id.int64))
               return 1
-            # sys.exit(f"Taker tried to claim multiple partials in\n{txns}")
         offerID = getOfferIDfromContraOfferID(takerContraOfferID)
       except AttributeError:
         return 0
@@ -200,10 +196,9 @@ def getOfferIDfromContraOfferID(contraOfferID):
     for trades in blockchainRecords:
       try:
         if(trades["counter_account"] == publicKey):
-          offerID = trades["counter_offer_id"]
-          print(f"DID CONTRA {offerID}")
+          offerID = trades["counter_offer_id"] # Synethic ID - generally hidden. Use ["paging_token"] for audits
       except KeyError:
-        continue
+        sys.exit(f"Contra KeyError in\n{trades}")
     requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
     data = requests.get(requestAddr).json()
     blockchainRecords = data["_embedded"]["records"]
@@ -260,3 +255,4 @@ def getTradesQQQFromOfferID():
 #                  path payments (incl. to self)
 
 getAllOfferIDsMappedToChiefMemosForAccount(publicKey)
+pprint(allOfferIDsMappedToChiefMemosForAccount)
