@@ -159,7 +159,11 @@ def mapOfferIDsToChiefMemosForAccount(publicKey):
               offerID = 1 
             except AttributeError:
               try:
-                offerID = ops.tr.create_passive_sell_offer_op.success.offer.offer.offer_id.int64
+                if(len(ops.tr.manage_sell_offer_result.success.offers_claimed)):
+                  sys.exit(f"Taker tried to claim partials in {txns}")
+                takerContraOfferID = ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
+                # query further
+                offerID = 1
               except AttributeError:
                 continue
         if(offerID not in makerOfferIDsMappedToChiefMemos.keys()):
@@ -270,7 +274,7 @@ resultXDR1 = TransactionResult.from_xdr(b)
 
 for ops in resultXDR1.result.results:
   #a = ops.tr.manage_sell_offer_result.success.offers_claimed[0].order_book.offer_id.int64
-  print(len(ops.tr.manage_sell_offer_result.success.offers_claimed))
+  print()
   print(ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64)
   #print(ops.tr.manage_sell_offer_result.success.offer.offer.seller_id)
   try:
