@@ -18,65 +18,22 @@ taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here f
 taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd for 52-53 week
 
 def form8949forAccount():
-  mapMakerOfferIDsToChiefMemosForAccount(publicKey)
-  (buyOfferIDsMappedToCostBasis, sellOfferIDsMappedToProceeds) = mapOfferIDsToTradeResults() # does not account for taker buys
-  
+  # mapMakerOfferIDsToChiefMemosForAccount(publicKey)
+  (buyOfferIDsMappedToCostBasis, sellOfferIDsMappedToProceeds) = mapOfferIDsToTradeResults() # does not account for taker buys  
   calculateYearlyPNL(publicKey)
-
-# get buy offerIDs
-
-# get sell offerIDs
 
 # get lot sale instr. from memo using offerID txns
 # -- full takes = easy memo id from op
 # -- makes = shows other guy SO we need the original sell offer txn obj
 
-# use paging token as buy "trade number"
-# - input public key
-def mapOfferIDsToTradeValue(): # what about taker buys?
-  buyOfferIDsMappedToCostBasis = sellOfferIDsMappedToProceeds = {}
-  for offerIDs in makerOfferIDsMappedToChiefMemos.keys():
-    totalFiatCost = totalFiatProceeds = totalSharesPurchased = totalSharesSold = Decimal("0")
-    requestAddr = f"https://{HORIZON_INST}/offers/{offerIDs}/trades?limit={MAX_SEARCH}"
-    data = requests.get(requestAddr).json()
-    blockchainRecords = data["_embedded"]["records"]
-    while(blockchainRecords != []):
-      for trades in blockchainRecords:
-        try:
-          baseAsset = Asset(trades["base_asset_code"], trades["base_asset_issuer"])
-        except KeyError:
-          baseAsset = Asset.native()
-        baseAssetFiat = baseAsset == USD_ASSET or baseAsset == USDC_ASSET
-        try:
-          counterAsset = Asset(trades["counter_asset_code"], trades["counter_asset_issuer"])
-        except KeyError:
-          counterAsset = Asset.native()
-        counterAssetFiat = counterAsset == USD_ASSET or counterAsset == USDC_ASSET
-        # Expect one asset to be fiat
-        if(trades["base_account"] == publicKey):
-          if(baseAssetFiat):
-            totalFiatCost += Decimal(trades["base_amount"])
-            totalSharesPurchased += Decimal(trades["counter_amount"])
-          elif(counterAssetFiat):
-            totalFiatProceeds += Decimal(trades["counter_amount"])
-            totalSharesSold += Decimal(trades["base_amount"])
-        elif(trades["counter_account"] == publicKey):
-          if(counterAssetFiat):
-            totalFiatCost += Decimal(trades["counter_amount"])
-            totalSharesPurchased += Decimal(trades["base_amount"])
-          elif(baseAssetFiat):
-            totalFiatProceeds += Decimal(trades["base_amount"])
-            totalSharesSold += Decimal(trades["counter_amount"])
-      requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
-      data = requests.get(requestAddr).json()
-      blockchainRecords = data["_embedded"]["records"]
-    if(totalSharesPurchased and totalSharesSold):
-      sys.exit("Critical math error")
-    elif(totalSharesPurchased):
-      buyOfferIDsMappedToCostBasis[offerIDs] = totalFiatCost
-    elif(totalSharesSold):
-      sellOfferIDsMappedToProceeds[offerIDs] = totalFiatProceeds
-  return (buyOfferIDsMappedToCostBasis, sellOfferIDsMappedToProceeds)
+# FIELD NEEDED:
+# Description of property
+# Date acquired
+# Date sold
+# Proceeds
+# Basis
+# Adjustment/wash sale
+# PNL
 
 # - assume prior calendar year
 def calculateTaxYearPNL():
@@ -166,33 +123,22 @@ def calculateTaxYearPNL():
   
   return 0
 
-def mapSellOfferIDsToMemos():
-  return 1
-
-#### mapSellOfferIDsToProceeds()
-
-
-
 # - figure out le tax
 #   - sale proceeds 
 #     - from purchase on Stellar
 #     - from pre-existing cost basis
 #       - incl. broker ACATS
+# - pull pii record which has association for uncovered securities or pre-existing cost basis
+# - sumbmit DIV to FIRE
+# - export/email(?) 8949
+
+# different doc:
 #   - interest
 #     - pay all dividends via USDC for recordkeeping?
-# - pull pii record
-# - sumbmit DIV to FIRE
-# - export/email(?) 8949/DIV(?)
-
-
-
-# todo: gain from path payments to self
-# liquidity pools = interest income?
-
-# getMemoFromMakerOfferID(publicKey, 1063202185) #48629595
+# - export DIV
 
 # (Taker)
-def mapMakerOfferIDsToChiefMemosForAccount(publicKey):
+def mapOfferIDsToChiefMemosForAccount(publicKey):
   requestAddr = f"https://{HORIZON_INST}/accounts/{publicKey}/transactions?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
@@ -209,9 +155,13 @@ def mapMakerOfferIDsToChiefMemosForAccount(publicKey):
             offerID = ops.tr.manage_buy_offer_result.success.offer.offer.offer_id.int64
           except AttributeError:
             try:
-              offerID = ops.tr.create_passive_sell_offer_op.success.offer.offer.offer_id.int64
+              #taker placeholder
+              offerID = 1 
             except AttributeError:
-              continue
+              try:
+                offerID = ops.tr.create_passive_sell_offer_op.success.offer.offer.offer_id.int64
+              except AttributeError:
+                continue
         if(offerID not in makerOfferIDsMappedToChiefMemos.keys()):
           try:
             memo = txns["memo"]
@@ -224,4 +174,140 @@ def mapMakerOfferIDsToChiefMemosForAccount(publicKey):
     blockchainRecords = data["_embedded"]["records"]
   return 1
 
-mapOfferIDsToTradeValue()
+def getTradeBasisOrProceedsFromOfferID():
+  totalFiatCost = totalFiatProceeds = totalSharesPurchased = totalSharesSold = Decimal("0")
+  requestAddr = f"https://{HORIZON_INST}/offers/{offerIDs}/trades?limit={MAX_SEARCH}"
+  data = requests.get(requestAddr).json()
+  blockchainRecords = data["_embedded"]["records"]
+  while(blockchainRecords != []):
+    for trades in blockchainRecords:
+      try:
+        baseAsset = Asset(trades["base_asset_code"], trades["base_asset_issuer"])
+      except KeyError:
+        baseAsset = Asset.native()
+      baseAssetFiat = baseAsset == USD_ASSET or baseAsset == USDC_ASSET
+      try:
+        counterAsset = Asset(trades["counter_asset_code"], trades["counter_asset_issuer"])
+      except KeyError:
+        counterAsset = Asset.native()
+      counterAssetFiat = counterAsset == USD_ASSET or counterAsset == USDC_ASSET
+      # Expect one asset to be fiat
+      if(trades["base_account"] == publicKey):
+        if(baseAssetFiat):
+          totalFiatCost += Decimal(trades["base_amount"])
+          totalSharesPurchased += Decimal(trades["counter_amount"])
+        elif(counterAssetFiat):
+          totalFiatProceeds += Decimal(trades["counter_amount"])
+          totalSharesSold += Decimal(trades["base_amount"])
+      elif(trades["counter_account"] == publicKey):
+        if(counterAssetFiat):
+          totalFiatCost += Decimal(trades["counter_amount"])
+          totalSharesPurchased += Decimal(trades["base_amount"])
+        elif(baseAssetFiat):
+          totalFiatProceeds += Decimal(trades["base_amount"])
+          totalSharesSold += Decimal(trades["counter_amount"])
+    requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
+    data = requests.get(requestAddr).json()
+    blockchainRecords = data["_embedded"]["records"]
+  if(totalSharesPurchased and totalSharesSold):
+    sys.exit("Critical math error")
+  return (totalFiatCost, totalFiatProceeds)
+
+# step 1: get everything working
+# step 2: deal with wash sales :)
+# future features: support liquidity pools
+#                  path payments (incl. to self)
+
+# form8949forAccount()
+
+requestAddr = f"https://{HORIZON_INST}/accounts/{BT_TREASURY}/transactions?limit={MAX_SEARCH}"
+data = requests.get(requestAddr).json()
+blockchainRecords = data["_embedded"]["records"]
+while(blockchainRecords != []):
+  requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
+  data = requests.get(requestAddr).json()
+  blockchainRecords = data["_embedded"]["records"]
+requestAddr = data["_links"]["prev"]["href"].replace("%3A", ":")
+#print(requestAddr)
+
+requestAddr = f"https://{HORIZON_INST}/accounts/{BT_TREASURY}/transactions?limit={MAX_SEARCH}"
+data = requests.get(requestAddr).json()
+blockchainRecords = data["_embedded"]["records"]
+while(blockchainRecords != []):
+  requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
+  data = requests.get(requestAddr).json()
+  blockchainRecords = data["_embedded"]["records"]
+requestAddr = data["_links"]["prev"]["href"].replace("%3A", ":")
+data = requests.get(requestAddr).json()
+blockchainRecords = data["_embedded"]["records"]
+for txns in blockchainRecords:
+  if(txns["memo"] == "test"):
+    break
+resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
+
+b = "AAAAAAAABLAAAAAAAAAAAQAAAAAAAAADAAAAAAAAAAAAAAAAAAAAACCpRRwnfc3SlGJnyNhZqvGuzC3NxsJyy4oL1D3Lmuv2AAAAAD9xJtwAAAABREVNTwAAAADizbFeUw8sInwmgG1LS7TGFLcXJw/9C/ic42da/chIIgAAAAAAAAAHc1lAAAAAAaQAAAABAAAAAQAAAAAAAAAA"
+resultXDR1 = TransactionResult.from_xdr(b)
+
+
+#<ManageOfferSuccessResult
+#  [offers_claimed=[],
+  
+#  offer=<ManageOfferSuccessResultOffer [effect=0, offer=<OfferEntry [seller_id=<AccountID [account_id=<PublicKey [type=0, ed25519=<Uint256 [uint256=b" \xa9E\x1c'}\xcd\xd2\x94bg\xc8\xd8Y\xaa\xf1\xae\xcc-\xcd\xc6\xc2r\xcb\x8a\x0b\xd4=\xcb\x9a\xeb\xf6"]>]>]>, offer_id=<Int64 [int64=1064380124]>, selling=<Asset [type=1, alpha_num4=<AlphaNum4 [asset_code=<AssetCode4 [asset_code4=b'DEMO']>, issuer=<AccountID [account_id=<PublicKey [type=0, ed25519=<Uint256 [uint256=b'\xe2\xcd\xb1^S\x0f,"|&\x80mKK\xb4\xc6\x14\xb7\x17\'\x0f\xfd\x0b\xf8\x9c\xe3gZ\xfd\xc8H"']>]>]>]>]>, buying=<Asset [type=0]>, amount=<Int64 [int64=32000000000]>, price=<Price [n=<Int32 [int32=420]>, d=<Int32 [int32=1]>]>, flags=<Uint32 [uint32=1]>, ext=<OfferEntryExt [v=0]>]>]>]>
+
+#<OfferEntry
+#  [
+#    seller_id=<AccountID
+#      [account_id=<PublicKey [type=0, ed25519=<Uint256 [uint256=b" \xa9E\x1c'}\xcd\xd2\x94bg\xc8\xd8Y\xaa\xf1\xae\xcc-\xcd\xc6\\xf6"]>]>]>,
+#    offer_id=<Int64 [int64=1064380124]>,
+#    selling=<Asset [type=1, alpha_num4=<AlphaNum4 [asset_code=<AssetCode4 [asset_code4=b'DEMO']>,
+#    issuer=<AccountID [account_id=<PublicKey [type=0, ed25519=<Uint256 [uint256=b'\xe2\xcd\xb1^S\x0f,"|&\x80mKKxe3gZ\xfd\xc8H"']>]>]>]>]>,
+#    buying=<Asset [type=0]>,
+#    amount=<Int64 [int64=32000000000]>,
+#    price=<Price [n=<Int32 [int32=420]>,
+#    d=<Int32 [int32=1]>]>,
+#    flags=<Uint32 [uint32=1]>,
+#    ext=<OfferEntryExt [v=0]>]>
+
+for ops in resultXDR1.result.results:
+  #a = ops.tr.manage_sell_offer_result.success.offers_claimed[0].order_book.offer_id.int64
+  print(len(ops.tr.manage_sell_offer_result.success.offers_claimed))
+  print(ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64)
+  #print(ops.tr.manage_sell_offer_result.success.offer.offer.seller_id)
+  try:
+    offerID = ops.tr.manage_sell_offer_result.success.offer.offer.offers_claimed
+  except:
+    offerID = 1
+print(offerID)
+#
+# [type=1,
+#   order_book=
+#       <ClaimOfferAtom
+#          [seller_id=<AccountID
+#             [account_id=<PublicKey
+#                [type=0, ed25519=<Uint256
+#                   [uint256=b'&J\x1c\xba\x8aafO*Del\xc1\xbcN\xbc\x87\xed<9FU\x92dci\x0b\xba\xf1@\xe4\x00']>]>]>,
+#           offer_id=<Int64 
+#              [int64=1064283282]>,
+#           asset_sold=<Asset [type=0]>,
+#           amount_sold=<Int64 [int64=333664]>,
+#           asset_bought=<Asset [type=1, alpha_num4=<AlphaNum4 [asset_code=<AssetCode4 [asset_code4=b'USDC']>, issuer='@\xf7\xf6$\xdf\x15\xc5']>]>]>]>]>,
+#           amount_bought=<Int64 [int64=34283]>]>]>
+ 
+ 
+
+for ops in resultXDR.result.results:
+  #print(ops)
+  a = ops.tr.manage_sell_offer_result.success.offers_claimed
+  a = a[0]
+  a = a.order_book.offer_id.int64
+  print(a)
+  try:
+    offerID = ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
+  except AttributeError:
+    try:
+      offerID = ops.tr.manage_buy_offer_result.success.offer.offer.offer_id.int64
+    except AttributeError:
+      try:
+        offerID = ops.tr.create_passive_sell_offer_op.success.offer.offer.offer_id.int64
+      except AttributeError:
+        continue
