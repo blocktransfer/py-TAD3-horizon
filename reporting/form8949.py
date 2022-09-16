@@ -51,12 +51,10 @@ def mapOfferIDsToTradeValue(): # what about taker buys?
           counterAsset = Asset(trades["counter_asset_code"], trades["counter_asset_issuer"])
         except KeyError:
           counterAsset = Asset.native()
-        counterAssetFiat = baseAsset == USD_ASSET or baseAsset == USDC_ASSET
+        counterAssetFiat = counterAsset == USD_ASSET or counterAsset == USDC_ASSET
         # Expect one asset to be fiat
-        print(trades["base_account"])
         if(trades["base_account"] == publicKey):
           if(baseAssetFiat):
-            pprint(trades)
             totalFiatCost += Decimal(trades["base_amount"])
             totalSharesPurchased += Decimal(trades["counter_amount"])
           elif(counterAssetFiat):
@@ -69,21 +67,15 @@ def mapOfferIDsToTradeValue(): # what about taker buys?
           elif(baseAssetFiat):
             totalFiatProceeds += Decimal(trades["base_amount"])
             totalSharesSold += Decimal(trades["counter_amount"])
-        print(f"1:{totalFiatCost}")
       requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
       data = requests.get(requestAddr).json()
       blockchainRecords = data["_embedded"]["records"]
-      print(f"2:{totalFiatCost}")
-    print(f"3:{totalFiatCost}")
-    if(totalSharesPurchased):
+    if(totalSharesPurchased and totalSharesSold):
+      sys.exit("Critical math error")
+    elif(totalSharesPurchased):
       buyOfferIDsMappedToCostBasis[offerIDs] = totalFiatCost
     elif(totalSharesSold):
       sellOfferIDsMappedToProceeds[offerIDs] = totalFiatProceeds
-
-    if(totalSharesPurchased and totalSharesSold):
-      pprint(trades)
-    if(baseAssetFiat or counterAssetFiat):
-      print(f"Successfully tallied {offerIDs}: {totalSharesPurchased} / {totalFiatCost} & {totalSharesSold} / {totalFiatProceeds}")
   return (buyOfferIDsMappedToCostBasis, sellOfferIDsMappedToProceeds)
 
 # - assume prior calendar year
