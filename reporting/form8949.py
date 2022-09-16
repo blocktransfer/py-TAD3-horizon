@@ -23,7 +23,6 @@ def form8949forAccount():
   
   calculateYearlyPNL(publicKey)
 
-
 # get buy offerIDs
 
 # get sell offerIDs
@@ -36,10 +35,8 @@ def form8949forAccount():
 # - input public key
 def mapOfferIDsToTradeValue(): # what about taker buys?
   buyOfferIDsMappedToCostBasis = sellOfferIDsMappedToProceeds = {}
-  stroopRatio = Decimal("0.0000001")
   for offerIDs in makerOfferIDsMappedToChiefMemos.keys():
-    totalFiatCost = totalFiatProceeds = 0
-    stockPurchased = stockSold = False
+    totalFiatCost = totalFiatProceeds = totalSharesPurchased = totalSharesSold = Decimal("0")
     requestAddr = f"https://{HORIZON_INST}/offers/{offerIDs}/trades?limit={MAX_SEARCH}"
     data = requests.get(requestAddr).json()
     blockchainRecords = data["_embedded"]["records"]
@@ -56,20 +53,33 @@ def mapOfferIDsToTradeValue(): # what about taker buys?
           baseAsset = Asset.native()
         counterAssetFiat = baseAsset == USD_ASSET or baseAsset == USDC_ASSET
         # Expect one asset to be fiat
-        
         #identify when publicKey buys stock for USD
-        if(trades["base_account"] == publicKey and baseAssetFiat):
-          totalFiatCost += trades["base_amount"]
-            
-        elif(trades["base_account"] == publicKey):
-          pprint(trades)
+        if(trades["base_account"] == publicKey):
+          if(baseAssetFiat):
+            totalFiatCost += Decimal(trades["base_amount"])
+            totalSharesPurchased += Decimal(trades["counter_amount"])
+          elif(counterAssetFiat): # sells stock for usd
+            totalFiatProceeds += Decimal(trades["counter_amount"])
+            totalSharesSold += Decimal(trades["base_amount"])
+        elif(trades["counter_account"] == publicKey):
+          if(counterAssetFiat):
+            totalFiatCost += Decimal(trades["counter_amount"])
+            totalSharesPurchased += Decimal(trades["base_amount"])
+          elif(baseAssetFiat):
+            totalFiatProceeds += Decimal(trades["base_amount"])
+            totalSharesSold += Decimal(trades["counter_amount"])
       requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
       data = requests.get(requestAddr).json()
       blockchainRecords = data["_embedded"]["records"]
-    if(stockPurchased):
+    if(totalSharesPurchased):
       buyOfferIDsMappedToCostBasis[offerIDs] = totalFiatCost
-    elif(stockSold):
+    elif(totalSharesSold):
       sellOfferIDsMappedToProceeds[offerIDs] = totalFiatProceeds
+
+    if(totalSharesPurchased and totalSharesSold):
+      pprint(trades)
+    if(baseAssetFiat or counterAssetFiat):
+      print(f"Successfully tallied {offerIDs}: {totalSharesPurchased} / {totalFiatCost} & {totalSharesSold} / {totalFiatProceeds}")
   return (buyOfferIDsMappedToCostBasis, sellOfferIDsMappedToProceeds)
 
 # - assume prior calendar year
@@ -218,4 +228,4 @@ def mapMakerOfferIDsToChiefMemosForAccount(publicKey):
     blockchainRecords = data["_embedded"]["records"]
   return 1
 
-mapBuyOfferIDsToCostBasis()
+mapOfferIDsToTradeValue()
