@@ -10,8 +10,9 @@ lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
 taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd for 52-53 week
 
-def form8949forAccount(publicKey):
+def form8949forAccount():
   offerIDsMappedToDispositionInstructions = mapOfferIDsToChiefMemosForAccount(publicKey)
+  pprint(offerIDsMappedToDispositionInstructions)
   calculateYearlyPNL(publicKey, offerIDsMappedToChiefMemosForAccount)
 
 
@@ -23,8 +24,6 @@ def form8949forAccount(publicKey):
 # -- full takes = easy memo id from op
 # -- makes = shows other guy SO we need the original sell offer txn obj
 
-
-
 # use paging token as buy "trade number"
 # - input public key
 def mapBuyOfferIDsToCostBasis():
@@ -33,11 +32,6 @@ def mapBuyOfferIDsToCostBasis():
 # - assume prior calendar year
 def mapSellOfferIDsToProceeds():
   offerIDsMappedToProceeds = {}
-  
-  
-  
-  
-  
   
   requestAddr = f"https://{HORIZON_INST}/accounts/{publicKey}/trades?limit={MAX_SEARCH}"
   #print(requestAddr)
@@ -148,7 +142,7 @@ def mapSellOfferIDsToMemos():
 
 # getMemoFromMakerOfferID(publicKey, 1063202185) #48629595
 
-
+# (Taker)
 def mapOfferIDsToChiefMemosForAccount(publicKey):
   offerIDsMappedToChiefMemosForAccount = {}
   requestAddr = f"https://{HORIZON_INST}/accounts/{publicKey}/transactions?limit={MAX_SEARCH}"
@@ -156,12 +150,12 @@ def mapOfferIDsToChiefMemosForAccount(publicKey):
   blockchainRecords = data["_embedded"]["records"]
   while(blockchainRecords != []):
     for txns in blockchainRecords:
-      pprint(txns)
+      if(txns["source_account"] != publicKey):
+        continue
       resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
       for ops in resultXDR.result.results:
         try:
           offerID = ops.tr.manage_sell_offer_result.success.offer.offer.offer_id.int64
-          print(offerID)
         except AttributeError:
           try:
             offerID = ops.tr.manage_buy_offer_result.success.offer.offer.offer_id.int64
@@ -171,7 +165,11 @@ def mapOfferIDsToChiefMemosForAccount(publicKey):
             except AttributeError:
               continue
         if(offerID not in offerIDsMappedToChiefMemosForAccount.keys()):
-          offerIDsMappedToChiefMemosForAccount[offerID] = (txns["memo"], txns["paging-token"])
+          try:
+            memo = txns["memo"]
+          except KeyError:
+            memo = ""
+          offerIDsMappedToChiefMemosForAccount[offerID] = (memo, txns["paging_token"])
     # Go to next cursor
     requestAddr = data["_links"]["next"]["href"].replace("\u0026", "&")
     data = requests.get(requestAddr).json()
@@ -179,6 +177,4 @@ def mapOfferIDsToChiefMemosForAccount(publicKey):
   return offerIDsMappedToChiefMemosForAccount
 
 
-
-
-
+form8949forAccount()
