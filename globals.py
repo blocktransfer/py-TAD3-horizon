@@ -96,6 +96,18 @@ def getFederationServerFromDomain(federationDomain):
     sys.exit(f"Failed to lookup federation server at {federationDomain}")
   return homeDomainFederationServer if homeDomainFederationServer.split("/")[-1] else homeDomainFederationServer[:-1]
 
+def getCUSIP(queryAsset):
+  try:
+    requestAddr = "https://blocktransfer.io/.well-known/stellar.toml"
+    data = toml.loads(requests.get(requestAddr).content.decode())
+    for currencies in data["CURRENCIES"]:
+      if(currencies["code"] == queryAsset):
+        CUSIP = currencies["anchor_asset"]
+        break
+  except Exception:
+    sys.exit(f"Failed to lookup ITIN for {queryAsset}")
+  return CUSIP
+
 def toFullAddress(street, streetExtra, city, state, postal, country):
   uncheckedArr = [street, streetExtra, city, state, postal, country]
   cleanArr = []
