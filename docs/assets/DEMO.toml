@@ -14,4 +14,4 @@ anchor_asset = "922908355-test"
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
 redemption_instructions = "Submit a DWAC transfer request to/from DRS through your broker."
 regulated = false
-splits = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
+splits = "1 to 5 effective 2021-4-20T00:00:00Z|3 to 2 effective 2021-10-9T00:00:00Z|2 to 1 effective 2022-1-1T00:00:00Z"
