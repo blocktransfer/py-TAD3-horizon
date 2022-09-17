@@ -27,57 +27,15 @@ def form8949forAccount(address):
       origin = getBuyTradeData(matchOfferID, address)
       combined = combineTradeData(sale[2], origin)
       if(combined[0] == "covered"):
-        (basis, proceeds) = getCoveredBasisAndProceeds(combined)
-        combined += (basis, proceeds, proceeds - basis)
+        combined += getCoveredBasisAndProceeds(combined)
       else:
         # - pull pii record which has association for uncovered securities or pre-existing cost basis
-        (basis, proceeds) = getUncoveredBasisAndProceeds(combined)
-        combined += (basis, proceeds, proceeds - basis)
-        combined += (existingBasis, 
+        combined += getUncoveredBasisAndProceeds(combined)
       accountTrades.append(combined)
   adjustedTrades = adjustForWashSales(accountTrades, address, offerIDsMappedToChiefMemosForAccount)
   # mergedTrades = mergeForVARIOUS(adjustedTrades) ? or just do by orderID?
   finalFormData = placeFields(adjustedTrades)
   #export to 8949 PDF(s)
-
-# - assume prior calendar year
-      investorOfferID = baseOfferID if baseAddr == address else counterOfferID
-      
-      
-      # extract asset
-      # part of averaged single sale? -> begin averaging
-        # sum all bought / sum all given etc
-      # extract value at txn for own benefit
-      
-      # a way to work cost basis into this ?
-      
-      
-      # BASICALLY:
-      # Can create account record for uncovered positions or pre-existing basis totally averaged out mst likely
-      # When they go to sell, they pick the lot
-      # Lots classified by OFFER_ID and averages as needed when providing liquidity
-      # When selling (from account omnibus), Use MEMO "Disposing #{OFFER_ID}"
-      
-    # Go to next cursor
-    requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
-    data = requests.get(requestAddr).json()
-    blockchainRecords = data["_embedded"]["records"]
-  
-    #- cycle through txns using taxYearStart to 
-  
-  pprint(b)
-  
-  return 0
-
-
-# - sumbmit DIV to FIRE
-# - export/email(?) 8949
-
-# different doc:
-#   - interest
-#     - pay all dividends via USDC for recordkeeping?
-# - export DIV
-
 
 def getOfferIDsMappedToChiefMemosForAccount(address):
   # offerIDsMappedToChiefMemosForAccount = {}
@@ -279,11 +237,11 @@ def getCoveredBasisAndProceeds(combinedTradeData):
   purchaseBasis = data[4]
   saleProceeds = data[6]
   if(sharesBought == sharesSold):
-    return(purchaseBasis, saleProceeds)
+    return(purchaseBasis, saleProceeds, saleProceeds - purchaseBasis)
   elif(sharesBought > sharesSold):
     purchasePrice = sharesBought / purchaseBasis
     purchaseBasisAdj = sharesSold * purchasePrice
-    return(purchaseBasisAdj, saleProceeds)
+    return(purchaseBasisAdj, saleProceeds, saleProceeds - purchaseBasisAdj)
   else:
     sys.exit("todo: test on live data")
 
@@ -293,10 +251,61 @@ def getUncoveredBasisAndProceeds(combinedTradeData):
   sharesSold = data[5]
   purchaseBasis = data[4]
   saleProceeds = data[6]
-  return (purchaseBasis, saleProceeds) ###todo
+  return (purchaseBasis, saleProceeds, saleProceeds - purchaseBasis) ###todo
 
 def adjustSharesBoughtForStockSplits(numShares, purchaseTimestamp, queryAsset):
+  try:
+    requestAddr = "https://blocktransfer.io/.well-known/stellar.toml"
+    data = toml.loads(requests.get(requestAddr).content.decode())
+    for currencies in data["CURRENCIES"]:
+      if(currencies["toml"][32:-5] == queryAsset):
+        print(currencies["toml"][-(5+len(queryAsset)):-5])
+        data = toml.loads(requests.get(currencies["toml"]).content.decode())
+        pprint(data)
+        spltData = data["CURRENCIES"][0]["splits"].split("|")
+        pprint(splitData)
+        for splits in splitData:
+          print(splits[0])
+          print(splits[4])
+          print(splits[-10:])
+          print("\n")
+          
+        break
+  except KeyboardInterrupt:
+    sys.exit(f"Failed to lookup split info for {queryAsset}")
+  return data
+  
   return numShares ###todo
+
+date = pandas.to_datetime("2020-1-15")
+# T00:00:00Z
+a = {'CURRENCIES': [{'anchor_asset': '922908355-test',
+                 'anchor_asset_type': 'stock',
+                 'attestation_of_reserve': 'https://blocktransfer.io/board-resolutions/demo.pdf',
+                 'code': 'DEMO',
+                 'conditions': 'Register at investors.blocktransfer.io for '
+                               'applicable terms.',
+                 'desc': 'This is an example stock used interally for product '
+                         'demos and development.',
+                 'display_decimals': 7,
+                 'image': 'https://blocktransfer.io/img/demo.png',
+                 'is_asset_anchored': True,
+                 'is_unlimited': True,
+                 'issuer': 'GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7',
+                 'name': 'Example Security',
+                 'redemption_instructions': 'Submit a DWAC transfer request '
+                                            'to/from DRS through your broker.',
+                 'regulated': False,
+                 'splits': '1 to 5 effective 2021-4-20|3 to 2 effective '
+                           '2021-10-9|2 to 1 effective 2022-1-1',
+                 'status': 'test'}]}
+z = "https://blocktransfer.io/assets/DEM3482904932O.toml"
+print(z[-(5+len("DEM3482904932O")):-5])
+b = a["CURRENCIES"][0]["splits"].split("|")
+pprint(type(b))
+print(b)
+pprint(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
+
 
 def adjustForWashSales(accountTrades, address, offerIDsMappedToChiefMemosForAccount):
   adjustedTrades = []
@@ -306,10 +315,10 @@ def adjustForWashSales(accountTrades, address, offerIDsMappedToChiefMemosForAcco
     purchaseTimestamp
     
     
-    if(saleTimestamp < taxYearStart + pandas.DateOffset(days = WASH_SALE_DAY_RANGE):
+    if(saleTimestamp < taxYearStart + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)):
       if(saleCUSIP in yearEndWashSaleWatchlist.keys()):
         # compare the dates
-        
+        a=1
         # adjustments/merge as needed
         
       washSaleWatchlist[saleCUSIP] = trades
