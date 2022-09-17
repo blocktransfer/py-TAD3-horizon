@@ -302,8 +302,7 @@ def placeFields(adjustedTrades):
 
 # future features: support liquidity pool D/W
 #                     (as interest income or cap gains? many aquisitions/dispositions?)
-# path payments (incl. to self)
-
+#                  support for sending path payments (incl. to self)
 
 # testing: "GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG"
 form8949forAccount(BT_ISSUER)
