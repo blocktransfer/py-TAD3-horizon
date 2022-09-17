@@ -3,13 +3,13 @@ sys.path.append("../")
 from globals import *
 from taxTestingData import *
 
-# TODO: Impliment some kind of caching for offerIDsMappedToChiefMemosForAccount associated with investor data
-# offerIDsMappedToChiefMemosForAccount = {}
+# offerIDsMappedToChiefMemosForAccount = {} #tmp
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
 taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd for 52-53 week
-washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = 30) # run after 4+ open buffer days
+washSaleAdjStart = taxYearStart - pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
+washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
 def bulkOutput():
   MICR_lines = ["access_me.csv"]
@@ -18,19 +18,24 @@ def bulkOutput():
 
 def form8949forAccount(address):
   accountTrades = []
-  # getofferIDsMappedToChiefMemosForAccount(address)
+  #offerIDsMappedToChiefMemosForAccount = getofferIDsMappedToChiefMemosForAccount(address) # TODO: Impliment some kind of caching here (associated with MICR?)
   for offerIDs in offerIDsMappedToChiefMemosForAccount:
     sale = getSellTradeData(offerIDs, address)
-    if(sale and taxYearStart <= sale[2]["finalExecutionDate"] <= taxYearEndAdj):
+    if(sale and washSaleAdjStart <= sale[2]["finalExecutionDate"] <= washSaleAdjCutoff):
       pprint(sale)
       matchOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
       origin = getBuyTradeData(matchOfferID, address)
       combined = combineTradeData(sale[2], origin)
       if(combined[0] == "covered"):
-        (basis, proceeds) = getBasisAndProceeds(combined)
+        (basis, proceeds) = getCoveredBasisAndProceeds(combined)
         combined += (basis, proceeds, proceeds - basis)
+      else:
+        # - pull pii record which has association for uncovered securities or pre-existing cost basis
+        (basis, proceeds) = getUncoveredBasisAndProceeds(combined)
+        combined += (basis, proceeds, proceeds - basis)
+        combined += (existingBasis, 
       accountTrades.append(combined)
-  adjustedTrades = adjustForWashSales(accountTrades)
+  adjustedTrades = adjustForWashSales(accountTrades, address, offerIDsMappedToChiefMemosForAccount)
   # mergedTrades = mergeForVARIOUS(adjustedTrades) ? or just do by orderID?
   finalFormData = placeFields(adjustedTrades)
   #export to 8949 PDF(s)
@@ -64,12 +69,7 @@ def form8949forAccount(address):
   
   return 0
 
-# - figure out le tax
-#   - sale proceeds 
-#     - from purchase on Stellar
-#     - from pre-existing cost basis
-#       - incl. broker ACATS
-# - pull pii record which has association for uncovered securities or pre-existing cost basis
+
 # - sumbmit DIV to FIRE
 # - export/email(?) 8949
 
@@ -80,6 +80,7 @@ def form8949forAccount(address):
 
 
 def getOfferIDsMappedToChiefMemosForAccount(address):
+  # offerIDsMappedToChiefMemosForAccount = {}
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/transactions?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
@@ -102,7 +103,7 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
     requestAddr = data["_links"]["next"]["href"].replace("\u0026", "&")
     data = requests.get(requestAddr).json()
     blockchainRecords = data["_embedded"]["records"]
-  return 1
+  return 1 #offerIDsMappedToChiefMemosForAccount
 
 def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address):
   try:
@@ -249,9 +250,12 @@ def combineTradeData(tradeData, originTradeData):
       (
         "uncovered",
         tradeData["asset"],
-        tradeData["finalExecutionDate"],
+        0, # given full  functionality,
+        0, # combine into originTradeData["..."] if originTradeData else 0
+        0,
+        tradeData["shares"],
         tradeData["value"],
-        tradeData["value"] / tradeData["shares"]
+        tradeData["finalExecutionDate"]
       )
     )
   assert(tradeData["asset"] == originTradeData["asset"])
@@ -269,7 +273,7 @@ def combineTradeData(tradeData, originTradeData):
     )
   )
 
-def getBasisAndProceeds(combinedTradeData):
+def getCoveredBasisAndProceeds(combinedTradeData):
   sharesBought = adjustSharesBoughtForStockSplits(data[3], data[2], data[1].code)
   sharesSold = data[5]
   purchaseBasis = data[4]
@@ -283,11 +287,53 @@ def getBasisAndProceeds(combinedTradeData):
   else:
     sys.exit("todo: test on live data")
 
-def adjustSharesBoughtForStockSplits(numShares, purchaseTimestamp, queryAsset):
-  return numShares
+def getUncoveredBasisAndProceeds(combinedTradeData):
+  # pull basis from data 
+  # ? sharesBought = adjustSharesBoughtForStockSplits(data[3], data[2], data[1].code)
+  sharesSold = data[5]
+  purchaseBasis = data[4]
+  saleProceeds = data[6]
+  return (purchaseBasis, saleProceeds) ###todo
 
-def adjustForWashSales(accountTrades):
+def adjustSharesBoughtForStockSplits(numShares, purchaseTimestamp, queryAsset):
+  return numShares ###todo
+
+def adjustForWashSales(accountTrades, address, offerIDsMappedToChiefMemosForAccount):
+  adjustedTrades = []
+  yearEndWashSaleWatchlist = washSaleWatchlist = {}
+  for trades in accountTrades:
+    
+    purchaseTimestamp
+    
+    
+    if(saleTimestamp < taxYearStart + pandas.DateOffset(days = WASH_SALE_DAY_RANGE):
+      if(saleCUSIP in yearEndWashSaleWatchlist.keys()):
+        # compare the dates
+        
+        # adjustments/merge as needed
+        
+      washSaleWatchlist[saleCUSIP] = trades
+        
+      
+      matchOfferID = offerIDsMappedToChiefMemosForAccount[offerID]
+      adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount)
+      return ans
+    
+    
+    return tradeData
+    
+  return adjustedTrades
+
+def adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount):
+  adjustedTrades = []
   return 1
+  
+  origin = getBuyTradeData(matchOfferID, address)
+  combined = combineTradeData(sale[2], origin)
+  if(combined[0] == "covered"):
+    (basis, proceeds) = getCoveredBasisAndProceeds(combined)
+    combined += (basis, proceeds, proceeds - basis)
+  ss.append(combined) 
 
 def placeFields(adjustedTrades):
   return 1
