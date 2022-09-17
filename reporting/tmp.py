@@ -1,18 +1,3 @@
-# TODO: make this work with stock splits
-def calculateBasisAndProceedsFromCombinedTradeData(data): 
-  sharesBought = data[3] 
-  # sharesBought = adjustSharesBoughtForStockSplits(data[3])
-  sharesSold = data[5]
-  purchaseBasis = data[4]
-  saleProceeds = data[6]
-  if(sharesBought == sharesSold):
-    return(purchaseBasis, saleProceeds)
-  elif(sharesBought > sharesSold):
-    purchasePrice = sharesBought / purchaseBasis
-    purchaseBasisAdj = sharesSold * purchasePrice
-    return(purchaseBasisAdj, saleProceeds)
-  else:
-    sys.exit("tmp debug err 1")
 
 # How do you want to keep record of stock splits, aside from just actually executing them? 
 # Ideas:
@@ -44,6 +29,6 @@ def calculateBasisAndProceedsFromCombinedTradeData(data):
 #     - Not unlike issuer materials
 #     - Given capital books are now on chain, I don't like this 
 #     - Further, Cede should def. be on chain
-#   - 
+#   - Attribute in toml
 #   - 
 #   - 
