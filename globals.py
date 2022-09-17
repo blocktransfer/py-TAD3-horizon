@@ -117,5 +117,13 @@ def getValidAccountPublicKeys():
 def getStockOutstandingShares(queryAsset):
   requestAddr = f"https://{HORIZON_INST}/assets?asset_code={QueryAsset}&asset_issuer=BT_ISSUER"
   data = requests.get(requestAddr).json()
-  return data["_embedded"]["records"][0]["amount"]
+  outstandingInclTreasuryShares = data["_embedded"]["records"][0]["amount"]
+  treasuryAddr = resolveFederationAddress(f"{queryAsset}*treasury.holdings")
+  requestAddr = f"https://{HORIZON_INST}/accounts/{treasuryAddr}"
+  accountBalances = requests.get(requestAddr).json()["balances"]
+  queryAsset = Asset(queryAsset, BT_ISSUER)
+  for balances in accountBalances:
+    if(balances["asset_type"] != "native" and Asset(balances["asset_code"], balances["asset_issuer"]) == queryAsset):
+      treasuryShares = balances["balance"]
+  return outstandingInclTreasuryShares - treasuryShares
 
