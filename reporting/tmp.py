@@ -288,7 +288,7 @@ def getBuyTradeData(offerID):
 
 def getSellTradeData(offerID):
   tradeData = {}
-  totalFiatCost = totalFiatProceeds = totalSharesPurchased = totalSharesSold = Decimal("0")
+  totalFiatProceeds = totalSharesSold = Decimal("0")
   requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
@@ -330,7 +330,7 @@ def getSellTradeData(offerID):
     return 0
 
 # line prior in parent function
-# if(tradeData[1] == "sell")
+# if(tradeData[1] == "sell"):
 #   matchOfferID = allOfferIDsMappedToChiefMemosForAccount[offerID]
 #   combinedData = combineTradeData(tradeData, getBuyTradeData(matchOfferID))
 #   if(combinedData[0] == "covered"):
@@ -354,18 +354,28 @@ def combineTradeData(tradeData, originTradeData):
       "covered",
       tradeData["asset"],
       tradeData["finalExecutionDate"],
-      tradeData["value"],
-      tradeData["shares"],
+      originTradeData["shares"],
       originTradeData["value"],
-      originTradeData["shares"]
+      tradeData["shares"],
+      tradeData["value"]
+      
     )
   )
 
-def calculateBasisAndProceedsFromCombinedTradeData(tradeData):
-  if(tradeData["sharesPurchased"] == tradeData["sharesSold"]):
-    return(tradeData["fiatCost"], tradeData["fiatProceeds"])
-  elif(tradeData["totalSharesPurchased"] > tradeData["sharesSold"]):
-    purchasePrice = tradeData["sharesPurchased"] / tradeData["fiatCost"]
+# TODO: make this work with stock splits
+def calculateBasisAndProceedsFromCombinedTradeData(data): 
+  sharesBought = data[3] 
+  # but stock splits only affect the price... not proceeds
+  # so actually needs to change the share amnt:
+  # sharesBought = adjustSharesBoughtForStockSplits(data[3])
+  sharesSold = data[5]
+  purchaseBasis = data[4]
+  # NOT: purchaseBasis = adjustBasisForStockSplits(data[4])
+  saleProceeds = data[6]
+  if(sharesBought == sharesSold):
+    return(purchaseBasis, saleProceeds)
+  elif(sharesBought > sharesSold):
+    purchasePrice = sharesBought / purchaseBasis
     basis = ["sharesSold"] * purchasePrice
     return(basis, tradeData["fiatProceeds"])
 
