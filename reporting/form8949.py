@@ -246,21 +246,23 @@ def getCoveredBasisAndProceeds(combinedTradeData):
     sys.exit("todo: test on live data")
 
 def getUncoveredBasisAndProceeds(combinedTradeData):
-  # pull basis from data 
-  # ? sharesBought = adjustSharesBoughtForStockSplits(data[3], data[2], data[1].code)
+  numSharesPulledFromMaster = 10
+  importDateValidShareAmount = "placeholderForImportFromMICRorg."
+  sharesBought = adjustSharesBoughtForStockSplits(numSharesPulledFromMaster, importDateValidShareAmount, data[1].code)
   sharesSold = data[5]
   purchaseBasis = data[4]
   saleProceeds = data[6]
   return (purchaseBasis, saleProceeds, saleProceeds - purchaseBasis) ###todo
 
 def adjustSharesBoughtForStockSplits(numShares, purchaseTimestamp, queryAsset):
-  splitDict = getSplits(queryAsset)
-  return splitDict
-  
-  return numShares ###todo
+  splitsDict = getSplitsDict(queryAsset)
+  for splitTimestamps, splitRatios in splitDict.items():
+    if(purchaseTimestamp < splitTimestamps):
+      numShares = numShares * splitRatios
+  return numShares
 
-def getSplits(queryAsset):
-  splitDict = {}
+def getSplitsDict(queryAsset):
+  splitsDict = {}
   try:
     requestAddr = "https://blocktransfer.io/.well-known/stellar.toml"
     data = toml.loads(requests.get(requestAddr).content.decode())
@@ -270,14 +272,11 @@ def getSplits(queryAsset):
         splitData = data["CURRENCIES"][0]["splits"].split("|")
         for splits in splitData:
           date = pandas.to_datetime(f"{splits.split('effective ')[1]}T00:00:00Z")
-          splitDict[date] = (Decimal(splits[0]), Decimal(splits[5]))
+          splitsDict[date] = Decimal(splits[0]) / Decimal(splits[5])
         break
   except Exception:
     sys.exit(f"Failed to lookup split info for {queryAsset}")
-  return splitDict
-
-a = adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO")
-pprint(a)
+  return splitsDict
 
 def adjustForWashSales(accountTrades, address, offerIDsMappedToChiefMemosForAccount):
   adjustedTrades = []
@@ -332,4 +331,6 @@ def placeFields(adjustedTrades):
 #                  support for sending path payments (incl. to self)
 
 # testing: "GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG"
+
+print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
 form8949forAccount(BT_ISSUER)
