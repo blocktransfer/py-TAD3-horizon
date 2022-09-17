@@ -32,3 +32,13 @@
 #   - Attribute in toml
 #   - 
 #   - 
+
+# - sumbmit DIV to FIRE
+# - export/email(?) 8949
+
+# different doc:
+#   - interest
+#     - pay all dividends via USDC for recordkeeping?
+# - export DIV
+
+# basically just report if(fiat from BT_TREASURY to address)
