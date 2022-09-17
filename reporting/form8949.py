@@ -276,9 +276,8 @@ def getSplits(queryAsset):
     sys.exit(f"Failed to lookup split info for {queryAsset}")
   return splitDict
 
-date = pandas.to_datetime("2021-4-1T00:00:00Z")
 a = adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO")
-print(a)
+pprint(a)
 
 def adjustForWashSales(accountTrades, address, offerIDsMappedToChiefMemosForAccount):
   adjustedTrades = []
