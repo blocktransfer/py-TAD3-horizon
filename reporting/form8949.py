@@ -254,56 +254,35 @@ def getUncoveredBasisAndProceeds(combinedTradeData):
   return (purchaseBasis, saleProceeds, saleProceeds - purchaseBasis) ###todo
 
 def adjustSharesBoughtForStockSplits(numShares, purchaseTimestamp, queryAsset):
+  splitDict = getSplits(queryAsset)
+  return 1
+  
+  return numShares ###todo
+
+def getSplits(queryAsset):
+  splitDict = {}
   try:
     requestAddr = "https://blocktransfer.io/.well-known/stellar.toml"
     data = toml.loads(requests.get(requestAddr).content.decode())
     for currencies in data["CURRENCIES"]:
       if(currencies["toml"][32:-5] == queryAsset):
-        print(currencies["toml"][-(5+len(queryAsset)):-5])
         data = toml.loads(requests.get(currencies["toml"]).content.decode())
-        pprint(data)
-        spltData = data["CURRENCIES"][0]["splits"].split("|")
+        splitData = data["CURRENCIES"][0]["splits"].split("|")
         pprint(splitData)
         for splits in splitData:
-          print(splits[0])
-          print(splits[4])
-          print(splits[-10:])
+          numerator = Decimal(splits[0])
+          denominator = Decimal(splits[5])
+          print(splits.split("effective "))
           print("\n")
+          date = 0
+          splitDict[date] = (numerator, denominator)
           
         break
-  except KeyboardInterrupt:
+  except Exception:
     sys.exit(f"Failed to lookup split info for {queryAsset}")
-  return data
-  
-  return numShares ###todo
 
 date = pandas.to_datetime("2020-1-15")
 # T00:00:00Z
-a = {'CURRENCIES': [{'anchor_asset': '922908355-test',
-                 'anchor_asset_type': 'stock',
-                 'attestation_of_reserve': 'https://blocktransfer.io/board-resolutions/demo.pdf',
-                 'code': 'DEMO',
-                 'conditions': 'Register at investors.blocktransfer.io for '
-                               'applicable terms.',
-                 'desc': 'This is an example stock used interally for product '
-                         'demos and development.',
-                 'display_decimals': 7,
-                 'image': 'https://blocktransfer.io/img/demo.png',
-                 'is_asset_anchored': True,
-                 'is_unlimited': True,
-                 'issuer': 'GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7',
-                 'name': 'Example Security',
-                 'redemption_instructions': 'Submit a DWAC transfer request '
-                                            'to/from DRS through your broker.',
-                 'regulated': False,
-                 'splits': '1 to 5 effective 2021-4-20|3 to 2 effective '
-                           '2021-10-9|2 to 1 effective 2022-1-1',
-                 'status': 'test'}]}
-z = "https://blocktransfer.io/assets/DEM3482904932O.toml"
-print(z[-(5+len("DEM3482904932O")):-5])
-b = a["CURRENCIES"][0]["splits"].split("|")
-pprint(type(b))
-print(b)
 pprint(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
 
 
