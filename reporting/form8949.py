@@ -255,7 +255,7 @@ def getUncoveredBasisAndProceeds(combinedTradeData):
 
 def adjustSharesBoughtForStockSplits(numShares, purchaseTimestamp, queryAsset):
   splitDict = getSplits(queryAsset)
-  return 1
+  return splitDict
   
   return numShares ###todo
 
@@ -268,23 +268,17 @@ def getSplits(queryAsset):
       if(currencies["toml"][32:-5] == queryAsset):
         data = toml.loads(requests.get(currencies["toml"]).content.decode())
         splitData = data["CURRENCIES"][0]["splits"].split("|")
-        pprint(splitData)
         for splits in splitData:
-          numerator = Decimal(splits[0])
-          denominator = Decimal(splits[5])
-          print(splits.split("effective "))
-          print("\n")
-          date = 0
-          splitDict[date] = (numerator, denominator)
-          
+          date = pandas.to_datetime(f"{splits.split('effective ')[1]}T00:00:00Z")
+          splitDict[date] = (Decimal(splits[0]), Decimal(splits[5]))
         break
   except Exception:
     sys.exit(f"Failed to lookup split info for {queryAsset}")
+  return splitDict
 
-date = pandas.to_datetime("2020-1-15")
-# T00:00:00Z
-pprint(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
-
+date = pandas.to_datetime("2021-4-1T00:00:00Z")
+a = adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO")
+print(a)
 
 def adjustForWashSales(accountTrades, address, offerIDsMappedToChiefMemosForAccount):
   adjustedTrades = []
