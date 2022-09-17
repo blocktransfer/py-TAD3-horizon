@@ -53,7 +53,7 @@ def countProxyVotes(queryAsset, numVotingItems, meetingType):
   addrsMappedToMemos = getaddrsMappedToMemos(queryAsset, votingFederationAddress)
   balancesMappedToMemos = replaceAddressesWithRecordDateBalances(addrsMappedToMemos, blockchainBalancesOnRecordDate)
   voteTallies = parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
-  displayResults(voteTallies)
+  displayResults(queryAsset, voteTallies)
 
 # Assume eligibility of all unrestricted outstanding shares on record date
 def getNumUnrestrictedShares(queryAsset):
@@ -129,8 +129,8 @@ def replaceAddressesWithRecordDateBalances(addrsMappedToMemos, blockchainBalance
   return balancesMappedToMemos
 
 def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems):
-  pprint(addrsMappedToMemos)
-  print(balancesMappedToMemos) 
+  #pprint(addrsMappedToMemos)
+  #print(balancesMappedToMemos) 
   delegeeAddrsMappedToSharesAllocated = {}
   delegationHashmap = makeFirst28byteMapping()
   propositionYays = [0] * numVotingItems
@@ -160,11 +160,12 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
             case "A":
               propositionAbstains[i] += numShares
             case "W":
-              propositionWitholds[i] += sharesAllocated
+              propositionWitholds[i] += numShares
       except Exception:
         print("! Invalid memo: {}".format(memos))
         continue
       sharesVoted += numShares
+  # todo: segment both these two sections into their own functions
   for delegeeAddrs, sharesAllocated in delegeeAddrsMappedToSharesAllocated.items():
     if(delegeeAddrs in validAccountPublicKeys):
       voteMemo = addrsMappedToMemos[delegeeAddrs]
@@ -191,23 +192,37 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
         continue
       sharesVoted += sharesAllocated
   voteTallies = []
-  ratio = Decimal("100")/sharesVoted
+  ratio = Decimal("100") / sharesVoted
   for i in range(numVotingItems):
     yays = propositionYays[i]
     nays = propositionNays[i]
     abstains = propositionAbstains[i]
     witholds = propositionWitholds[i]
-    voteTallies.append((yays, nays, abstains, witholds))
+    voteTallies.append(
+      (
+        yays,
+        nays,
+        abstains,
+        witholds
+      )
+    )
   return voteTallies
 
-def displayResults(voteTallies):
+def displayResults(queryAsset, voteTallies):
+  outstanding = getStockOutstandingShares(queryAsset)
   i = 0
   for (Y, N, A, W) in voteTallies:
     i += 1
-    ratio = Decimal("100")/Decimal(Y+N+A+W)
+    ratio = Decimal("100") / Decimal(Y + N + A + W)
+    ratioTot = Decimal("100") / outstanding
     print("In the matter of proposition {}:".format(i))
-    print("For:\t\t{}%\t({} shares)".format(format(Y*ratio, ".2f"), Y))
-    print("Against:\t{}%\t({} shares)".format(format(N*ratio, ".2f"), N))
-    print("Abstain:\t{}%\t({} shares)\n".format(format(A*ratio, ".2f"), A))
-    print("Withold:\t{}%\t({} shares)\n".format(format(W*ratio, ".2f"), W))
+    print("For:\t\t{}%\t({} shares)".format(
+        f"{Y * ratio}:.2f",
+        f"{Y * ratioTot}:.2f",
+        Y
+      )
+    ) # todo: test, finalize export functionality as master tab.
+    print("Against:\t{}%\t({} shares)".format(format(N * ratio, ".2f"), N))
+    print("Abstain:\t{}%\t({} shares)\n".format(format(A * ratio, ".2f"), A))
+    print("Withold:\t{}%\t({} shares)\n".format(format(W * ratio, ".2f"), W))
 

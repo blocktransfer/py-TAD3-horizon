@@ -102,7 +102,7 @@ def toFullAddress(street, streetExtra, city, state, postal, country):
   for items in uncheckedArr:
     if(items):
       cleanArr.append(items)
-  return "! ".join(cleanArr)
+  return "! ".join(cleanArr) # todo: change to pipe delineation
 
 def getValidAccountPublicKeys():
   validAccountPublicKeys = []
@@ -113,3 +113,9 @@ def getValidAccountPublicKeys():
     lines = lines.split(",")
     validAccountPublicKeys.append(lines[0])
   return validAccountPublicKeys
+
+def getStockOutstandingShares(queryAsset):
+  requestAddr = f"https://{HORIZON_INST}/assets?asset_code={QueryAsset}&asset_issuer=BT_ISSUER"
+  data = requests.get(requestAddr).json()
+  return data["_embedded"]["records"][0]["amount"]
+

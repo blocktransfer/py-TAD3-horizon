@@ -242,7 +242,7 @@ def getTradeProceedsFromOfferID(): # call if in tax year
 def getTradeQuantityAndBasisFromOfferID():
   return 1
 
-def getTradeDataForBuyOffersOnly(offerID):
+def getBuyTradeData(offerID):
   tradeData = {}
   totalFiatCost = totalSharesPurchased = Decimal("0")
   requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
@@ -266,14 +266,14 @@ def getTradeDataForBuyOffersOnly(offerID):
         if(baseAssetFiat):
           totalFiatCost += Decimal(trades["base_amount"])
           totalSharesPurchased += Decimal(trades["counter_amount"])
-        elif(counterAssetFiat):
+        if(counterAssetFiat):
           return 0
       elif(trades["counter_account"] == publicKey):
         tradeData["asset"] = baseAsset
         if(counterAssetFiat):
           totalFiatCost += Decimal(trades["counter_amount"])
           totalSharesPurchased += Decimal(trades["base_amount"])
-        elif(baseAssetFiat):
+        if(baseAssetFiat):
           return 0
     tradeData["finalExecutionDate"] = pandas.to_datetime(trades["ledger_close_time"])
     requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
@@ -281,15 +281,13 @@ def getTradeDataForBuyOffersOnly(offerID):
     blockchainRecords = data["_embedded"]["records"]
   tradeData["shares"] = totalSharesPurchased
   tradeData["value"] = totalFiatCost
-  ensureTradeFullyFilledCutoff = datetime.now(tz=UTC) - pandas.DateOffset(days = 4)
-  if(tradeData["finalExecutionDate"] < ensureTradeFullyFilledCutoff):
+  if(totalFiatCost):
     return (offerID, "buy", tradeData)
   else:
     return 0
 
-def getTradeDataForSellOffersOnly(offerID):
+def getSellTradeData(offerID):
   tradeData = {}
-  tradeData["offerID"] = offerID
   totalFiatCost = totalFiatProceeds = totalSharesPurchased = totalSharesSold = Decimal("0")
   requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
@@ -300,57 +298,70 @@ def getTradeDataForSellOffersOnly(offerID):
         baseAsset = Asset(trades["base_asset_code"], trades["base_asset_issuer"])
       except KeyError:
         baseAsset = Asset.native()
-      baseAssetFiat = baseAsset == USD_ASSET or baseAsset == USDC_ASSET
       try:
         counterAsset = Asset(trades["counter_asset_code"], trades["counter_asset_issuer"])
       except KeyError:
         counterAsset = Asset.native()
+      baseAssetFiat = baseAsset == USD_ASSET or baseAsset == USDC_ASSET
       counterAssetFiat = counterAsset == USD_ASSET or counterAsset == USDC_ASSET
-      # Expect one asset is fiat
       if(trades["base_account"] == publicKey):
         tradeData["asset"] = counterAsset
-        if(baseAssetFiat):
-          totalFiatCost += Decimal(trades["base_amount"])
-          totalSharesPurchased += Decimal(trades["counter_amount"])
-        elif(counterAssetFiat):
+        if(counterAssetFiat):
           totalFiatProceeds += Decimal(trades["counter_amount"])
           totalSharesSold += Decimal(trades["base_amount"])
+        if(baseAssetFiat):
+          return 0
       elif(trades["counter_account"] == publicKey):
         tradeData["asset"] = baseAsset
-        if(counterAssetFiat):
-          totalFiatCost += Decimal(trades["counter_amount"])
-          totalSharesPurchased += Decimal(trades["base_amount"])
-        elif(baseAssetFiat):
+        if(baseAssetFiat):
           totalFiatProceeds += Decimal(trades["base_amount"])
           totalSharesSold += Decimal(trades["counter_amount"])
-    # run report / assume offers removed at tax year end + 2 weeks
+        if(counterAssetFiat):
+          return 0
     tradeData["finalExecutionDate"] = pandas.to_datetime(trades["ledger_close_time"])
     requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
     data = requests.get(requestAddr).json()
     blockchainRecords = data["_embedded"]["records"]
-  if(totalSharesPurchased):
-    tradeData["sharesPurchased"] = totalSharesPurchased
-    tradeData["fiatCost"] = totalFiatCost
-  if(totalSharesSold): #
-    tradeData["sharesSold"] = totalSharesSold
-    tradeData["fiatProceeds"] = totalFiatProceeds
-  return tradeData
+  tradeData["shares"] = totalSharesSold
+  tradeData["value"] = totalFiatProceeds
+  if(totalFiatProceeds):
+    return (offerID, "sell", tradeData)
+  else:
+    return 0
 
-def matchTrades(tradeData):
-  matchOfferID = allOfferIDsMappedToChiefMemosForAccount[tradeData["offerID"]]
-  if(not matchOfferID):
-    try:
-      if(tradeData["sharesSold"]):
-        return(("uncovered", tradeData["asset"], tradeData["finalExecutionDate"], tradeData["fiatProceeds"], tradeData["fiatProceeds"] / tradeData["totalSharesSold"]))
-    except KeyError:
-      try: #
-        if(tradeData["sharesPurchased"]): #
-          return "aquisition" #
-      except: #
-        sys.exit("Critical math error") #
-  matchOfferTradeData = 
+# line prior in parent function
+# if(tradeData[1] == "sell")
+#   matchOfferID = allOfferIDsMappedToChiefMemosForAccount[offerID]
+#   combinedData = combineTradeData(tradeData, getBuyTradeData(matchOfferID))
+#   if(combinedData[0] == "covered"):
+#     (basis, proceeds) = calculateBasisAndProceedsFromCombinedTradeData(combinedData)
+#     profit = proceeds - basis
+def combineTradeData(tradeData, originTradeData):
+  if(not originTradeData):
+    return(
+      (
+        "uncovered",
+        tradeData["asset"],
+        tradeData["finalExecutionDate"],
+        tradeData["value"],
+        tradeData["value"] / tradeData["shares"]
+      )
+    )
+  assert(tradeData["asset"] == originTradeData["asset"])
+  assert(originTradeData["finalExecutionDate"] < tradeData["finalExecutionDate"])
+  return(
+    (
+      "covered",
+      tradeData["asset"],
+      tradeData["finalExecutionDate"],
+      tradeData["value"],
+      tradeData["shares"],
+      originTradeData["value"],
+      originTradeData["shares"]
+    )
+  )
 
-def calculateBasisAndProceedsFromCombinedMatchedTradeData(tradeData):
+def calculateBasisAndProceedsFromCombinedTradeData(tradeData):
   if(tradeData["sharesPurchased"] == tradeData["sharesSold"]):
     return(tradeData["fiatCost"], tradeData["fiatProceeds"])
   elif(tradeData["totalSharesPurchased"] > tradeData["sharesSold"]):
