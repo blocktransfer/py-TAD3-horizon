@@ -278,15 +278,20 @@ def getSplitsDict(queryAsset):
     sys.exit(f"Failed to lookup split info for {queryAsset}")
   return splitsDict
 
-def adjustForWashSales(accountTrades, address, offerIDsMappedToChiefMemosForAccount):
+def adjustForWashSales(combinedData, address, offerIDsMappedToChiefMemosForAccount):
   adjustedTrades = []
   yearEndWashSaleWatchlist = washSaleWatchlist = {}
-  for trades in accountTrades:
-    
-    purchaseTimestamp
-    
-    
-    if(saleTimestamp < taxYearStart + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)):
+  for trades in combinedData:
+    saleTimestamp = trades[7]
+# 0   "covered",
+# 1   tradeData["asset"],
+# 2   originTradeData["finalExecutionDate"],
+# 3   originTradeData["shares"],
+# 4   originTradeData["value"],
+# 5   tradeData["shares"],
+# 6   tradeData["value"],
+# 7   tradeData["finalExecutionDate"],
+    if(washSaleAdjStart < saleTimestamp < taxYearStart):
       if(saleCUSIP in yearEndWashSaleWatchlist.keys()):
         # compare the dates
         a=1
