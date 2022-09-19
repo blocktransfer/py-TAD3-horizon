@@ -17,28 +17,32 @@ def bulkOutput():
     form8949forAccount(addresses)
 
 def form8949forAccount(address):
-  accountTrades = []
+  taxableSales = washSaleReferenceList = []
   #offerIDsMappedToChiefMemosForAccount = getofferIDsMappedToChiefMemosForAccount(address) # TODO: Impliment some kind of caching here (associated with MICR?)
-  for offerIDs in offerIDsMappedToChiefMemosForAccount:
-    sale = getSellTradeData(offerIDs, address)
-    if(sale and washSaleAdjStart <= sale[2]["finalExecutionDate"] <= washSaleAdjCutoff):
-      pprint(sale)
+  for offerIDs, memos in offerIDsMappedToChiefMemosForAccount.items():
+    trade = getTradeData(offerIDs, address)
+    if(trade[1] == "sell"):
       matchOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
-      origin = getBuyTradeData(matchOfferID, address)
-      combined = combineTradeData(sale[2], origin)
+      print(matchOfferID)
+      print(memos)
+      origin = getTradeData(memos, address)
+      combined = combineTradeData(trade[2], origin)
+      pprint(combined)
       if(combined[0] == "covered"):
-        combined += getCoveredBasisAndProceeds(combined)
+        combined += getCoveredPNLfromCombinedTrade(combined)
       else:
-        # - pull pii record which has association for uncovered securities or pre-existing cost basis
-        combined += getUncoveredBasisAndProceeds(combined)
-      accountTrades.append(combined)
-  adjustedTrades = adjustForWashSales(accountTrades, address, offerIDsMappedToChiefMemosForAccount)
+        combined += getUncoveredPNLfromCombinedTrade(combined, address)
+      taxableSales.append(combined)
+    else:
+      washSaleReferenceList.append(trade)
+  adjustedTrades = adjustAllTradesForWashSales(taxableSales, address, offerIDsMappedToChiefMemosForAccount)
   # mergedTrades = mergeForVARIOUS(adjustedTrades) ? or just do by orderID?
-  finalFormData = placeFields(adjustedTrades)
+  finalTrades = filterTradesToTaxablePeriod(mergedTrades)
+  finalFormData = placeFieldsplaceFields(adjustedTrades)
   #export to 8949 PDF(s)
 
 def getOfferIDsMappedToChiefMemosForAccount(address):
-  # offerIDsMappedToChiefMemosForAccount = {}
+  offerIDsMappedToChiefMemosForAccount = {}
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/transactions?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
@@ -57,11 +61,8 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
             except KeyError:
               memo = ""
             offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
-    # Go to next cursor
-    requestAddr = data["_links"]["next"]["href"].replace("\u0026", "&")
-    data = requests.get(requestAddr).json()
-    blockchainRecords = data["_embedded"]["records"]
-  return 1 #offerIDsMappedToChiefMemosForAccount
+    blockchainRecords = getNextCursorRecords(data)
+  return offerIDsMappedToChiefMemosForAccount
 
 def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address):
   try:
@@ -109,93 +110,64 @@ def getOfferIDfromContraID(offerID, address):
           return int(trades["base_offer_id"])
       except KeyError:
         sys.exit(f"Error generating syntheic ID - check paging token")
-    requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
-    data = requests.get(requestAddr).json()
-    blockchainRecords = data["_embedded"]["records"]
+    blockchainRecords = getNextCursorRecords(data)
   sys.exit(f"Could not find offerID from Omnibus Contra #{offerID}")
 
-def getBuyTradeData(offerID, address):
-  if(not offerID):
+def getTradeData(offerID, address):
+  try:
+    int(offerID)
+  except ValueError: 
     return 0
   tradeData = {}
-  totalFiatCost = totalSharesPurchased = Decimal("0")
+  type = ""
+  value = shares = Decimal("0")
   requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
   while(blockchainRecords != []):
     for trades in blockchainRecords:
-      baseAsset = getBaseAsset(trades)
+      baseAsset = getAssetGivenType(trades, "base")
+      counterAsset = getAssetGivenType(trades, "counter")
       baseAssetFiat = isFiat(baseAsset)
-      counterAsset = getCounterAsset(trades)
       counterAssetFiat = isFiat(counterAsset)
-      # Expect one asset is fiat
+      # Expect exactly one fiat asset
       if(trades["base_account"] == address):
-        tradeData["asset"] = counterAsset
         if(baseAssetFiat):
-          totalFiatCost += Decimal(trades["base_amount"])
-          totalSharesPurchased += Decimal(trades["counter_amount"])
+          value += Decimal(trades["base_amount"])
+          shares += Decimal(trades["counter_amount"])
+          if type: continue
+          tradeData["asset"] = counterAsset
+          type = "buy"
         if(counterAssetFiat):
-          return 0
+          value += Decimal(trades["counter_amount"])
+          shares += Decimal(trades["base_amount"])
+          if type: continue
+          tradeData["asset"] = baseAsset
+          type = "sell"
       elif(trades["counter_account"] == address):
         tradeData["asset"] = baseAsset
         if(counterAssetFiat):
-          totalFiatCost += Decimal(trades["counter_amount"])
-          totalSharesPurchased += Decimal(trades["base_amount"])
+          value += Decimal(trades["counter_amount"])
+          shares += Decimal(trades["base_amount"])
+          if type: continue
+          tradeData["asset"] = baseAsset
+          type = "buy"
         if(baseAssetFiat):
-          return 0
+          value += Decimal(trades["base_amount"])
+          shares += Decimal(trades["counter_amount"])
+          if type: continue
+          tradeData["asset"] = counterAsset
+          type = "sell"
     tradeData["finalExecutionDate"] = pandas.to_datetime(trades["ledger_close_time"])
-    requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
-    data = requests.get(requestAddr).json()
-    blockchainRecords = data["_embedded"]["records"]
-  tradeData["shares"] = totalSharesPurchased
-  tradeData["value"] = totalFiatCost
-  return (offerID, "buy", tradeData) if totalFiatCost else 0
+    blockchainRecords = getNextCursorRecords(data)
+  tradeData["shares"] = shares
+  tradeData["value"] = value
+  return (offerID, type, tradeData) if value else 0
 
-def getSellTradeData(offerID, address):
-  if(not offerID):
-    return 0
-  tradeData = {}
-  totalFiatProceeds = totalSharesSold = Decimal("0")
-  requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
-  data = requests.get(requestAddr).json()
-  blockchainRecords = data["_embedded"]["records"]
-  while(blockchainRecords != []):
-    for trades in blockchainRecords:
-      baseAsset = getBaseAsset(trades)
-      baseAssetFiat = isFiat(baseAsset)
-      counterAsset = getCounterAsset(trades)
-      counterAssetFiat = isFiat(counterAsset)
-      if(trades["base_account"] == address):
-        tradeData["asset"] = counterAsset
-        if(counterAssetFiat):
-          totalFiatProceeds += Decimal(trades["counter_amount"])
-          totalSharesSold += Decimal(trades["base_amount"])
-        if(baseAssetFiat):
-          return 0
-      elif(trades["counter_account"] == address):
-        tradeData["asset"] = baseAsset
-        if(baseAssetFiat):
-          totalFiatProceeds += Decimal(trades["base_amount"])
-          totalSharesSold += Decimal(trades["counter_amount"])
-        if(counterAssetFiat):
-          return 0
-    tradeData["finalExecutionDate"] = pandas.to_datetime(trades["ledger_close_time"])
-    requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
-    data = requests.get(requestAddr).json()
-    blockchainRecords = data["_embedded"]["records"]
-  tradeData["shares"] = totalSharesSold
-  tradeData["value"] = totalFiatProceeds
-  return (offerID, "sell", tradeData) if totalFiatProceeds else 0
-
-def getBaseAsset(trade):
+def getAssetGivenType(trade, type):
+  # type must be "base" or "counter"
   try:
-    return Asset(trade["base_asset_code"], trade["base_asset_issuer"])
-  except KeyError:
-    return Asset.native()
-
-def getCounterAsset(trade):
-  try:
-    return Asset(trade["counter_asset_code"], trade["counter_asset_issuer"])
+    return Asset(trade[f"{type}_asset_code"], trade[f"{type}_asset_issuer"])
   except KeyError:
     return Asset.native()
 
@@ -216,7 +188,7 @@ def combineTradeData(tradeData, originTradeData):
         tradeData["finalExecutionDate"]
       )
     )
-  assert(tradeData["asset"] == originTradeData["asset"])
+  assert(tradeData["asset"] == originTradeData["asset"]) # todo, see above
   assert(originTradeData["finalExecutionDate"] < tradeData["finalExecutionDate"])
   return(
     (
@@ -231,32 +203,86 @@ def combineTradeData(tradeData, originTradeData):
     )
   )
 
-def getCoveredBasisAndProceeds(combinedTradeData):
+def getCoveredPNLfromCombinedTrade(data):
   sharesBought = adjustSharesBoughtForStockSplits(data[3], data[2], data[1].code)
-  sharesSold = data[5]
   purchaseBasis = data[4]
+  sharesSold = data[5]
   saleProceeds = data[6]
   if(sharesBought == sharesSold):
-    return(purchaseBasis, saleProceeds, saleProceeds - purchaseBasis)
+    return(purchaseBasis, saleProceeds - purchaseBasis)
   elif(sharesBought > sharesSold):
     purchasePrice = sharesBought / purchaseBasis
     purchaseBasisAdj = sharesSold * purchasePrice
-    return(purchaseBasisAdj, saleProceeds, saleProceeds - purchaseBasisAdj)
+    return(purchaseBasisAdj, saleProceeds - purchaseBasisAdj)
   else:
     sys.exit("todo: test on live data")
 
-def getUncoveredBasisAndProceeds(combinedTradeData):
-  numSharesPulledFromMaster = 10
-  importDateValidShareAmount = "placeholderForImportFromMICRorg."
-  sharesBought = adjustSharesBoughtForStockSplits(numSharesPulledFromMaster, importDateValidShareAmount, data[1].code)
+def getUncoveredPNLfromCombinedTrade(data, addr):
+  historicPositions = []
+  # historicPositions = callToCloud()
+  historicPositionData = "Address|Asset Code|Uncovered Share Aquisition Date|Data Migration Date|Uncovered Share Amount|Uncovered Share Basis\nGDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7|yUSDC|2020-9-15|2021-1-1|15000|256654\nGARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG|XLM|2018-9-15|2021-1-1|15000|3200"
+  for lines in historicPositionData.split("\n")[1:]:
+    for address, assetCode, purchaseDate, shares, basis in lines.split("|"):
+      if(address == addr):
+        historicPositions.append(
+          (
+            assetCode,
+            pandas.to_datetime(f"{purchaseDate}T20:00:00Z"),
+            Decimal(shares),
+            Decimal(basis)
+          )
+        )
+  # todo: impliment this with a backend database
+  
+
+
+  
+        
+        
+        
+# "uncovered",
+# tradeData["asset"],
+# 0,                                originTradeData["finalExecutionDate"],
+# 0,                                originTradeData["shares"],
+# 0,                                originTradeData["value"],
+# tradeData["shares"],
+# tradeData["value"],
+# tradeData["finalExecutionDate"]
+  comparableAssets = []
+  for oldBuys in historicPositions:
+    if(oldBuys[0] == data[1].code):
+      comparableAssets.append(oldBuys)
+  
+  
+  
+  #what if instead of doing this, we just code it as independent txs with "offer codes" when sending shares initially
+  fetchPreExistingPositions(address, data[1].code)
+  
+  sharesBought = adjustSharesBoughtForStockSplits(a, b, data[1].code)
+  purchaseBasis = Decimal(getUncoveredBasis("Set up a basic google sheet")) if 0 else data[4]
   sharesSold = data[5]
-  purchaseBasis = data[4]
   saleProceeds = data[6]
-  return (purchaseBasis, saleProceeds, saleProceeds - purchaseBasis) ###todo
+  pprint(data)
+  if(sharesBought == sharesSold):
+    return(purchaseBasis, saleProceeds - purchaseBasis)
+  elif(sharesBought > sharesSold):
+    purchasePrice = sharesBought / purchaseBasis
+    purchaseBasisAdj = sharesSold * purchasePrice
+  return (purchaseBasisAdj, saleProceeds - purchaseBasis)
+
+def fetchPreExistingPositions(address, queryAsset):
+  # get a payemtns 
+  
+  type
+  if(payment["asset_code"] == queryAsset and payment["source_account"] == BT_DISTRIBUTOR):
+    
+
+def getUncoveredBasis(data):
+  return 1
 
 def adjustSharesBoughtForStockSplits(numShares, purchaseTimestamp, queryAsset):
   splitsDict = getSplitsDict(queryAsset)
-  for splitTimestamps, splitRatios in splitDict.items():
+  for splitTimestamps, splitRatios in splitsDict.items():
     if(purchaseTimestamp < splitTimestamps):
       numShares = numShares * splitRatios
   return numShares
@@ -278,11 +304,20 @@ def getSplitsDict(queryAsset):
     sys.exit(f"Failed to lookup split info for {queryAsset}")
   return splitsDict
 
-def adjustForWashSales(combinedData, address, offerIDsMappedToChiefMemosForAccount):
-  adjustedTrades = []
-  yearEndWashSaleWatchlist = washSaleWatchlist = {}
-  for trades in combinedData:
-    saleTimestamp = trades[7]
+def adjustAllTradesForWashSales(combinedData, address):
+  adjustedTrades = washSaleWatchlist = []
+  replacementOptions = []
+  for combinedTrades in combinedData:
+    if(combinedTrades[9] < 0):
+      washSaleWatchlist.append(combinedTrades)
+  for potentialWashes in washSaleWatchlist:
+    # get all buys for stock
+    
+    for combinedTrades in combinedData:
+      # combinedData is only for sales 
+      #
+      a=1
+      #if(combinedTrades[1]
 # 0   "covered",
 # 1   tradeData["asset"],
 # 2   originTradeData["finalExecutionDate"],
@@ -291,18 +326,17 @@ def adjustForWashSales(combinedData, address, offerIDsMappedToChiefMemosForAccou
 # 5   tradeData["shares"],
 # 6   tradeData["value"],
 # 7   tradeData["finalExecutionDate"],
-    if(washSaleAdjStart < saleTimestamp < taxYearStart):
-      if(saleCUSIP in yearEndWashSaleWatchlist.keys()):
-        # compare the dates
-        a=1
-        # adjustments/merge as needed
-        
-      washSaleWatchlist[saleCUSIP] = trades
-        
+# 8   purchaseBasisAdj
+# 9  PNL
+  
+  if(washSaleAdjStart < saleTimestamp < taxYearStart):
+    a = 1 
+  
+    
       
-      matchOfferID = offerIDsMappedToChiefMemosForAccount[offerID]
-      adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount)
-      return ans
+    matchOfferID = offerIDsMappedToChiefMemosForAccount[offerID]
+    adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount)
+    return ans
     
     
     return tradeData
@@ -313,12 +347,16 @@ def adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMa
   adjustedTrades = []
   return 1
   
-  origin = getBuyTradeData(matchOfferID, address)
+  #origin = getBuyTradeData(matchOfferID, address)
+  origin = 1
   combined = combineTradeData(sale[2], origin)
   if(combined[0] == "covered"):
     (basis, proceeds) = getCoveredBasisAndProceeds(combined)
     combined += (basis, proceeds, proceeds - basis)
   ss.append(combined) 
+
+def filterTradesToTaxablePeriod(finalTrades):
+  return washSaleAdjStart <= sale[2]["finalExecutionDate"] <= washSaleAdjCutoff
 
 def placeFields(adjustedTrades):
   return 1
@@ -337,5 +375,5 @@ def placeFields(adjustedTrades):
 
 # testing: "GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG"
 
-print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
-form8949forAccount(BT_ISSUER)
+# print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
+form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")

@@ -89,15 +89,14 @@ def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
   addrsMappedToMemos = {}
   votingAddr = resolveFederationAddress(votingFederationAddress)
   requestAddr = getInitialAccountsRequestAddr(queryAsset)
-  votingAddrData = requests.get(requestAddr).json()
-  blockchainRecords = votingAddrData["_embedded"]["records"]
+  data = requests.get(requestAddr).json()
+  blockchainRecords = data["_embedded"]["records"]
   numInvestorsOnboard = numInvestorsVoted = 0
   while(blockchainRecords != []):
     for everyInvestorData in blockchainRecords:
       numInvestorsOnboard += 1
       if(everyInvestorData["account_id"] in validAccountPublicKeys):
-        paymentsAddrs = everyInvestorData["_links"]["payments"]["href"]
-        paymentsAddrs = paymentsAddrs.replace("{?cursor,limit,order}", "?limit=" + MAX_SEARCH)
+        paymentsAddrs = everyInvestorData["_links"]["payments"]["href"].replace("{?cursor,limit,order}", f"?limit={MAX_SEARCH}")
         paymentData = requests.get(paymentsAddrs).json()
         accountPaymentRecords = paymentData["_embedded"]["records"]
         while(accountPaymentRecords != []):
@@ -109,14 +108,8 @@ def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
                 addrsMappedToMemos[payments["from"]] = vote
             except KeyError:
               continue
-          # Go to next payments cursor
-          paymentsAddrs = paymentData["_links"]["next"]["href"].replace("\u0026", "&")
-          paymentData = requests.get(paymentsAddrs).json()
-          accountPaymentRecords = paymentData["_embedded"]["records"]
-    # Go to next votingAddrData cursor
-    requestAddr = votingAddrData["_links"]["next"]["href"].replace("\u0026", "&")
-    votingAddrData = requests.get(requestAddr).json()
-    blockchainRecords = votingAddrData["_embedded"]["records"]
+          accountPaymentRecords = getNextCursorRecords(paymentData)
+    blockchainRecords = getNextCursorRecords(data)
   return addrsMappedToMemos
 
 def replaceAddressesWithRecordDateBalances(addrsMappedToMemos, blockchainBalancesOnRecordDate):

@@ -18,10 +18,7 @@ def getAllIssuedAssetsArr(issuer):
   while(blockchainRecords != []):
     for entries in blockchainRecords:
       allAssets.append(entries["asset_code"])
-    # Go to next cursor
-    requestAddress = data["_links"]["next"]["href"].replace("\u0026", "&")
-    data = requests.get(requestAddress).json()
-    blockchainRecords = data["_embedded"]["records"]
+    blockchainRecords = getNextCursorRecords(data)
   return allAssets
 
 def getAllPendingTrustlinesWithAsset():
@@ -45,10 +42,7 @@ def getAllPendingTrustlinesWithAsset():
             continue
         if(requestedAssets != []):
           allPendingTrustlinesWithAssetArr[address] = requestedAssets
-      # Go to next cursor
-      requestAddress = data["_links"]["next"]["href"].replace("%3A", ":")
-      data = requests.get(requestAddress).json()
-      blockchainRecords = data["_embedded"]["records"]
+      blockchainRecords = getNextCursorRecords(data)
   return allPendingTrustlinesWithAssetArr
 
 def getKnownAddressesFromIdentityMappingCSV():
