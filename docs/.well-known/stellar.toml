@@ -33,17 +33,4 @@ id_photo_hash = "0dce43292a7dd2c6ef021cca9f84330ceeec34e8587172453bc2b05f1bd13ed
 verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44f0b8e62ff48"
 
 [[CURRENCIES]]
-code = "DEMO"
-issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
-status = "live"
-display_decimals = 7
-name = "Example Security"
-desc = "This is an example stock used interally for product demos."
-#conditions = "Complete KYC at investors.blocktransfer.io to hold this security."
-image = "https://blocktransfer.io/assets/demo.png"
-is_unlimited = true
-is_asset_anchored = false
-#anchor_asset_type = "stock"
-#anchor_asset = "US0000000000"
-#redemption_instructions = "Transfer to/from traditional brokers with ACATS. Contact your broker support, and they will set up the transfer plus surety insurance. Ask your broker if they support fractional shares. Only send amounts using five decimal places because after that DTC will not credit your broker (e.g. sending 1.0000099 results in you getting 1)."
-#regulated = true
+toml = "https://blocktransfer.io/assets/DEMO.toml"

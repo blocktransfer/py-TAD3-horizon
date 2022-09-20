@@ -20,6 +20,7 @@ BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
 USD_ASSET = Asset("USD", BT_ISSUER)
+USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C")
 MICR_CSV = f"{G_DIR}/../pii/master-identity-catalog-records.csv" #todo: modify here to load from Box; set auth
 
 HORIZON_INST = "horizon.stellar.org"
@@ -27,6 +28,7 @@ MAX_NUM_DECIMALS = "7"
 MAX_SEARCH = "200"
 MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2
+WASH_SALE_DAY_RANGE = 30
 
 server = Server(horizon_url = "https://" + HORIZON_INST)
 issuer = server.load_account(account_id = BT_ISSUER)
@@ -54,11 +56,13 @@ def getStellarBlockchainBalances(queryAsset):
         except Exception:
           continue
       StellarBlockchainBalances[accountAddr] = queryBalance
-    # Go to next cursor
-    requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
-    data = requests.get(requestAddr).json()
-    blockchainRecords = data["_embedded"]["records"]
+    blockchainRecords = getNextCursorRecords(data)
   return StellarBlockchainBalances
+
+def getNextCursorRecords(data):
+  addr = data["_links"]["next"]["href"].replace("%3A", ":")
+  data = requests.get(addr.replace("\u0026", "&")).json()
+  return data["_embedded"]["records"]
 
 #todo: test
 def submitTxnGarunteed(transaction):
@@ -95,6 +99,18 @@ def getFederationServerFromDomain(federationDomain):
   except Exception:
     sys.exit(f"Failed to lookup federation server at {federationDomain}")
   return homeDomainFederationServer if homeDomainFederationServer.split("/")[-1] else homeDomainFederationServer[:-1]
+
+def getCUSIP(queryAsset):
+  try:
+    requestAddr = "https://blocktransfer.io/.well-known/stellar.toml"
+    data = toml.loads(requests.get(requestAddr).content.decode())
+    for currencies in data["CURRENCIES"]:
+      if(currencies["code"] == queryAsset):
+        CUSIP = currencies["anchor_asset"]
+        break
+  except Exception:
+    sys.exit(f"Failed to lookup ITIN for {queryAsset}")
+  return CUSIP
 
 def toFullAddress(street, streetExtra, city, state, postal, country):
   uncheckedArr = [street, streetExtra, city, state, postal, country]

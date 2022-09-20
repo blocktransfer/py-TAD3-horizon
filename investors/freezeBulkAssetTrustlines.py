@@ -16,10 +16,7 @@ def getOutstandingTrustlines(queryAsset):
   while(blockchainRecords != []):
     for accounts in blockchainRecords:
       allOutstandingTrustlines.append(accounts["id"])
-    # Go to next cursor
-    requestAddr = data["_links"]["next"]["href"].replace("%3A", ":")
-    data = requests.get(requestAddr).json()
-    blockchainRecords = data["_embedded"]["records"]
+    blockchainRecords = getNextCursorRecords(data)
   return allOutstandingTrustlines
 
 def signBulkTrustlineRevocationTxn(outstandingTrustlines, queryAsset, reason):
