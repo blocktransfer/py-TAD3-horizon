@@ -21,7 +21,7 @@ ORG_PHONE_NUMBER = "(844) 42-STOCK"
 ORG_GITHUB = "blocktransfer"
 ORG_OFFICIAL_EMAIL = "inquiries@blocktransfer.io"
 ORG_SUPPORT_EMAIL = "support@blocktransfer.io"
-ORG_LICENSING_AUTHORITY = "U.S. Securities and Exchange Commission"
+ORG_LICENSING_AUTHORITY = "Securities and Exchange Commission"
 ORG_LICENSE_TYPE = "CIK"
 ORG_LICENSE_NUMBER = "1846058"
 
