@@ -1,6 +1,6 @@
-from datetime import datetime
-from pprint import pprint
-import sys, requests, json
+import sys
+sys.path.append("../")
+from globals import *
 
 COMPANY_ENGL_NAME = "Real Company"
 MEETING_DATE = "Mar. 16, 2023"
