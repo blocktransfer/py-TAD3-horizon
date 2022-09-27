@@ -12,16 +12,23 @@ taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd
 washSaleAdjStart = taxYearStart - pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
+# import threading -> global
 def bulkOutput():
   MICR_lines = ["access_me.csv"]
   for addresses in MICR_lines[0]:
     form8949forAccount(addresses)
+    #threads = []
+    #threads.append(
+    #  threading.Thread(
+    #    target = form8949forAccount,
+    #    args = (addresses,)
+    #  )
+    #)
+    #threads[n].start()
 
 def form8949forAccount(address):
   taxableSales = washSaleReferenceList = []
-  offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) # TODO: Impliment some kind of caching here (associated with MICR?)
-  print(offerIDsMappedToChiefMemosForAccount)
-  return 1
+  # offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) # TODO: Impliment some kind of caching here (associated with MICR?)
   for offerIDs, memos in offerIDsMappedToChiefMemosForAccount.items():
     trade = getTradeData(offerIDs, address)
     if(trade[1] == "sell"):
@@ -53,13 +60,20 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
     for txns in blockchainRecords:
       b = txns["created_at"]
       if(txns["source_account"] == address):
+        print(txns["paging_token"])
         resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
         for ops in resultXDR.result.results:
           ops = ops.tr
           if(ops.manage_buy_offer_result or ops.manage_sell_offer_result):
             offerIDarr = []
             addOpTrOfferIDsToArr(ops, offerIDarr, address)
+            
             for offerIDs in offerIDarr:
+              if(offerIDs == 4728565770907353089 or offerIDs == 4733736958776672257):
+                pprint(txns)
+                print("\n")
+                #print(txns["result_xdr"])
+                sys.exit()
               if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
                 try:
                   memo = txns["memo"]
@@ -98,6 +112,8 @@ def addOpTrOfferIDsToArr(op, offerIDarr, address):
 def resolveTakerOffer(taker, offerIDarr, address):
   takerIDattr = "offer.offer.offer_id.int64"
   try:
+    print(getAttr(taker, takerIDattr))
+    sys.exit(1)
     return getOfferIDfromContraID(getAttr(taker, takerIDattr), address)
   except AttributeError:
     try:
@@ -423,4 +439,4 @@ def placeFields(adjustedTrades):
 
 # print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
 form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
-fetchPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")
+fetchInvestorPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")
