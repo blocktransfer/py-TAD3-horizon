@@ -271,7 +271,26 @@ def getUncoveredPNLfromCombinedTrade(data, addr):
 
 def fetchPreExistingPositions(address, queryAsset):
   # get payments from distributor to investor account
-  
+  requestAddr = f"https://{HORIZON_INST}/accounts/{address}/payments?limit={MAX_SEARCH}"
+  data = requests.get(requestAddr).json()
+  blockchainRecords = data["_embedded"]["records"]
+  while(blockchainRecords != []):
+    for payments in blockchainRecords:
+      if(payments["from"] != BT_DISTRIBUTOR):
+        continue
+      txnAddr = payments["_links"]["transaction"]["href"]
+      txnData = requests.get(txnAddr).json()
+      preExistingBase = # Expect format YEAR-MO-DY@PRICE
+      # E.g. A bought 150 shares of EGS
+           # 50 shares on 2008-10-1 at 8.56, memo = 2008-10-1@8.56
+           # 50 shares on 2012-3-1 at 12.20, memo = 2012-3-1@12.20
+           # 50 shares on 2018-4-6 at 43.11, memo = 2018-4-6@43.11
+        # Distributor sends THREE payments to A's new account with proper memos, all for 50 shares
+      try:
+        memo = txns["memo"]
+      except KeyError:
+        memo = ""
+    blockchainRecords = getNextCursorRecords(data)
   if(payment["asset_code"] == queryAsset and payment["source_account"] == BT_DISTRIBUTOR):
     
 
