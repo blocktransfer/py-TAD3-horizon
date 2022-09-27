@@ -137,7 +137,6 @@ def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address, t):
           sys.exit(f"Atomic swap contra discovery failed:\n{offersClaimed}")
     if(trades != lastTrade):
       offerIDarr.append(offerID)
-      print(f"nested offerID: {offerID}")
   try:
     return offerID
   except UnboundLocalError:
