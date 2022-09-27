@@ -88,17 +88,21 @@ def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address, resultXDR):
         pprint(op)
       except AttributeError:
         try:
+        
           taker = op.manage_sell_offer_result.success # # #
           offersClaimed = taker.offers_claimed
           try:
             pprint(resultXDR)
             offerID = getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
           except AttributeError:
-            offerID = addManyOffers(taker.offers_claimed, offerIDarr, address)
-
-          offerID = addManyOffers(offersClaimed, offerIDarr, address) if len(offersClaimed) else getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
+            try:
+              offerID = addManyOffers(taker.offers_claimed, offerIDarr, address)
+            except UnboundLocalError:
+              print("LL")
+              offerID = 0
           
-        except KeyboardInterrupt:
+        except AttributeError:
+          sys.exit("never get here")
           effectIDattr = "success.offer.effect"
           deleteEffect = 2
           try:
@@ -131,6 +135,7 @@ def addManyOffers(offersClaimed, offerIDarr, address):
       offerIDarr.append(offerID)
     print(offerID)
   return offerID
+  
 
 def getOfferIDfromContraID(offerID, address):
   requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
