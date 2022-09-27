@@ -164,8 +164,7 @@ def getTradeData(offerID, address):
   tradeData["value"] = value
   return (offerID, type, tradeData) if value else 0
 
-def getAssetGivenType(trade, type):
-  # type must be "base" or "counter"
+def getAssetGivenType(trade, type): # type <- "base" | "counter"
   try:
     return Asset(trade[f"{type}_asset_code"], trade[f"{type}_asset_issuer"])
   except KeyError:
@@ -271,9 +270,8 @@ def getUncoveredPNLfromCombinedTrade(data, addr):
   return (purchaseBasisAdj, saleProceeds - purchaseBasis)
 
 def fetchPreExistingPositions(address, queryAsset):
-  # get a payemtns 
+  # get payments from distributor to investor account
   
-  type
   if(payment["asset_code"] == queryAsset and payment["source_account"] == BT_DISTRIBUTOR):
     
 
@@ -293,16 +291,18 @@ def getSplitsDict(queryAsset):
     requestAddr = "https://blocktransfer.io/.well-known/stellar.toml"
     data = toml.loads(requests.get(requestAddr).content.decode())
     for currencies in data["CURRENCIES"]:
-      if(currencies["toml"][32:-5] == queryAsset):
+      if(currencies["toml"][32:-5] == queryAsset): # format asset as toml link
         data = toml.loads(requests.get(currencies["toml"]).content.decode())
         splitData = data["CURRENCIES"][0]["splits"].split("|")
         for splits in splitData:
           date = pandas.to_datetime(f"{splits.split('effective ')[1]}T00:00:00Z")
-          splitsDict[date] = Decimal(splits[0]) / Decimal(splits[5])
-        break
+          flexData = splits.split(" ")
+          num = Decimal(flexData[0])
+          denom = Decimal(flexData[2])
+          splitsDict[date] = num / denom
+        return splitsDict
   except Exception:
     sys.exit(f"Failed to lookup split info for {queryAsset}")
-  return splitsDict
 
 def adjustAllTradesForWashSales(combinedData, address):
   adjustedTrades = washSaleWatchlist = []
