@@ -48,19 +48,18 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
   blockchainRecords = data["_embedded"]["records"]
   while(blockchainRecords != []):
     for txns in blockchainRecords:
-      if(txns["source_account"] != address):
-        continue
-      resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
-      for ops in resultXDR.result.results:
-        offerIDarr = []
-        appendOfferIDfromTxnOpToBaseArr(ops, offerIDarr, address)
-        for offerIDs in offerIDarr:
-          if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
-            try:
-              memo = txns["memo"]
-            except KeyError:
-              memo = ""
-            offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
+      if(txns["source_account"] == address):
+        resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
+        for ops in resultXDR.result.results:
+          offerIDarr = []
+          appendOfferIDfromTxnOpToBaseArr(ops, offerIDarr, address)
+          for offerIDs in offerIDarr:
+            if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
+              try:
+                memo = txns["memo"]
+              except KeyError:
+                memo = ""
+              offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
     blockchainRecords = getNextCursorRecords(data)
   return offerIDsMappedToChiefMemosForAccount
 
@@ -269,32 +268,31 @@ def getUncoveredPNLfromCombinedTrade(data, addr):
     purchaseBasisAdj = sharesSold * purchasePrice
   return (purchaseBasisAdj, saleProceeds - purchaseBasis)
 
-def fetchPreExistingPositions(address, queryAsset):
+def fetchPreExistingPositionsForAsset(address, queryAsset):
+  preExistingPositions = []
   # get payments from distributor to investor account
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/payments?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
   while(blockchainRecords != []):
     for payments in blockchainRecords:
-      if(payments["from"] != BT_DISTRIBUTOR):
-        continue
-      txnAddr = payments["_links"]["transaction"]["href"]
-      txnData = requests.get(txnAddr).json()
-      # Expect format YEAR-MO-DY@PRICE
-      # E.g. A bought 150 shares of EGS
-           # 50 shares on ??? at ???, memo = uncovered
-           # 50 shares on 2012-3-1 at 12.20, memo = 2012-3-1@12.20
-           # 50 shares on 2018-4-6 at 43.11, memo = 2018-4-6@43.11
-        # Distributor sends THREE payments to A's new account with proper memos, all for 50 shares
       try:
-        priorBase = txns["memo"]
+        properAsset = Asset(payments["asset_code"], payments["asset_issuer"]) == Asset(queryAsset, BT_ISSUER)
       except KeyError:
-        sys.exit("Fatal Err: Uncovered distribution not labelled as such")
+        continue
+      if(properAsset and payments["from"] == BT_DISTRIBUTOR):
+        txnAddr = payments["_links"]["transaction"]["href"]
+        txnData = requests.get(txnAddr).json()
+        try:
+          priorBase = txns["memo"] # Expect YEAR-MONTH-DAY@PRICE | uncovered
+        except KeyError:
+          sys.exit(f"Fatal Err: Unlabelled distribution:\n{payments}")
+        preExistingPositions.append((payments["amount"], priorBase))
     blockchainRecords = getNextCursorRecords(data)
-  if(payment["asset_code"] == queryAsset and payment["source_account"] == BT_DISTRIBUTOR):
-    
+  return preExistingPositions
 
 def getUncoveredBasis(data):
+  # you can't get the basis for uncovered shares ?
   return 1
 
 def adjustSharesBoughtForStockSplits(numShares, purchaseTimestamp, queryAsset):
