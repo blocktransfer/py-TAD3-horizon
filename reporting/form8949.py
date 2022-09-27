@@ -71,6 +71,10 @@ def rgetattr(obj, attr):
       return getattr(obj, attr)
   return functools.reduce(subgetattr, [obj] + attr.split('.'))
 
+class NoOffersClaimed(Exception):
+  def __init__(self, message = "Order deleted"):
+    super(NoOffersClaimed, self).__init__(message)
+
 def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address, resultXDR):
   makerIDattr = "success.offer.offer.offer_id.int64"
   
@@ -83,43 +87,30 @@ def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address, resultXDR):
       takerIDattr = "offer.offer.offer_id.int64"
       try:
         taker = op.manage_sell_offer_result.success
-        offersClaimed = taker.offers_claimed
-        offerID = addManyOffers(offersClaimed, offerIDarr, address) if len(offersClaimed) else getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
-        pprint(op)
+        try:
+          offerID = getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
+        except AttributeError:
+          try:
+            offerID = addMultipleContraOffers(taker.offers_claimed, offerIDarr, address)
+          except NoOffersClaimed:
+            offerID = 0
       except AttributeError:
         try:
-        
-          taker = op.manage_sell_offer_result.success # # #
-          offersClaimed = taker.offers_claimed
+          taker = op.manage_buy_offer_result.success
           try:
-            pprint(resultXDR)
             offerID = getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
           except AttributeError:
             try:
-              offerID = addManyOffers(taker.offers_claimed, offerIDarr, address)
-            except UnboundLocalError:
-              print("LL")
+              offerID = addMultipleContraOffers(taker.offers_claimed, offerIDarr, address)
+            except NoOffersClaimed:
               offerID = 0
-          
         except AttributeError:
-          sys.exit("never get here")
-          effectIDattr = "success.offer.effect"
-          deleteEffect = 2
-          try:
-            if(rgetattr(op.manage_sell_offer_result, effectIDattr) == deleteEffect):
-              offerID = 0
-          except AttributeError:
-            try:
-              if(rgetattr(op.manage_buy_offer_result, effectIDattr) == deleteEffect):
-                offerID = 0
-            except AttributeError:
-              sys.exit(f"Failed to resolve offerID in\n{op}")
+          sys.exit(f"Failed to resolve offerID in\n{op}")
   return offerIDarr.append(offerID)
 
-def addManyOffers(offersClaimed, offerIDarr, address):
+def addMultipleContraOffers(offersClaimed, offerIDarr, address):
   lastTrade = offersClaimed[-1:]
   IDattr = "offer_id.int64"
-  pprint(offersClaimed)
   for trades in offersClaimed:
     try:
       offerID = getOfferIDfromContraID(rgetattr(trades.order_book, IDattr), address)
@@ -134,7 +125,10 @@ def addManyOffers(offersClaimed, offerIDarr, address):
     if(trade != lastTrade):
       offerIDarr.append(offerID)
     print(offerID)
-  return offerID
+  try:
+    return offerID
+  except UnboundLocalError:
+    raise NoOffersClaimed
   
 
 def getOfferIDfromContraID(offerID, address):
