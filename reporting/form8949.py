@@ -91,7 +91,7 @@ def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address):
           offerID = getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
         except AttributeError:
           try:
-            offerID = appendOfferIDsFromOffersClaimed(taker.offers_claimed, offerIDarr, address)
+            offerID = appendOfferIDsFromClaimedContras(taker.offers_claimed, offerIDarr, address)
           except NoOffersClaimed:
             offerID = 0
       except AttributeError:
@@ -101,14 +101,14 @@ def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address):
             offerID = getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
           except AttributeError:
             try:
-              offerID = appendOfferIDsFromOffersClaimed(taker.offers_claimed, offerIDarr, address)
+              offerID = appendOfferIDsFromClaimedContras(taker.offers_claimed, offerIDarr, address)
             except NoOffersClaimed:
               offerID = 0
         except AttributeError:
           sys.exit(f"Failed to resolve offerID in\n{op}")
   return offerIDarr.append(offerID)
 
-def appendOfferIDsFromOffersClaimed(offersClaimed, offerIDarr, address):
+def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address):
   lastTrade = offersClaimed[-1:]
   IDattr = "offer_id.int64"
   print(lastTrade)
