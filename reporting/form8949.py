@@ -270,7 +270,6 @@ def getUncoveredPNLfromCombinedTrade(data, addr):
 
 def fetchPreExistingPositionsForAsset(address, queryAsset):
   preExistingPositions = []
-  # get payments from distributor to investor account
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/payments?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
