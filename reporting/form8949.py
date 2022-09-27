@@ -280,16 +280,16 @@ def fetchPreExistingPositions(address, queryAsset):
         continue
       txnAddr = payments["_links"]["transaction"]["href"]
       txnData = requests.get(txnAddr).json()
-      preExistingBase = # Expect format YEAR-MO-DY@PRICE
+      # Expect format YEAR-MO-DY@PRICE
       # E.g. A bought 150 shares of EGS
-           # 50 shares on 2008-10-1 at 8.56, memo = 2008-10-1@8.56
+           # 50 shares on ??? at ???, memo = uncovered
            # 50 shares on 2012-3-1 at 12.20, memo = 2012-3-1@12.20
            # 50 shares on 2018-4-6 at 43.11, memo = 2018-4-6@43.11
         # Distributor sends THREE payments to A's new account with proper memos, all for 50 shares
       try:
-        memo = txns["memo"]
+        priorBase = txns["memo"]
       except KeyError:
-        memo = ""
+        sys.exit("Fatal Err: Uncovered distribution not labelled as such")
     blockchainRecords = getNextCursorRecords(data)
   if(payment["asset_code"] == queryAsset and payment["source_account"] == BT_DISTRIBUTOR):
     
