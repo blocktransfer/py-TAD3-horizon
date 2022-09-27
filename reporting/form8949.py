@@ -85,15 +85,12 @@ def addOpTrOfferIDsToArr(op, offerIDarr, address):
   except AttributeError:
     try:
       offerID = getAttr(op.manage_buy_offer_result, makerIDattr)
-      print(f"maker buy: {offerID}\n")
     except AttributeError:
       try:
         offerID = resolveTakerOffer(op.manage_sell_offer_result.success, offerIDarr, address)
-        print(f"takersell: {offerID}\n")
       except AttributeError:
         try:
           offerID = resolveTakerOffer(op.manage_buy_offer_result.success, offerIDarr, address)
-          print(f"taker buy: {offerID}\n")
         except AttributeError:
           sys.exit(f"Failed to resolve offerID in\n{op}\n")
   return offerIDarr.append(offerID)
@@ -140,7 +137,7 @@ def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address, t):
           sys.exit(f"Atomic swap contra discovery failed:\n{offersClaimed}")
     if(trades != lastTrade):
       offerIDarr.append(offerID)
-    print(f"nested offerID: {offerID}")
+      print(f"nested offerID: {offerID}")
   try:
     return offerID
   except UnboundLocalError:
