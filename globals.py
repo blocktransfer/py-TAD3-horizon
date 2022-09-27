@@ -60,9 +60,12 @@ def getStellarBlockchainBalances(queryAsset):
   return StellarBlockchainBalances
 
 def getNextCursorRecords(data):
-  addr = data["_links"]["next"]["href"].replace("%3A", ":")
-  data = requests.get(addr.replace("\u0026", "&")).json()
-  return data["_embedded"]["records"], data
+  addr = data["_links"]["next"]["href"].replace("%3A", ":").replace("\u0026", "&")
+  data = requests.get(addr).json()
+  try:
+    return data["_embedded"]["records"], data
+  except KeyError:
+    return getNextCursorRecords(requests.get(addr).json())
 
 #todo: test
 def submitTxnGarunteed(transaction):
