@@ -61,7 +61,6 @@ def getStellarBlockchainBalances(queryAsset):
 
 def getNextCursorRecords(data):
   addr = data["_links"]["next"]["href"].replace("%3A", ":")
-  print(addr.replace("\u0026", "&"))
   data = requests.get(addr.replace("\u0026", "&")).json()
   return data["_embedded"]["records"], data
 
