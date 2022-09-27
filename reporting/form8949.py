@@ -55,7 +55,7 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
           ops = ops.tr
           if(ops.manage_buy_offer_result or ops.manage_sell_offer_result):
             offerIDarr = []
-            appendOfferIDfromTxnOpToBaseArr(ops, offerIDarr, address, txns["result_xdr"])
+            appendOfferIDfromTxnOpToBaseArr(ops, offerIDarr, address)
             for offerIDs in offerIDarr:
               if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
                 try:
@@ -75,7 +75,7 @@ class NoOffersClaimed(Exception):
   def __init__(self, message = "Order deleted"):
     super(NoOffersClaimed, self).__init__(message)
 
-def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address, resultXDR):
+def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address):
   makerIDattr = "success.offer.offer.offer_id.int64"
   
   try:
@@ -91,7 +91,7 @@ def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address, resultXDR):
           offerID = getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
         except AttributeError:
           try:
-            offerID = addMultipleContraOffers(taker.offers_claimed, offerIDarr, address)
+            offerID = addMultipleOffersIDsFromOmnibusContraID(taker.offers_claimed, offerIDarr, address)
           except NoOffersClaimed:
             offerID = 0
       except AttributeError:
@@ -101,16 +101,17 @@ def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address, resultXDR):
             offerID = getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
           except AttributeError:
             try:
-              offerID = addMultipleContraOffers(taker.offers_claimed, offerIDarr, address)
+              offerID = addMultipleOffersIDsFromOmnibusContraID(taker.offers_claimed, offerIDarr, address)
             except NoOffersClaimed:
               offerID = 0
         except AttributeError:
           sys.exit(f"Failed to resolve offerID in\n{op}")
   return offerIDarr.append(offerID)
 
-def addMultipleContraOffers(offersClaimed, offerIDarr, address):
+def addMultipleOffersIDsFromOmnibusContraID(offersClaimed, offerIDarr, address):
   lastTrade = offersClaimed[-1:]
   IDattr = "offer_id.int64"
+  print(lastTrade)
   for trades in offersClaimed:
     try:
       offerID = getOfferIDfromContraID(rgetattr(trades.order_book, IDattr), address)
@@ -129,7 +130,6 @@ def addMultipleContraOffers(offersClaimed, offerIDarr, address):
     return offerID
   except UnboundLocalError:
     raise NoOffersClaimed
-  
 
 def getOfferIDfromContraID(offerID, address):
   requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
