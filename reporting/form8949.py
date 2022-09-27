@@ -49,8 +49,6 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/transactions?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
-  i=0
-  b=""
   while(blockchainRecords != []):
     for txns in blockchainRecords:
       b = txns["created_at"]
@@ -58,26 +56,17 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
         resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
         for ops in resultXDR.result.results:
           ops = ops.tr
-          
           if(ops.manage_buy_offer_result or ops.manage_sell_offer_result):
             offerIDarr = []
             addOpTrOfferIDsToArr(ops, offerIDarr, address)
             for offerIDs in offerIDarr:
               if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
-                print(offerIDs)
                 try:
                   memo = txns["memo"]
                 except KeyError:
                   memo = ""
                 offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
     blockchainRecords, data = getNextCursorRecords(data)
-    
-    if(i % 500 and 0 and txns["created_at"] == b):
-      print(offerIDarr)
-      print(ops)
-      print(txns["created_at"])
-      b = txns["created_at"]
-    i += 1
   return offerIDsMappedToChiefMemosForAccount
 
 def getAttr(obj, attr):
@@ -96,17 +85,17 @@ def addOpTrOfferIDsToArr(op, offerIDarr, address):
   except AttributeError:
     try:
       offerID = getAttr(op.manage_buy_offer_result, makerIDattr)
-      print(f"maker buy: {offerID}")
+      print(f"maker buy: {offerID}\n")
     except AttributeError:
       try:
         offerID = resolveTakerOffer(op.manage_sell_offer_result.success, offerIDarr, address)
-        print(f"takersell: {offerID}")
+        print(f"takersell: {offerID}\n")
       except AttributeError:
         try:
           offerID = resolveTakerOffer(op.manage_buy_offer_result.success, offerIDarr, address)
-          print(f"taker buy: {offerID}")
+          print(f"taker buy: {offerID}\n")
         except AttributeError:
-          sys.exit(f"Failed to resolve offerID in\n{op}")
+          sys.exit(f"Failed to resolve offerID in\n{op}\n")
   return offerIDarr.append(offerID)
 
 def resolveTakerOffer(taker, offerIDarr, address):
@@ -115,32 +104,9 @@ def resolveTakerOffer(taker, offerIDarr, address):
     return getOfferIDfromContraID(getAttr(taker, takerIDattr), address)
   except AttributeError:
     try:
-      return appendOfferIDsFromClaimedContras(taker.offers_claimed, offerIDarr, address)
+      return appendOfferIDsFromClaimedContras(taker.offers_claimed, offerIDarr, address, taker)
     except NoOffersClaimed:
       return 0
-
-def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address):
-  lastTrade = offersClaimed[-1:]
-  IDattr = "offer_id.int64"
-  print(lastTrade)
-  for trades in offersClaimed:
-    try:
-      offerID = getOfferIDfromContraID(getAttr(trades.order_book, IDattr), address)
-    except AttributeError:
-      try:
-        offerID = getOfferIDfromContraID(getAttr(trades.liquidity_pool, IDattr), address)
-      except AttributeError:
-        try:
-          offerID = getOfferIDfromContraID(getAttr(trades.v0, IDattr), address)
-        except AttributeError:
-          sys.exit(f"Atomic swap contra discovery failed:\n{offersClaimed}")
-    if(trades != lastTrade):
-      offerIDarr.append(offerID)
-    print(offerID)
-  try:
-    return offerID
-  except UnboundLocalError:
-    raise NoOffersClaimed
 
 def getOfferIDfromContraID(offerID, address):
   requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
@@ -157,6 +123,28 @@ def getOfferIDfromContraID(offerID, address):
         sys.exit(f"No offerID found:\n{trades}")
     blockchainRecords, data = getNextCursorRecords(data)
   sys.exit(f"No source trade found: {offerID}")
+
+def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address, t):
+  lastTrade = offersClaimed[-1:]
+  IDattr = "offer_id.int64"
+  for trades in offersClaimed:
+    try:
+      offerID = getOfferIDfromContraID(getAttr(trades.order_book, IDattr), address)
+    except AttributeError:
+      try:
+        offerID = getOfferIDfromContraID(getAttr(trades.liquidity_pool, IDattr), address)
+      except AttributeError:
+        try:
+          offerID = getOfferIDfromContraID(getAttr(trades.v0, IDattr), address)
+        except AttributeError:
+          sys.exit(f"Atomic swap contra discovery failed:\n{offersClaimed}")
+    if(trades != lastTrade):
+      offerIDarr.append(offerID)
+    print(f"nested offerID: {offerID}")
+  try:
+    return offerID
+  except UnboundLocalError:
+    raise NoOffersClaimed
 
 def getTradeData(offerID, address):
   try:
