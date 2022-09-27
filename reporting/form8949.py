@@ -20,6 +20,8 @@ def bulkOutput():
 def form8949forAccount(address):
   taxableSales = washSaleReferenceList = []
   offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) # TODO: Impliment some kind of caching here (associated with MICR?)
+  print(offerIDsMappedToChiefMemosForAccount)
+  return 1
   for offerIDs, memos in offerIDsMappedToChiefMemosForAccount.items():
     trade = getTradeData(offerIDs, address)
     if(trade[1] == "sell"):
@@ -47,60 +49,73 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/transactions?limit={MAX_SEARCH}"
   data = requests.get(requestAddr).json()
   blockchainRecords = data["_embedded"]["records"]
+  i=0
+  b=""
   while(blockchainRecords != []):
     for txns in blockchainRecords:
+      b = txns["created_at"]
       if(txns["source_account"] == address):
         resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
         for ops in resultXDR.result.results:
           ops = ops.tr
+          
           if(ops.manage_buy_offer_result or ops.manage_sell_offer_result):
             offerIDarr = []
-            appendOfferIDfromTxnOpToBaseArr(ops, offerIDarr, address)
+            addOpTrOfferIDsToArr(ops, offerIDarr, address)
             for offerIDs in offerIDarr:
               if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
+                print(offerIDs)
                 try:
                   memo = txns["memo"]
                 except KeyError:
                   memo = ""
                 offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
-    blockchainRecords = getNextCursorRecords(data)
+    blockchainRecords, data = getNextCursorRecords(data)
+    
+    if(i % 500 and 0 and txns["created_at"] == b):
+      print(offerIDarr)
+      print(ops)
+      print(txns["created_at"])
+      b = txns["created_at"]
+    i += 1
   return offerIDsMappedToChiefMemosForAccount
 
 def getAttr(obj, attr):
-  def subgetattr(obj, attr):
-      return getattr(obj, attr)
-  return functools.reduce(subgetattr, [obj] + attr.split('.'))
+  def subGetAttr(obj, attr):
+    return getattr(obj, attr)
+  return functools.reduce(subGetAttr, [obj] + attr.split("."))
 
 class NoOffersClaimed(Exception):
   def __init__(self, message = "Offer deleted"):
     super(NoOffersClaimed, self).__init__(message)
 
-def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address):
+def addOpTrOfferIDsToArr(op, offerIDarr, address):
   makerIDattr = "success.offer.offer.offer_id.int64"
   try:
     offerID = getAttr(op.manage_sell_offer_result, makerIDattr)
   except AttributeError:
     try:
       offerID = getAttr(op.manage_buy_offer_result, makerIDattr)
+      print(f"maker buy: {offerID}")
     except AttributeError:
       try:
-        taker = op.manage_sell_offer_result.success
-        offerID = resolveTakerOffer(taker, address)
+        offerID = resolveTakerOffer(op.manage_sell_offer_result.success, offerIDarr, address)
+        print(f"takersell: {offerID}")
       except AttributeError:
         try:
-          taker = op.manage_buy_offer_result.success
-          offerID = resolveTakerOffer(taker, address)
+          offerID = resolveTakerOffer(op.manage_buy_offer_result.success, offerIDarr, address)
+          print(f"taker buy: {offerID}")
         except AttributeError:
           sys.exit(f"Failed to resolve offerID in\n{op}")
   return offerIDarr.append(offerID)
 
-def resolveTakerOffer(taker, address):
+def resolveTakerOffer(taker, offerIDarr, address):
   takerIDattr = "offer.offer.offer_id.int64"
   try:
     return getOfferIDfromContraID(getAttr(taker, takerIDattr), address)
   except AttributeError:
     try:
-      offerID = appendOfferIDsFromClaimedContras(taker.offers_claimed, offerIDarr, address)
+      return appendOfferIDsFromClaimedContras(taker.offers_claimed, offerIDarr, address)
     except NoOffersClaimed:
       return 0
 
@@ -119,7 +134,7 @@ def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address):
           offerID = getOfferIDfromContraID(getAttr(trades.v0, IDattr), address)
         except AttributeError:
           sys.exit(f"Atomic swap contra discovery failed:\n{offersClaimed}")
-    if(trade != lastTrade):
+    if(trades != lastTrade):
       offerIDarr.append(offerID)
     print(offerID)
   try:
@@ -139,9 +154,9 @@ def getOfferIDfromContraID(offerID, address):
         elif(trades["base_account"] == address):
           return int(trades["base_offer_id"])
       except KeyError:
-        sys.exit(f"Error generating syntheic ID - check paging token\n{trades}")
-    blockchainRecords = getNextCursorRecords(data)
-  sys.exit(f"Could not find offerID from Omnibus Contra #{offerID}")
+        sys.exit(f"No offerID found:\n{trades}")
+    blockchainRecords, data = getNextCursorRecords(data)
+  sys.exit(f"No source trade found: {offerID}")
 
 def getTradeData(offerID, address):
   try:
@@ -189,7 +204,7 @@ def getTradeData(offerID, address):
           tradeData["asset"] = counterAsset
           type = "sell"
     tradeData["finalExecutionDate"] = pandas.to_datetime(trades["ledger_close_time"])
-    blockchainRecords = getNextCursorRecords(data)
+    blockchainRecords, data = getNextCursorRecords(data)
   tradeData["shares"] = shares
   tradeData["value"] = value
   return (offerID, type, tradeData) if value else 0
@@ -318,7 +333,7 @@ def fetchInvestorPreExistingPositionsForAsset(address, queryAsset):
         except KeyError:
           sys.exit(f"Unlabelled distribution:\n{payments}") # TODO: DWAC transfers don't include the basis - brokers send it separately within a month, so we need some kind of other record for this 
         preExistingPositions.append((payments["amount"], priorBase))
-    blockchainRecords = getNextCursorRecords(data)
+    blockchainRecords, data = getNextCursorRecords(data)
   return preExistingPositions
 
 def getUncoveredBasis(data):

@@ -16,7 +16,7 @@ def getOutstandingTrustlines(queryAsset):
   while(blockchainRecords != []):
     for accounts in blockchainRecords:
       allOutstandingTrustlines.append(accounts["id"])
-    blockchainRecords = getNextCursorRecords(data)
+    blockchainRecords, data = getNextCursorRecords(data)
   return allOutstandingTrustlines
 
 def signBulkTrustlineRevocationTxn(outstandingTrustlines, queryAsset, reason):

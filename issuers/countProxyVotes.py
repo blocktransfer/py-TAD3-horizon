@@ -108,8 +108,8 @@ def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
                 addrsMappedToMemos[payments["from"]] = vote
             except KeyError:
               continue
-          accountPaymentRecords = getNextCursorRecords(paymentData)
-    blockchainRecords = getNextCursorRecords(data)
+          accountPaymentRecords, paymentData = getNextCursorRecords(paymentData)
+    blockchainRecords, data = getNextCursorRecords(data)
   return addrsMappedToMemos
 
 def replaceAddressesWithRecordDateBalances(addrsMappedToMemos, blockchainBalancesOnRecordDate):

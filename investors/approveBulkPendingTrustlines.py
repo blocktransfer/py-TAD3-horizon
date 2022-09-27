@@ -18,7 +18,7 @@ def getAllIssuedAssetsArr(issuer):
   while(blockchainRecords != []):
     for entries in blockchainRecords:
       allAssets.append(entries["asset_code"])
-    blockchainRecords = getNextCursorRecords(data)
+    blockchainRecords, data = getNextCursorRecords(data)
   return allAssets
 
 def getAllPendingTrustlinesWithAsset():
@@ -42,7 +42,7 @@ def getAllPendingTrustlinesWithAsset():
             continue
         if(requestedAssets != []):
           allPendingTrustlinesWithAssetArr[address] = requestedAssets
-      blockchainRecords = getNextCursorRecords(data)
+      blockchainRecords, data = getNextCursorRecords(data)
   return allPendingTrustlinesWithAssetArr
 
 def getKnownAddressesFromIdentityMappingCSV():
