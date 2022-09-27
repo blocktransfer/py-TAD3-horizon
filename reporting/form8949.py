@@ -66,7 +66,7 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
     blockchainRecords = getNextCursorRecords(data)
   return offerIDsMappedToChiefMemosForAccount
 
-def rgetattr(obj, attr):
+def getAttr(obj, attr):
   def subgetattr(obj, attr):
       return getattr(obj, attr)
   return functools.reduce(subgetattr, [obj] + attr.split('.'))
@@ -77,36 +77,32 @@ class NoOffersClaimed(Exception):
 
 def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address):
   makerIDattr = "success.offer.offer.offer_id.int64"
-  
   try:
-    offerID = rgetattr(op.manage_sell_offer_result, makerIDattr)
+    offerID = getAttr(op.manage_sell_offer_result, makerIDattr)
   except AttributeError:
     try:
-      offerID = rgetattr(op.manage_buy_offer_result, makerIDattr)
+      offerID = getAttr(op.manage_buy_offer_result, makerIDattr)
     except AttributeError:
-      takerIDattr = "offer.offer.offer_id.int64"
       try:
         taker = op.manage_sell_offer_result.success
-        try:
-          offerID = getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
-        except AttributeError:
-          try:
-            offerID = appendOfferIDsFromClaimedContras(taker.offers_claimed, offerIDarr, address)
-          except NoOffersClaimed:
-            offerID = 0
+        offerID = resolveTakerOffer(taker, address)
       except AttributeError:
         try:
           taker = op.manage_buy_offer_result.success
-          try:
-            offerID = getOfferIDfromContraID(rgetattr(taker, takerIDattr), address)
-          except AttributeError:
-            try:
-              offerID = appendOfferIDsFromClaimedContras(taker.offers_claimed, offerIDarr, address)
-            except NoOffersClaimed:
-              offerID = 0
+          offerID = resolveTakerOffer(taker, address)
         except AttributeError:
           sys.exit(f"Failed to resolve offerID in\n{op}")
   return offerIDarr.append(offerID)
+
+def resolveTakerOffer(taker, address):
+  takerIDattr = "offer.offer.offer_id.int64"
+  try:
+    return getOfferIDfromContraID(getAttr(taker, takerIDattr), address)
+  except AttributeError:
+    try:
+      offerID = appendOfferIDsFromClaimedContras(taker.offers_claimed, offerIDarr, address)
+    except NoOffersClaimed:
+      return 0
 
 def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address):
   lastTrade = offersClaimed[-1:]
@@ -114,13 +110,13 @@ def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address):
   print(lastTrade)
   for trades in offersClaimed:
     try:
-      offerID = getOfferIDfromContraID(rgetattr(trades.order_book, IDattr), address)
+      offerID = getOfferIDfromContraID(getAttr(trades.order_book, IDattr), address)
     except AttributeError:
       try:
-        offerID = getOfferIDfromContraID(rgetattr(trades.liquidity_pool, IDattr), address)
+        offerID = getOfferIDfromContraID(getAttr(trades.liquidity_pool, IDattr), address)
       except AttributeError:
         try:
-          offerID = getOfferIDfromContraID(rgetattr(trades.v0, IDattr), address)
+          offerID = getOfferIDfromContraID(getAttr(trades.v0, IDattr), address)
         except AttributeError:
           sys.exit(f"Atomic swap contra discovery failed:\n{offersClaimed}")
     if(trade != lastTrade):
