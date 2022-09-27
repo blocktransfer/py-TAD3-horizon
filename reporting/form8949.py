@@ -72,7 +72,7 @@ def rgetattr(obj, attr):
   return functools.reduce(subgetattr, [obj] + attr.split('.'))
 
 class NoOffersClaimed(Exception):
-  def __init__(self, message = "Order deleted"):
+  def __init__(self, message = "Offer deleted"):
     super(NoOffersClaimed, self).__init__(message)
 
 def appendOfferIDfromTxnOpToBaseArr(op, offerIDarr, address):
