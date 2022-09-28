@@ -13,12 +13,11 @@ def approveBulkPendingTrustlines():
 def getAllIssuedAssetsArr(issuer):
   allAssets = []
   requestAddress = f"https://{HORIZON_INST}/assets?asset_issuer={BT_ISSUER}&limit={MAX_SEARCH}"
-  data = requests.get(requestAddress).json()
-  blockchainRecords = data["_embedded"]["records"]
-  while(blockchainRecords != []):
-    for entries in blockchainRecords:
+  ledger = requests.get(requestAddress).json()
+  while(ledger["_embedded"]["records"]):
+    for entries in ledger["_embedded"]["records"]:
       allAssets.append(entries["asset_code"])
-    blockchainRecords, data = getNextCursorRecords(data)
+    ledger = getNextLedgerData(ledger)
   return allAssets
 
 def getAllPendingTrustlinesWithAsset():
@@ -26,10 +25,9 @@ def getAllPendingTrustlinesWithAsset():
   allPendingTrustlinesWithAssetArr = {}
   for assets in allAssets:
     requestAddress = f"https://{HORIZON_INST}/accounts?asset={assets}:{BT_ISSUER}&limit={MAX_SEARCH}"
-    data = requests.get(requestAddress).json()
-    blockchainRecords = data["_embedded"]["records"]
-    while(blockchainRecords != []):
-      for accounts in blockchainRecords:
+    ledger = requests.get(requestAddress).json()
+    while(ledger["_embedded"]["records"]):
+      for accounts in ledger["_embedded"]["records"]:
         address = accounts["id"]
         if address in allPendingTrustlinesWithAssetArr:
           continue
@@ -42,7 +40,7 @@ def getAllPendingTrustlinesWithAsset():
             continue
         if(requestedAssets != []):
           allPendingTrustlinesWithAssetArr[address] = requestedAssets
-      blockchainRecords, data = getNextCursorRecords(data)
+      ledger = getNextLedgerData(ledger)
   return allPendingTrustlinesWithAssetArr
 
 def getKnownAddressesFromIdentityMappingCSV():

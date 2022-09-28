@@ -20,7 +20,7 @@ BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
 USD_ASSET = Asset("USD", BT_ISSUER)
-USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C") # 8949 testing
+# USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C") # 8949 testing
 MICR_CSV = f"{G_DIR}/../pii/master-identity-catalog-records.csv" #todo: modify here to load from Box; set auth
 
 HORIZON_INST = "horizon.stellar.org"
@@ -38,16 +38,15 @@ fee = server.fetch_base_fee() * BASE_FEE_MULT
 
 # Todo: clean up globals by moving functions to imports under main dir
 
-def getInitialAccountsRequestAddr(queryAsset):
+def getAssetAccountsRequestAddr(queryAsset):
   return f"https://{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&limit={MAX_SEARCH}"
 
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
-  requestAddr = getInitialAccountsRequestAddr(queryAsset)
-  data = requests.get(requestAddr).json()
-  blockchainRecords = data["_embedded"]["records"]
-  while(blockchainRecords != []):
-    for accounts in blockchainRecords:
+  requestAddr = getAssetAccountsRequestAddr(queryAsset)
+  ledger = requests.get(requestAddr).json()
+  while(ledger["_embedded"]["records"]):
+    for accounts in ledger["_embedded"]["records"]:
       accountAddr = accounts["id"]
       for balances in accounts["balances"]:
         try:
@@ -56,15 +55,16 @@ def getStellarBlockchainBalances(queryAsset):
         except Exception:
           continue
       StellarBlockchainBalances[accountAddr] = queryBalance
-    blockchainRecords, data = getNextCursorRecords(data)
+    ledger = getNextLedgerData(ledger)
   return StellarBlockchainBalances
-
-def getNextCursorRecords(data):
-  addr = data["_links"]["next"]["href"].replace("%3A", ":").replace("\u0026", "&")
-  data = requests.get(addr).json()
+# blockchainRecords
+def getNextLedgerData(data):
+  nextAddr = data["_links"]["next"]["href"].replace("%3A", ":").replace("\u0026", "&")
+  data = requests.get(nextAddr).json()
   try:
-    return data["_embedded"]["records"], data
+    return data
   except KeyError:
+    sys.exit(f"Timeout at {datetime.now()}:\n{data}")
     return getNextCursorRecords(requests.get(addr).json())
 
 #todo: test

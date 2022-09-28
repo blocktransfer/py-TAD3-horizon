@@ -87,14 +87,13 @@ def makeFirst28byteMapping():
 
 def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
   addrsMappedToMemos = {}
+  numInvestors = numInvestorsVoted = 0
   votingAddr = resolveFederationAddress(votingFederationAddress)
-  requestAddr = getInitialAccountsRequestAddr(queryAsset)
-  data = requests.get(requestAddr).json()
-  blockchainRecords = data["_embedded"]["records"]
-  numInvestorsOnboard = numInvestorsVoted = 0
-  while(blockchainRecords != []):
-    for everyInvestorData in blockchainRecords:
-      numInvestorsOnboard += 1
+  requestAddr = getAssetAccountsRequestAddr(queryAsset)
+  ledger = requests.get(requestAddr).json()
+  while(ledger["_embedded"]["records"]):
+    for everyInvestorData in ledger["_embedded"]["records"]:
+      numInvestors += 1
       if(everyInvestorData["account_id"] in validAccountPublicKeys):
         paymentsAddrs = everyInvestorData["_links"]["payments"]["href"].replace("{?cursor,limit,order}", f"?limit={MAX_SEARCH}")
         paymentData = requests.get(paymentsAddrs).json()
@@ -109,7 +108,7 @@ def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
             except KeyError:
               continue
           accountPaymentRecords, paymentData = getNextCursorRecords(paymentData)
-    blockchainRecords, data = getNextCursorRecords(data)
+    ledger = getNextLedgerData(ledger)
   return addrsMappedToMemos
 
 def replaceAddressesWithRecordDateBalances(addrsMappedToMemos, blockchainBalancesOnRecordDate):

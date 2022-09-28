@@ -10,13 +10,12 @@ def freezeBulkAssetTrustlines(asset, reason):
 
 def getOutstandingTrustlines(queryAsset):
   allOutstandingTrustlines = []
-  requestAddr = getInitialAccountsRequestAddr(queryAsset)
-  data = requests.get(requestAddr).json()
-  blockchainRecords = data["_embedded"]["records"]
-  while(blockchainRecords != []):
-    for accounts in blockchainRecords:
+  requestAddr = getAssetAccountsRequestAddr(queryAsset)
+  ledger = requests.get(requestAddr).json()
+  while(ledger["_embedded"]["records"]):
+    for accounts in ledger["_embedded"]["records"]:
       allOutstandingTrustlines.append(accounts["id"])
-    blockchainRecords, data = getNextCursorRecords(data)
+    ledger = getNextLedgerData(ledger)
   return allOutstandingTrustlines
 
 def signBulkTrustlineRevocationTxn(outstandingTrustlines, queryAsset, reason):

@@ -54,10 +54,9 @@ def form8949forAccount(address):
 def getOfferIDsMappedToChiefMemosForAccount(address):
   offerIDsMappedToChiefMemosForAccount = {}
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/transactions?limit={MAX_SEARCH}"
-  data = requests.get(requestAddr).json()
-  blockchainRecords = data["_embedded"]["records"]
-  while(blockchainRecords != []):
-    for txns in blockchainRecords:
+  ledger = requests.get(requestAddr).json()
+  while(ledger["_embedded"]["records"]):
+    for txns in ledger["_embedded"]["records"]:
       b = txns["created_at"]
       if(txns["source_account"] == address):
         print(txns["paging_token"])
@@ -67,7 +66,6 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
           if(ops.manage_buy_offer_result or ops.manage_sell_offer_result):
             offerIDarr = []
             addOpTrOfferIDsToArr(ops, offerIDarr, address)
-            
             for offerIDs in offerIDarr:
               if(offerIDs == 4728565770907353089 or offerIDs == 4733736958776672257):
                 pprint(txns)
@@ -80,7 +78,7 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
                 except KeyError:
                   memo = ""
                 offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
-    blockchainRecords, data = getNextCursorRecords(data)
+    ledger = getNextLedgerData(ledger)
   return offerIDsMappedToChiefMemosForAccount
 
 def getAttr(obj, attr):
@@ -123,10 +121,9 @@ def resolveTakerOffer(taker, offerIDarr, address):
 
 def getOfferIDfromContraID(offerID, address):
   requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
-  data = requests.get(requestAddr).json()
-  blockchainRecords = data["_embedded"]["records"]
-  while(blockchainRecords != []):
-    for trades in blockchainRecords:
+  ledger = requests.get(requestAddr).json()
+  while(ledger["_embedded"]["records"]):
+    for trades in ledger["_embedded"]["records"]:
       try:
         if(trades["counter_account"] == address):
           return int(trades["counter_offer_id"])
@@ -134,7 +131,7 @@ def getOfferIDfromContraID(offerID, address):
           return int(trades["base_offer_id"])
       except KeyError:
         sys.exit(f"No offerID found:\n{trades}")
-    blockchainRecords, data = getNextCursorRecords(data)
+    ledger = getNextLedgerData(ledger)
   sys.exit(f"No source trade found: {offerID}")
 
 def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address, t):
@@ -167,10 +164,9 @@ def getTradeData(offerID, address):
   type = ""
   value = shares = Decimal("0")
   requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
-  data = requests.get(requestAddr).json()
-  blockchainRecords = data["_embedded"]["records"]
-  while(blockchainRecords != []):
-    for trades in blockchainRecords:
+  ledger = requests.get(requestAddr).json()
+  while(ledger["_embedded"]["records"]):
+    for trades in ledger["_embedded"]["records"]:
       baseAsset = getAssetGivenType(trades, "base")
       counterAsset = getAssetGivenType(trades, "counter")
       baseAssetFiat = isFiat(baseAsset)
@@ -204,7 +200,7 @@ def getTradeData(offerID, address):
           tradeData["asset"] = counterAsset
           type = "sell"
     tradeData["finalExecutionDate"] = pandas.to_datetime(trades["ledger_close_time"])
-    blockchainRecords, data = getNextCursorRecords(data)
+    ledger = getNextLedgerData(ledger)
   tradeData["shares"] = shares
   tradeData["value"] = value
   return (offerID, type, tradeData) if value else 0
@@ -317,10 +313,9 @@ def getUncoveredPNLfromCombinedTrade(data, addr):
 def fetchInvestorPreExistingPositionsForAsset(address, queryAsset):
   preExistingPositions = []
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/payments?limit={MAX_SEARCH}"
-  data = requests.get(requestAddr).json()
-  blockchainRecords = data["_embedded"]["records"]
-  while(blockchainRecords != []):
-    for payments in blockchainRecords:
+  ledger = requests.get(requestAddr).json()
+  while(ledger["_embedded"]["records"]):
+    for payments in ledger["_embedded"]["records"]:
       try:
         properAsset = Asset(payments["asset_code"], payments["asset_issuer"]) == Asset(queryAsset, BT_ISSUER)
       except KeyError:
@@ -333,7 +328,7 @@ def fetchInvestorPreExistingPositionsForAsset(address, queryAsset):
         except KeyError:
           sys.exit(f"Unlabelled distribution:\n{payments}") # TODO: DWAC transfers don't include the basis - brokers send it separately within a month, so we need some kind of other record for this 
         preExistingPositions.append((payments["amount"], priorBase))
-    blockchainRecords, data = getNextCursorRecords(data)
+    ledger = getNextLedgerData(ledger)
   return preExistingPositions
 
 def getUncoveredBasis(data):
