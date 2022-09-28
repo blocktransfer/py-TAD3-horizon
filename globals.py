@@ -57,7 +57,7 @@ def getStellarBlockchainBalances(queryAsset):
       StellarBlockchainBalances[accountAddr] = queryBalance
     ledger = getNextLedgerData(ledger)
   return StellarBlockchainBalances
-# blockchainRecords
+
 def getNextLedgerData(data):
   nextAddr = data["_links"]["next"]["href"].replace("%3A", ":").replace("\u0026", "&")
   data = requests.get(nextAddr).json()
@@ -67,7 +67,7 @@ def getNextLedgerData(data):
     sys.exit(f"Timeout at {datetime.now()}:\n{data}")
     return getNextCursorRecords(requests.get(addr).json())
 
-#todo: test
+#todo: stress test
 def submitTxnGarunteed(transaction):
   while(True):
     if(server.submit_transaction(transaction)):
