@@ -52,7 +52,7 @@ def getStellarBlockchainBalances(queryAsset):
         try:
           if balances["asset_code"] == queryAsset and balances["asset_issuer"] == BT_ISSUER:
             queryBalance = Decimal(balances["balance"])
-        except Exception:
+        except KeyError:
           continue
       StellarBlockchainBalances[accountAddr] = queryBalance
     ledger = getNextLedgerData(ledger)
