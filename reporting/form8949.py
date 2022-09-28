@@ -2,7 +2,7 @@ import sys
 sys.path.append("../")
 from globals import *
 from taxTestingData import *
-import functools
+import functools, threading #thread -> global post: test
 
 # offerIDsMappedToChiefMemosForAccount = {} #tmp
 
@@ -14,21 +14,21 @@ washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
 # import threading -> global
 def bulkOutput():
-  MICR_lines = ["access_me.csv"]
-  for addresses in MICR_lines[0]:
+  MICRlines = open("access_me.csv").readlines().split("|")
+  threads = []
+  for addresses, i in enumerate(MICRlines[0]):
     form8949forAccount(addresses)
-    #threads = []
-    #threads.append(
-    #  threading.Thread(
-    #    target = form8949forAccount,
-    #    args = (addresses,)
-    #  )
-    #)
-    #threads[n].start()
+    threads.append(
+        threading.Thread(
+          target = form8949forAccount,
+          args = (addresses,)
+        )
+      )
+    threads[i].start().join()
 
 def form8949forAccount(address):
   taxableSales = washSaleReferenceList = []
-  # offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) # TODO: Impliment some kind of caching here (associated with MICR?)
+  offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) # TODO: Impliment some kind of caching here (associated with MICR?)
   for offerIDs, memos in offerIDsMappedToChiefMemosForAccount.items():
     trade = getTradeData(offerIDs, address)
     if(trade[1] == "sell"):
@@ -57,20 +57,15 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for txns in ledger["_embedded"]["records"]:
-      b = txns["created_at"]
       if(txns["source_account"] == address):
-        print(txns["paging_token"])
         resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
         for ops in resultXDR.result.results:
           ops = ops.tr
           if(ops.manage_buy_offer_result or ops.manage_sell_offer_result):
             offerIDarr = []
-            addOpTrOfferIDsToArr(ops, offerIDarr, address)
+            appendOpTrOfferIDsToArr(ops, offerIDarr, address)
             for offerIDs in offerIDarr:
               if(offerIDs == 4728565770907353089 or offerIDs == 4733736958776672257):
-                pprint(txns)
-                print("\n")
-                #print(txns["result_xdr"])
                 sys.exit()
               if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
                 try:
@@ -90,7 +85,7 @@ class NoOffersClaimed(Exception):
   def __init__(self, message = "Offer deleted"):
     super(NoOffersClaimed, self).__init__(message)
 
-def addOpTrOfferIDsToArr(op, offerIDarr, address):
+def appendOpTrOfferIDsToArr(op, offerIDarr, address):
   makerIDattr = "success.offer.offer.offer_id.int64"
   try:
     offerID = getAttr(op.manage_sell_offer_result, makerIDattr)
