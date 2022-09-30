@@ -407,9 +407,6 @@ def adjustAllTradesForWashSales(combinedData, address):
   # WHEN WE HAVE A WASH SALE:
   # we have to update the cost basis for the succeeding trade
   # HOW TO UPDATE SUCCEEDING COST BASIS? 
-  
-  #    - internal records of all the positions and adj cost basis
-  #        - bad because central trust 
   #    - account ledger value:pair entries mapping offer ID to new basis 
   #        - if(lookup if offerID in mappingItems ):
   #          -  basis = offerBasis + adj.
@@ -434,7 +431,7 @@ def adjustAllTradesForWashSales(combinedData, address):
   #              - SH user could accidentally quit wallet after sale
   #              - new value txn would need to be cached and sent at next wallet launch
   #              - when possible: could prevent user from closing wallet until new value mapped
-  #                - or just send the new value mapping txns intentiionally BEFORE displaying order confirmation to user with extremely high fee to ensure immediate acceptance
+  #                - or just send the new value mapping txns intentionally BEFORE displaying order confirmation to user with extremely high fee to ensure immediate acceptance
   #    - 
   #    - 
   #    - 
