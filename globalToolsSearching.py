@@ -1,4 +1,4 @@
-import globals
+from globals import *
 
 def loadTomlData(link):
   return toml.loads(requests.get(link).content.decode())
@@ -30,17 +30,23 @@ def getFederationServerFromDomain(federationDomain):
   return homeDomainFederationServer
 
 def getCUSIP(queryAsset):
+  CUSIP = 0
   try:
     data = loadTomlData(BT_STELLAR_TOML)
     for currencies in data["CURRENCIES"]:
       assetCode = getAssetCodeFromTomlLink(currencies["toml"])
-      if(assetCode == queryAsset):
+      if(assetCode == queryAsset or 1):
         data = loadTomlData(currencies["toml"])
-        CUSIP = currencies["anchor_asset"]
+        CUSIP = data["CURRENCIES"][0]["anchor_asset"]
         break
-  except Exception:
-    sys.exit(f"Failed to lookup ITIN for {queryAsset}")
+  except KeyError:
+    sys.exit(f"CUSIP Toml resolution failed")
   return CUSIP
 
-
+def isCUSIP(query):
+  allAssets = listAllIssuerAssets()
+  allCUSIPs = []
+  for assets in allAssets:
+    allCUSIPs.append(getCUSIP(query))
+  return query in allCUSIPs
 
