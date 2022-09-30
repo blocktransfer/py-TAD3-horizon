@@ -420,7 +420,21 @@ def adjustAllTradesForWashSales(combinedData, address):
   #        - basically not going to happed for users with hardware wallets, but neither wi
   #          - so then everything works with SH as long as they use our platform 
   #            - this should be fine as long as everything is open-source
-  #    - 
+  #      - can remove mapping once wash sale pos. closed 
+  #        - must wait 30 days if sold at loss 
+  #        - could automatically be done in  wallet background next time they login after 1mo. mark (if loss)
+  #          - requires computation of all open positions and potentials washes when opening wallet, which could be compute heavy
+  #          - could slow down succeeding order execution
+  #PROS
+  #            - pretty minimal calculation if you cache recent potential wash sales in wallet
+  #            - only 1 more txn op which isn't a huge deal 
+  #CONS
+  #            - requires new offerID to post {succeedingOfferID: baseAdjustment<-lossDissallowedFromPriorTrade} value pair 
+  #            - so requires a reply from Horizon with offerID | contra lookup and then sending new txn 
+  #              - SH user could accidentally quit wallet after sale
+  #              - new value txn would need to be cached and sent at next wallet launch
+  #              - when possible: could prevent user from closing wallet until new value mapped
+  #                - or just send the new value mapping txns intentiionally BEFORE displaying order confirmation to user with extremely high fee to ensure immediate acceptance
   #    - 
   #    - 
   #    - 
