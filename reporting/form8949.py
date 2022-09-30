@@ -269,6 +269,13 @@ def getUncoveredPNLfromCombinedTrade(data, addr):
         )
   # todo: impliment this with a backend database
   
+  # backend databases = bad
+  
+  # how can we do all this on-chain?
+  
+  # suggestion: account data values 
+  #             claimable balances?
+  
 
 
   
@@ -293,7 +300,7 @@ def getUncoveredPNLfromCombinedTrade(data, addr):
   #what if instead of doing this, we just code it as independent txs with "offer codes" when sending shares initially
   fetchPreExistingPositions(address, data[1].code)
   
-  sharesBought = adjustSharesBoughtForStockSplits(a, b, data[1].code)
+  sharesBought = adjustNumSharesForStockSplits(a, b, data[1].code)
   purchaseBasis = Decimal(getUncoveredBasis("Set up a basic google sheet")) if 0 else data[4]
   sharesSold = data[5]
   saleProceeds = data[6]
@@ -330,7 +337,7 @@ def getUncoveredBasis(data):
   # you can't get the basis for uncovered shares ?
   return 1
 
-def adjustSharesBoughtForStockSplits(numShares, purchaseTimestamp, queryAsset):
+def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
   splitsDict = getSplitsDict(queryAsset)
   for splitTimestamps, splitRatios in splitsDict.items():
     if(purchaseTimestamp < splitTimestamps):
@@ -394,6 +401,31 @@ def adjustAllTradesForWashSales(combinedData, address):
     return tradeData
     
   return adjustedTrades
+  
+  
+  
+  # WHEN WE HAVE A WASH SALE:
+  # we have to update the cost basis for the succeeding trade
+  # HOW TO UPDATE SUCCEEDING COST BASIS? 
+  
+  #    - internal records of all the positions and adj cost basis
+  #        - bad because central trust 
+  #    - account ledger value:pair entries mapping offer ID to new basis 
+  #        - if(lookup if offerID in mappingItems ):
+  #          -  basis = offerBasis + adj.
+  #        - else:
+  #          -  basis = offerBasis
+  #      - requires user to publish wash sale value:pair the moment they execute the wa
+  #      - as such, must be implimented via wallet on the order level 
+  #        - basically not going to happed for users with hardware wallets, but neither wi
+  #          - so then everything works with SH as long as they use our platform 
+  #            - this should be fine as long as everything is open-source
+  #    - 
+  #    - 
+  #    - 
+  #    - 
+  #    - 
+  
 
 def adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount):
   adjustedTrades = []
