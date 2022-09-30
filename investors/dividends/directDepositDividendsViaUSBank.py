@@ -20,9 +20,7 @@ def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsC
     "Content-Type": "application/json"
   }
   inFile = open(recordDateShareholdersOptedForCashDividendsCSV)
-  readFile = inFile.read()
-  readFile = readFile.strip()
-  readFile = readFile.split("\n")
+  readFile = inFile.read().strip().split("\n")
   inFile.close()
   print("*****\n\nDistributing dividend of $" + str(perShareDividend) + " per share\n\n*****\n")
   divSum = 0
@@ -31,20 +29,20 @@ def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsC
   mergedDirectDividendsMSF.write("Dividends Paid,Registration,Email,Routing # Direct Deposit,Account # Direct Deposit,Card # Card Deposit,Card CVV Card Deposit,Expiration Date Card Deposit,Billing Zip Card Deposit,For Internal Use: Card ID,Address,Address Extra,City,State,Postal Code,Country\n")
   mergedDirectDividendsMSF.close()
   for lines in readFile[1:]:
-    lines = lines.split(",")
+    lines = lines.split("|")
     if lines[5] != "": continue
     shareholderDividend = float(lines[0]) * perShareDividend
     USBankAPIbody = {
       "accountID": BlockTransferDividendsPayableAccountNum,
       "amount": float(f"{shareholderDividend if shareholderDividend <= 10000 else 10000:.2f}"),
-      "party": lines[1].replace("&", "and").replace(",", "").replace(".", "").replace("-", " ")
+      "party": lines[1].replace("&", "and").replace("|", "").replace(".", "").replace("-", " ")
     }
     if USBankAPIbody["amount"] <= 0.00: continue
     r = requests.post(USBankMoneyMovementSimAPI + "activity/withdrawal",  headers = USBankAPIheaders, data = json.dumps(USBankAPIbody))
     try: transactionID = r.json()["transactionID"]
     except: continue
     mergedDirectDividendsMSF = open("Direct deposit dividends distributed on {datetime.now().date()}.csv", "a")
-    mergedDirectDividendsMSF.write(",".join([f"{shareholderDividend:.2f}", lines[1], lines[2], lines[3], lines[4], "", "", "", "", "", lines[10], lines[11], lines[12], lines[13], lines[14], lines[15]])+"\n")
+    mergedDirectDividendsMSF.write("|".join([f"{shareholderDividend:.2f}", lines[1], lines[2], lines[3], lines[4], "", "", "", "", "", lines[10], lines[11], lines[12], lines[13], lines[14], lines[15]])+"\n")
     mergedDirectDividendsMSF.close()
     print("*** {lines[1]} compensated ${shareholderDividend:.2f} via dividend withdrawal #{transactionID} ***\n")
     divSum += shareholderDividend
