@@ -4,6 +4,8 @@ from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
 import json, os.path, pandas, requests, sys, toml
+import globalTxnFormatting
+
 G_DIR = os.path.dirname(__file__)
 sys.path.append("../")
 try:
@@ -23,6 +25,7 @@ USD_ASSET = Asset("USD", BT_ISSUER)
 # USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C") # 8949 testing
 MICR_CSV = f"{G_DIR}/../pii/master-identity-catalog-records.csv" #todo: modify here to load from Box; set auth
 
+BT_STELLAR_TOML = "https://blocktransfer.io/.well-known/stellar.toml"
 HORIZON_INST = "horizon.stellar.org"
 MAX_NUM_DECIMALS = "7"
 MAX_SEARCH = "200"
@@ -69,15 +72,6 @@ def submitTxnGarunteed(transaction):
     if(server.submit_transaction(transaction)):
       return 1
 
-def appendTransactionEnvelopeToArrayWithSourceAccount(transactionsArray, sourceAccount):
-  transactionsArray.append(
-    TransactionBuilder(
-      source_account = sourceAccount,
-      network_passphrase = Network.PUBLIC_NETWORK_PASSPHRASE,
-      base_fee = fee,
-    )
-  )
-
 def resolveFederationAddress(properlyFormattedAddr):
   splitAddr = properlyFormattedAddr.split("*")
   federationName = splitAddr[0]
@@ -91,20 +85,29 @@ def resolveFederationAddress(properlyFormattedAddr):
     sys.exit("Could not find {}".format(properlyFormattedAddr))
 
 def getFederationServerFromDomain(federationDomain):
+  def formatNoEndSlash(link):
+    return link if link.split("/")[-1] else link[:-1]
   try:
     requestAddr = f"https://{federationDomain}/.well-known/stellar.toml"
-    data = toml.loads(requests.get(requestAddr).content.decode())
-    homeDomainFederationServer = data["FEDERATION_SERVER"]
+    data = loadTomlData(requestAddr)
+    homeDomainFederationServer = formatNoEndSlash(data["FEDERATION_SERVER"])
   except Exception:
     sys.exit(f"Failed to lookup federation server at {federationDomain}")
-  return homeDomainFederationServer if homeDomainFederationServer.split("/")[-1] else homeDomainFederationServer[:-1]
+  return homeDomainFederationServer
+
+def loadTomlData(link):
+  return toml.loads(requests.get(link).content.decode())
+
+def getAssetCodeFromTomlLink(link):
+  return link[32:-5]
 
 def getCUSIP(queryAsset):
   try:
-    requestAddr = "https://blocktransfer.io/.well-known/stellar.toml"
-    data = toml.loads(requests.get(requestAddr).content.decode())
+    data = loadTomlData(BT_STELLAR_TOML)
     for currencies in data["CURRENCIES"]:
-      if(currencies["code"] == queryAsset):
+      assetCode = getAssetCodeFromTomlLink(currencies["toml"])
+      if(assetCode == queryAsset):
+        data = loadTomlData(currencies["toml"])
         CUSIP = currencies["anchor_asset"]
         break
   except Exception:
@@ -117,7 +120,7 @@ def toFullAddress(street, streetExtra, city, state, postal, country):
   for items in uncheckedArr:
     if(items):
       cleanArr.append(items)
-  return "! ".join(cleanArr) # todo: change to pipe delineation
+  return ", ".join(cleanArr)
 
 def getValidAccountPublicKeys():
   validAccountPublicKeys = []
@@ -126,7 +129,7 @@ def getValidAccountPublicKeys():
   inFile.close()
   for lines in MICR[1:]:
     lines = lines.split(",")
-    validAccountPublicKeys.append(lines[0])
+    validAccountPublicKeys.append(lines[0]) # assumes only one account
   return validAccountPublicKeys
 
 def getStockOutstandingShares(queryAsset):

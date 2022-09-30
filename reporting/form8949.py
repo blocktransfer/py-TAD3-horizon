@@ -28,20 +28,18 @@ def bulkOutput():
 
 def form8949forAccount(address):
   taxableSales = washSaleReferenceList = []
-  offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) # TODO: Impliment some kind of caching here (associated with MICR?)
-  for offerIDs, memos in offerIDsMappedToChiefMemosForAccount.items():
-    trade = getTradeData(offerIDs, address)
-    if(trade[1] == "sell"):
-      matchOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
-      print(matchOfferID)
-      print(memos)
-      origin = getTradeData(memos, address)
-      combined = combineTradeData(trade[2], origin)
-      pprint(combined)
+  
+  # offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) # TODO: Impliment some kind of caching here (associated with MICR?)
+  for offerIDs, memoOpeningInstr in offerIDsMappedToChiefMemosForAccount.items():
+    offerIDtradeData = getTradeData(offerIDs, address)
+    if(offerIDtradeData[1] == "sell"): # This is a closing offer
+      openingOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
+      openingTradeData = getTradeData(memoOpeningInstr, address)
+      combined = combineTradeData(offerIDtradeData[2], openingTradeData)
       if(combined[0] == "covered"):
-        combined += getCoveredPNLfromCombinedTrade(combined)
+        combined += getPNLfromCombinedCoveredTrade(combined)
       else:
-        combined += getUncoveredPNLfromCombinedTrade(combined, address)
+        combined += getPNLfromCombinedUncoveredTrade(combined, address)
       taxableSales.append(combined)
     else:
       washSaleReferenceList.append(trade)
@@ -238,7 +236,7 @@ def combineTradeData(tradeData, originTradeData):
     )
   )
 
-def getCoveredPNLfromCombinedTrade(data):
+def getPNLfromCombinedCoveredTrade(data):
   sharesBought = adjustSharesBoughtForStockSplits(data[3], data[2], data[1].code)
   purchaseBasis = data[4]
   sharesSold = data[5]
@@ -252,8 +250,13 @@ def getCoveredPNLfromCombinedTrade(data):
   else:
     sys.exit("todo: test on live data")
 
-def getUncoveredPNLfromCombinedTrade(data, addr):
-  historicPositions = []
+# acct data entry format for prexisting basis:
+#                                                   {CUSIP: numShares@price}
+# later you can update with numShares - amoutn used
+# can reference data op paging num? 
+
+def getPNLfromCombinedUncoveredTrade(data, addr):
+  historicPositions = getHistoricPositionsFromAccountData(addr)
   # historicPositions = callToCloud()
   historicPositionData = "Address|Asset Code|Uncovered Share Aquisition Date|Data Migration Date|Uncovered Share Amount|Uncovered Share Basis\nGDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7|yUSDC|2020-9-15|2021-1-1|15000|256654\nGARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG|XLM|2018-9-15|2021-1-1|15000|3200"
   for lines in historicPositionData.split("\n")[1:]:
@@ -347,11 +350,11 @@ def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
 def getSplitsDict(queryAsset):
   splitsDict = {}
   try:
-    requestAddr = "https://blocktransfer.io/.well-known/stellar.toml"
-    data = toml.loads(requests.get(requestAddr).content.decode())
+    data = loadTomlData(BT_STELLAR_TOML)
     for currencies in data["CURRENCIES"]:
-      if(currencies["toml"][32:-5] == queryAsset): # format asset as toml link
-        data = toml.loads(requests.get(currencies["toml"]).content.decode())
+      assetCode = getAssetCodeFromTomlLink(currencies["toml"])
+      if(assetCode == queryAsset):
+        data = loadTomlData(currencies["toml"])
         splitData = data["CURRENCIES"][0]["splits"].split("|")
         for splits in splitData:
           date = pandas.to_datetime(f"{splits.split('effective ')[1]}T00:00:00Z")
@@ -470,6 +473,29 @@ def placeFields(adjustedTrades):
 
 # testing: "GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG"
 
+
+def getHistoricPositionsFromAccountData(addr):
+  data = getAccountCustomLedgerData(addr)
+  historicPositions = []
+  for key, value in data.items():
+    if(isCUSIP(key)):
+      historicPositions.append((key, value))
+  return historicPositions
+
+def getWashSalesFromAccountData(addr):
+  data = getAccountCustomLedgerData(addr)
+
+def getAccountCustomLedgerData(addr):
+  requestAddr = f"https://{HORIZON_INST}/accounts/{addr}"
+  return requests.get(requestAddr).json()["data"]
+
+def isCUSIP(query):
+  allAssets = 
+  for assets in allAssets:
+    getCUSIP(queryAsset)
+  return query in allCUSIPs
+
+getHistoricPositionsFromAccountData("GAJ4BSGJE6UQHZAZ5U5IUOABPDCYPKPS3RFS2NVNGFGFXGVQDLBQJW2P")
 # print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
 form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
 fetchInvestorPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")

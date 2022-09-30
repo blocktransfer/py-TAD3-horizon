@@ -40,14 +40,13 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
         lines[7],
         lines[8]
       )
-      output =
-        [
-          lines[1],
-          address,
-          "",
-          lines[0],
-          lines[11]
-        ] # assume no email from old TA
+      output = [
+        lines[1],
+        address,
+        "",
+        lines[0],
+        lines[11]
+      ] # assume no email from old TA
       mergedMSF.write(",".join(output) + "\n")
   for lines in MICR[1:]:
     lines = lines.split(",") # todo: change all to pipe deliniation
@@ -65,21 +64,20 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
       lines[8],
       lines[9]
     )
-    output =
-      [
-        lines[1],
-        address,
-        lines[2],
-        str(blockchainBalance)
-      ]
+    output = [
+      lines[1],
+      address,
+      lines[2],
+      str(blockchainBalance)
+    ]
     mergedMSF.write(",".join(output) + "\n")
   mergedMSF.close()
 
 def generateInternalRecord(queryAsset, StellarBlockchainBalances):
   internalRecord = open(f"{G_DIR}/../pii/outputs/{queryAsset}.csv", "w")
-  internalRecord.write(f"Public Key,Balance,,Blockchain snapshot: {datetime.now()}\n")
+  internalRecord.write(f"Public Key|Balance||Blockchain snapshot at {datetime.now()}\n")
   for addresses, balances in StellarBlockchainBalances.items():
-    internalRecord.write(",".join([addresses, str(balances)]) + "\n") # todo: pipe
+    internalRecord.write(f"'|'.join([addresses, str(balances)])\n")
   internalRecord.close()
 
 getMergedReportForAssetWithNumRestrictedSharesUsingMSF("DEMO", "0", "VeryRealStockIncUnclaimedMSF.csv")
