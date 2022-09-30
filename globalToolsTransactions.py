@@ -1,3 +1,15 @@
+import globals
+
+def getValidAccountPublicKeys():
+  validAccountPublicKeys = []
+  inFile = open(MICR_TXT)
+  MICR_TXT = inFile.read().strip().split("\n")
+  inFile.close()
+  for lines in MICR[1:]:
+    lines = lines.split(",")
+    validAccountPublicKeys.append(lines[0]) # assumes only one account
+  return validAccountPublicKeys
+
 def appendTransactionEnvelopeToArrayWithSourceAccount(transactionsArray, sourceAccount):
   transactionsArray.append(
     TransactionBuilder(

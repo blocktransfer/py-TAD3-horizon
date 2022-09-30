@@ -4,7 +4,6 @@ from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
 import json, os.path, pandas, requests, sys, toml
-import globalToolsSearching, globalToolsTransactions
 
 G_DIR = os.path.dirname(__file__)
 sys.path.append("../")
@@ -23,7 +22,7 @@ BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
 USD_ASSET = Asset("USD", BT_ISSUER)
 # USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C") # 8949 testing
-MICR_CSV = f"{G_DIR}/../pii/master-identity-catalog-records.csv" #todo: modify here to load from Box; set auth
+MICR_TXT = f"{G_DIR}/../pii/master-identity-catalog-records.txt" #todo: modify here to load from cloud w/ local caching
 
 BT_STELLAR_TOML = "https://blocktransfer.io/.well-known/stellar.toml"
 HORIZON_INST = "horizon.stellar.org"
@@ -39,43 +38,6 @@ distributor = server.load_account(account_id = BT_DISTRIBUTOR)
 treasury = server.load_account(account_id = BT_TREASURY)
 fee = server.fetch_base_fee() * BASE_FEE_MULT
 
-
-
-
-
-def getCUSIP(queryAsset):
-  try:
-    data = loadTomlData(BT_STELLAR_TOML)
-    for currencies in data["CURRENCIES"]:
-      assetCode = getAssetCodeFromTomlLink(currencies["toml"])
-      if(assetCode == queryAsset):
-        data = loadTomlData(currencies["toml"])
-        CUSIP = currencies["anchor_asset"]
-        break
-  except Exception:
-    sys.exit(f"Failed to lookup ITIN for {queryAsset}")
-  return CUSIP
-
-def getValidAccountPublicKeys():
-  validAccountPublicKeys = []
-  inFile = open(MICR_CSV)
-  MICR = inFile.read().strip().split("\n")
-  inFile.close()
-  for lines in MICR[1:]:
-    lines = lines.split(",")
-    validAccountPublicKeys.append(lines[0]) # assumes only one account
-  return validAccountPublicKeys
-
-def getStockOutstandingShares(queryAsset):
-  requestAddr = f"https://{HORIZON_INST}/assets?asset_code={QueryAsset}&asset_issuer=BT_ISSUER"
-  data = requests.get(requestAddr).json()
-  outstandingInclTreasuryShares = data["_embedded"]["records"][0]["amount"]
-  treasuryAddr = resolveFederationAddress(f"{queryAsset}*treasury.holdings")
-  requestAddr = f"https://{HORIZON_INST}/accounts/{treasuryAddr}"
-  accountBalances = requests.get(requestAddr).json()["balances"]
-  queryAsset = Asset(queryAsset, BT_ISSUER)
-  for balances in accountBalances:
-    if(balances["asset_type"] != "native" and Asset(balances["asset_code"], balances["asset_issuer"]) == queryAsset):
-      treasuryShares = balances["balance"]
-  return outstandingInclTreasuryShares - treasuryShares
-
+from globalToolsAssets import *
+from globalToolsSearching import *
+from globalToolsTransactions import *

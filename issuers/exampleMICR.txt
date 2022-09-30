@@ -1,0 +1,7 @@
+Blockchain Address|Registration|Email|Date of Birth / Formation|Address|Address Extra|City|State|Postal Code|Country|Onboarded Date|FTIN|Dividends|DD Routing|DD Account
+GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7|Block Transfer - Issuer|issuer@blocktransfer.io|1/19/2021|99 Wall St #4640||New York|NY|10005|USA|1/1/2022||||
+GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6|Block Transfer - Distributor|distributor@blocktransfer.io|3/2/2021|123 Georgia Tech Sta|350 Ferst Dr|Atlanta|GA|30332|USA|1/1/2000||reinvest||
+GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY|Block Transfer - Treasury|treasury@blocktransfer.io|5/23/2021|124 Georgia Tech Sta|351 Ferst Dr|Atlanta|GA|30333|USA|1/2/2000||DD|123|456
+GDPA7MXCRCTY7THSCNVPQKWCPWUT7A7QJISVV5WPX6HW6ETWFW5DQIZV|John Wooten - Testing|jwooten31@gatech.edu|4/29/2001|125 Georgia Tech Sta|352 Ferst Dr|Atlanta|GA|30334|USA|1/3/2000||USDC||
+GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML|Different Person|johnfwooten4@gmail.com|2/2/2004|2500 Peachtree Rd NE|Unit 902N|Atlanta|GA|30305|USA|1/4/2018||||
+GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ|Third Guy|john@blocktransfer.io|2/2/2012|131 Ponce De Leon Ave NE|Apt 405|Atlanta|GA|30308|USA|4/4/2021||||

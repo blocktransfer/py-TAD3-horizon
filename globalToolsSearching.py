@@ -1,27 +1,10 @@
-def getAssetAccountsRequestAddr(queryAsset):
-  return f"https://{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&limit={MAX_SEARCH}"
+import globals
 
-def getStellarBlockchainBalances(queryAsset):
-  StellarBlockchainBalances = {}
-  requestAddr = getAssetAccountsRequestAddr(queryAsset)
-  ledger = requests.get(requestAddr).json()
-  while(ledger["_embedded"]["records"]):
-    for accounts in ledger["_embedded"]["records"]:
-      accountAddr = accounts["id"]
-      for balances in accounts["balances"]:
-        try:
-          if balances["asset_code"] == queryAsset and balances["asset_issuer"] == BT_ISSUER:
-            queryBalance = Decimal(balances["balance"])
-        except KeyError:
-          continue
-      StellarBlockchainBalances[accountAddr] = queryBalance
-    ledger = getNextLedgerData(ledger)
-  return StellarBlockchainBalances
+def loadTomlData(link):
+  return toml.loads(requests.get(link).content.decode())
 
-def getNextLedgerData(ledger):
-  nextAddr = ledger["_links"]["next"]["href"].replace("%3A", ":").replace("\u0026", "&")
-  ledger = requests.get(nextAddr).json()
-  return ledger
+def getAssetCodeFromTomlLink(link):
+  return link[32:-5]
 
 def resolveFederationAddress(properlyFormattedAddr):
   splitAddr = properlyFormattedAddr.split("*")
@@ -46,13 +29,18 @@ def getFederationServerFromDomain(federationDomain):
     sys.exit(f"Failed to lookup federation server at {federationDomain}")
   return homeDomainFederationServer
 
-def loadTomlData(link):
-  return toml.loads(requests.get(link).content.decode())
-
-def getAssetCodeFromTomlLink(link):
-  return link[32:-5]
-
-
+def getCUSIP(queryAsset):
+  try:
+    data = loadTomlData(BT_STELLAR_TOML)
+    for currencies in data["CURRENCIES"]:
+      assetCode = getAssetCodeFromTomlLink(currencies["toml"])
+      if(assetCode == queryAsset):
+        data = loadTomlData(currencies["toml"])
+        CUSIP = currencies["anchor_asset"]
+        break
+  except Exception:
+    sys.exit(f"Failed to lookup ITIN for {queryAsset}")
+  return CUSIP
 
 
 

@@ -3,24 +3,15 @@ sys.path.append("../")
 from globals import *
 from stellar_sdk import exceptions
 
-APPROVED_PUBLIC_KEY_CSV = f"{G_DIR}/../pii/production-approved-public-keys.csv" # just iterate through MICR?
-approvalAmountXLM = Decimal("2.3")
-
 try:
   MEMO = sys.argv[1]
 except Exception:
   MEMO = "Account verified"
 
 def createApprovedAccount():
-  approvedAddrsArr = fetchNewApprovedAddrs()
+  approvedAddrsArr = getValidAccountPublicKeys()
   transactionsArr = buildTxnsArr(approvedAddrsArr)
   submitTxnsToStellar(transactionsArr)
-
-def fetchNewApprovedAddrs():
-  approvedAddrsCSV = open(APPROVED_PUBLIC_KEY_CSV)
-  approvedAddrs = approvedAddrsCSV.read().strip().split("\n")
-  approvedAddrsCSV.close()
-  return approvedAddrs
 
 def getAddress(providedAddr):
   splitAddr = providedAddr.split("*")
@@ -47,7 +38,7 @@ def declareApproval(resolvedAddr, transaction):
   transaction.append_payment_op(
     destination = resolvedAddr,
     asset = Asset.native(),
-    amount = approvalAmountXLM,
+    amount = INVESTOR_BASE_RESERVE,
   )
 
 def createAccount(resolvedAddr, transaction):

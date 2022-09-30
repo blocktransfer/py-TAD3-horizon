@@ -66,8 +66,8 @@ def getNumUnrestrictedShares(queryAsset):
 
 def getBalancesOnRecordDate(queryAsset):
   balancesOnRecordDate = {}
-  internalRecordDateCSV = f"{G_DIR}/../pii/internal-record-date-snapshots/{str(datetime.today().year)}/{queryAsset}.csv"
-  inFile = open(internalRecordDateCSV)
+  internalRecordDateTXT = f"{G_DIR}/../pii/internal-record-date-snapshots/{str(datetime.today().year)}/{queryAsset}.txt"
+  inFile = open(internalRecordDateTXT)
   internalRecordDateHoldings = inFile.read().strip().split("\n")
   inFile.close()
   for lines in internalRecordDateHoldings[1:]:
@@ -77,7 +77,7 @@ def getBalancesOnRecordDate(queryAsset):
 
 def makeFirst28byteMapping():
   delegationHashmap = {}
-  inFile = open(MICR_CSV)
+  inFile = open(MICR_TXT)
   MICR = inFile.read().strip().split("\n")
   inFile.close()
   for lines in MICR[1:]:
@@ -201,20 +201,20 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
   return voteTallies
 
 def displayResults(queryAsset, voteTallies):
-  outstanding = getStockOutstandingShares(queryAsset)
+  sharesOutstanding = getStockOutstandingShares(queryAsset)
   i = 0
   for (Y, N, A, W) in voteTallies:
     i += 1
-    ratio = Decimal("100") / Decimal(Y + N + A + W)
-    ratioTot = Decimal("100") / outstanding
+    ratioVoted = Decimal("100") / Decimal(Y + N + A + W)
+    ratioTotal = Decimal("100") / sharesOutstanding
     print("In the matter of proposition {}:".format(i))
     print("For:\t\t{}%\t({} shares)".format(
-        f"{Y * ratio}:.2f",
-        f"{Y * ratioTot}:.2f",
+        f"{Y * ratioVoted}:.2f",
+        f"{Y * ratioTotal}:.2f",
         Y
       )
     ) # todo: test, finalize export functionality as master tab.
-    print("Against:\t{}%\t({} shares)".format(format(N * ratio, ".2f"), N))
-    print("Abstain:\t{}%\t({} shares)\n".format(format(A * ratio, ".2f"), A))
-    print("Withold:\t{}%\t({} shares)\n".format(format(W * ratio, ".2f"), W))
+    print("Against:\t{}%\t({} shares)".format(format(N * ratioVoted, ".2f"), N))
+    print("Abstain:\t{}%\t({} shares)\n".format(format(A * ratioVoted, ".2f"), A))
+    print("Withold:\t{}%\t({} shares)\n".format(format(W * ratioVoted, ".2f"), W))
 

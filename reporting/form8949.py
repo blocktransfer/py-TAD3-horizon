@@ -490,7 +490,7 @@ def getAccountCustomLedgerData(addr):
   return requests.get(requestAddr).json()["data"]
 
 def isCUSIP(query):
-  allAssets = 
+  allAssets = listAllIssuerAssets()
   for assets in allAssets:
     getCUSIP(queryAsset)
   return query in allCUSIPs
