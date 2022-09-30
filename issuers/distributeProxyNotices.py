@@ -60,7 +60,7 @@ def sendProxyNotices(queryAsset, recordDateList):
   contactIDsSent = []
   # ? toEmails = []
   for shareholders in recordDateList:
-    investorData = shareholders.split(",")
+    investorData = shareholders.split("|")
     if(investorData[2]): # standardize email place in MSF
     # https://github.com/sendgrid/sendgrid-python
       toEmails.append(investorData[2])

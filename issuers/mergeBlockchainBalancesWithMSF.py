@@ -29,7 +29,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
   mergedMSF = open(f"{G_DIR}/../pii/outputs/{queryAsset} MSF as of {day}.csv", "w")
   mergedMSF.write("Registration,Address,Email,Shares\n")
   for lines in unclaimedMSF[1:]:
-    lines = lines.split(",")
+    lines = lines.split("|")
     cancelled = lines[10]
     if(not cancelled):
       address = toFullAddress(
@@ -47,9 +47,9 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
         lines[0],
         lines[11]
       ] # assume no email from old TA
-      mergedMSF.write(",".join(output) + "\n")
+      mergedMSF.write("|".join(output) + "\n")
   for lines in MICR[1:]:
-    lines = lines.split(",") # todo: change all to pipe deliniation
+    lines = lines.split("|")
     try:
       blockchainBalance = StellarBlockchainBalances[lines[0]]
       if(not blockchainBalance):
@@ -70,7 +70,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
       lines[2],
       str(blockchainBalance)
     ]
-    mergedMSF.write(",".join(output) + "\n")
+    mergedMSF.write("|".join(output) + "\n")
   mergedMSF.close()
 
 def generateInternalRecord(queryAsset, StellarBlockchainBalances):

@@ -71,7 +71,7 @@ def getBalancesOnRecordDate(queryAsset):
   internalRecordDateHoldings = inFile.read().strip().split("\n")
   inFile.close()
   for lines in internalRecordDateHoldings[1:]:
-    lines = lines.split(",")
+    lines = lines.split("|")
     balancesOnRecordDate[lines[0]] = Decimal(lines[1])
   return balancesOnRecordDate
 
@@ -81,7 +81,7 @@ def makeFirst28byteMapping():
   MICR = inFile.read().strip().split("\n")
   inFile.close()
   for lines in MICR[1:]:
-    lines = lines.split(",")
+    lines = lines.split("|")
     delegationHashmap[lines[0][:28]] = lines[0]
   return delegationHashmap
 
