@@ -1,15 +1,15 @@
 from splitHelper import *
 
-# testing: forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.csv")
-def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesCSV):
-  postSplitFileName = f"[FORWARD] {queryAsset} Post-Split Master Securityholder File.csv"
+# testing: forwardSplit("StellarMart", 5, 2, "preSplitVeryRealStockIncMSF.txt")
+def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesTXT):
+  postSplitFileName = f"[FORWARD] {queryAsset} Post-Split Master Securityholder File.txt"
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
   assert numerator > denominator 
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
   newShareTxnArr = grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator)
   exportSplitNewShareTransactions(newShareTxnArr, queryAsset)
-  generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName)
+  generatePostSplitMSF(MSFpreSplitBalancesTXT, numerator, denominator, postSplitFileName)
 
 def grantNewSplitSharesFromBalancesClaimedOnStellar(StellarBlockchainBalances, queryAsset, numerator, denominator):
   transactions = []

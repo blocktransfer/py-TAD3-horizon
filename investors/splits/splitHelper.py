@@ -2,8 +2,8 @@ import sys
 sys.path.append("../../")
 from globals import *
 
-def generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSplitFileName):
-  MSF = open(MSFpreSplitBalancesCSV, "r")
+def generatePostSplitMSF(MSFpreSplitBalancesTXT, numerator, denominator, postSplitFileName):
+  MSF = open(MSFpreSplitBalancesTXT, "r")
   oldMSF = MSF.read()
   oldMSF = oldMSF.strip()
   oldMSF = oldMSF.split("\n")
@@ -11,13 +11,13 @@ def generatePostSplitMSF(MSFpreSplitBalancesCSV, numerator, denominator, postSpl
   newMSF = open(postSplitFileName, "w")
   newMSF.write(oldMSF[0] + "\n")
   for shareholder in oldMSF[1:]:
-    shareholder = shareholder.split(",")
+    shareholder = shareholder.split("|")
     if(shareholder[1]):
       sharesAfterSplit = Decimal(shareholder[1]) * numerator / denominator
       shareholder[1] = ("{:." + MAX_NUM_DECIMALS + "f}").format(sharesAfterSplit)
-      newMSF.write(",".join(shareholder) + "\n")
+      newMSF.write(f"{'|'.join(shareholder)}\n")
     else:
-      newMSF.write(",".join(shareholder) + "\n")
+      newMSF.write(f"{'|'.join(shareholder)}\n")
   newMSF.close()
   return newMSF
 

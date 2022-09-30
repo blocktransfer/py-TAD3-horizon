@@ -31,6 +31,7 @@ MAX_SEARCH = "200"
 MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2
 WASH_SALE_DAY_RANGE = 30
+INVESTOR_BASE_RESERVE = Decimal("7")
 
 server = Server(horizon_url = "https://" + HORIZON_INST)
 issuer = server.load_account(account_id = BT_ISSUER)
