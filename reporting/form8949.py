@@ -31,10 +31,10 @@ def form8949forAccount(address):
   # offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
   for offerIDs, memoOpeningInstr in offerIDsMappedToChiefMemosForAccount.items():
     offerIDtradeData = getTradeData(offerIDs, address)
-    if(offerIDtradeData[1] == "sell"): # This is a closing offer
+    if(offerIDtradeData["type"] == "sell"): # sell = closing offer (todo: support short sales)
       openingOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
       openingTradeData = getTradeData(memoOpeningInstr, address)
-      combined = combineTradeData(offerIDtradeData[2], openingTradeData)
+      combined = combineTradeData(offerIDtradeData, openingTradeData)
       if(combined[0] == "covered"):
         combined += getPNLfromCombinedCoveredTrade(combined)
       else:
@@ -193,7 +193,9 @@ def getTradeData(offerID, address):
     ledger = getNextLedgerData(ledger)
   tradeData["shares"] = shares
   tradeData["value"] = value
-  return (offerID, type, tradeData) if value else 0
+  tradeData["offerID"] = offerID
+  tradeData["type"] = type
+  return tradeData if value else 0
 
 def getAssetGivenType(trade, type): # type <- "base" | "counter"
   try:
@@ -204,34 +206,20 @@ def getAssetGivenType(trade, type): # type <- "base" | "counter"
 def isFiat(queryAsset):
   return queryAsset == USD_ASSET or queryAsset == USDC_ASSET
 
+# todo: check all for:
+# assert(tradeData["asset"] == originTradeData["asset"])
+# assert(originTradeData["finalExecutionDate"] < tradeData["finalExecutionDate"])
 def combineTradeData(tradeData, originTradeData):
-  if(not originTradeData):
-    return(
-      (
-        "uncovered",
-        tradeData["asset"],
-        0, # given full  functionality,
-        0, # combine into originTradeData["..."] if originTradeData else 0
-        0,
-        tradeData["shares"],
-        tradeData["value"],
-        tradeData["finalExecutionDate"]
-      )
-    )
-  assert(tradeData["asset"] == originTradeData["asset"]) # todo, see above
-  assert(originTradeData["finalExecutionDate"] < tradeData["finalExecutionDate"])
-  return(
-    (
-      "covered",
-      tradeData["asset"],
-      originTradeData["finalExecutionDate"],
-      originTradeData["shares"],
-      originTradeData["value"],
-      tradeData["shares"],
-      tradeData["value"],
-      tradeData["finalExecutionDate"],
-    )
-  )
+  combined = {}
+  combined["type"] = "covered" if originTradeData else "uncovered"
+  combined["asset"] = tradeData["asset"]
+  combined["originTradeDate"] = originTradeData["finalExecutionDate"] if originTradeData else 0
+  combined["originTradeNumShares"] = originTradeData["shares"] if originTradeData else 0
+  combined["originTradeValue"] = originTradeData["value"] if originTradeData else 0
+  combined["exitTradeShares"] = tradeData["shares"]
+  combined["exitTradeValue"] = tradeData["value"]
+  combined["exitTradeDate"] = tradeData["finalExecutionDate"]
+  return combined
 
 def getPNLfromCombinedCoveredTrade(data):
   sharesBought = adjustSharesBoughtForStockSplits(data[3], data[2], data[1].code)
@@ -306,50 +294,50 @@ def getPNLfromCombinedUncoveredTrade(data, addr):
 #   If becomes probalmatic, we can front truncate paging_token by a few numbers
 # Use paging_token as offerID in wallet when directing closing instructions
 # When selling with reference to trade, manage_data ( paging_token: [numShares - sharesSold]... )
+# 
+# for payments in incomingPaymentsStream:
+#   try:
+#     BTasset = payments["asset_issuer"] == BT_ISSUER
+#   except KeyError:
+#     continue
+#   if(BTasset and payments["from"] == BT_DISTRIBUTOR):
+#     txnAddr = payments["_links"]["transaction"]["href"]
+#     txnData = requests.get(txnAddr).json()
+#     try:
+#       memo = txnData["memo"]
+#     except KeyError:
+#       memo = "42.00:2009-9-9" #tmp - testing
+#       # continue
+#     # distributor sends shares with memo [price]||uncovered||DWAC:[coveredDate]||
+#     memo = memo.split(":")
+#     basis = memo[0]
+#     try:
+#       date = memo[1]
+#     except IndexError:
+#       sys.exit(f"Failed to resolve memo {memo}")
+#     assetCode = payments["asset_code"]
+#     numShares = payments["amount"]
+#     pagingToken = payments["paging_token"]
+#     txn.append_manage_data_op(pagingToken, f"{assetCode}:{numShares}:{basis}:{date}")
 
 def getHistoricPositions(address):
   historicPositions = {}
-  distributionPagingTokensMappedToHistoricData = getDistributionPagingTokensMappedToHistoricData(address)
+  
   return distributionPagingTokensMappedToHistoricData
 
-def getDistributionPagingTokensMappedToHistoricData(address):
-  distributionPagingTokensMappedToHistoricData = {}
-  requestAddr = f"https://{HORIZON_INST}/accounts/{address}/payments?limit={MAX_SEARCH}"
-  ledger = requests.get(requestAddr).json()
-  while(ledger["_embedded"]["records"]):
-    for payments in ledger["_embedded"]["records"]:
-      try:
-        BTasset = payments["asset_issuer"] == BT_ISSUER
-      except KeyError:
-        continue
-      if(BTasset and payments["from"] == BT_DISTRIBUTOR):
-        txnAddr = payments["_links"]["transaction"]["href"]
-        txnData = requests.get(txnAddr).json()
-        try:
-          memo = txnData["memo"]
-        except KeyError:
-          memo = "42.00:2009-9-9" #tmp - testing
-          # continue
-        # distributor sends shares with memo [price]||uncovered||DWAC:[coveredDate]||
-        distributionData = {}
-        memo = memo.split(":")
-        distributionData["basis"] = memo[0]
-        try:
-          distributionData["date"] = memo[1]
-        except IndexError:
-          sys.exit(f"Failed to resolve memo {memo}")
-        distributionData["assetCode"] = payments["asset_code"]
-        distributionData["numShares"] = payments["amount"]
-        pagingToken = payments["paging_token"]
-        distributionPagingTokensMappedToHistoricData[pagingToken] = distributionData
-    ledger = getNextLedgerData(ledger)
-  return distributionPagingTokensMappedToHistoricData
+def getWashSaleAdjustments(address):
+
+def getAccountDataDict(address):
+  requestAddr = f"https://{HORIZON_INST}/accounts/{address}"
+  return requests.get(requestAddr).json()["data"]
 
 print(getHistoricPositions("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML"))
 sys.exit()
 
+
+
 # paging_token: basis
-def getDWACbasisFromAccountData(addr):
+def basisFromAccountData(addr):
   data = getAccountCustomLedgerData(addr)
   historicPositionsCUSIPsMappedToBasisData = {}
   for key, value in data.items():
