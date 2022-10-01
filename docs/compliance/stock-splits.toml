@@ -11,3 +11,11 @@ We find these operations in accordance with Rule 17Ad-15 since, inter alia, the
 account freeze in question (i) does not last longer than three business days,
 (ii) affects all investors essentially equally, and (iii) notifies investors
 immediately of transfer requests rejected because of frozen split processing.
+
+Past split records are avaliable under this site folder's parent directroy:
+*docs
+  _compliance
+    _this doc_
+  _assets
+    _all assets_
+      [splits] attribute
