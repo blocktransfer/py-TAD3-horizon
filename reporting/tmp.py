@@ -16,22 +16,8 @@
 #      print("paging_token")
 #    case 19:
 #      print("synthetic")  
-# You never reference syntheticIDs in a closing txn memo since consumed instantly.
+# You never reference syntheticIDs in a closing txn memo since atomic swaps instantly fill.
 # Thus, you can simplify to memo = "preExistingDataKeyPT" if len(query) > 16 else "offerID"
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
 
 # DWAC SERVER INSTRUCTIONS
 # BT_DISTRIBUTOR sends account [numShares] stock with memo [price]||uncovered||DWAC:[coveredDate]||
