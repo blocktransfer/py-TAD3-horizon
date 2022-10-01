@@ -293,10 +293,9 @@ def getPNLfromCombinedUncoveredTrade(data, addr):
     purchaseBasisAdj = sharesSold * purchasePrice
   return (purchaseBasisAdj, saleProceeds - purchaseBasis)
 
-# How flow works (assume semi-honest user since it's their taxes returns at stake):
-# BT_DISTRIBUTOR sends account [numShares] stock with memo:
-#   [price]||uncovered||DWAC:[coveredDate]||
-# Account does manage_data( distriubtion paging_token: [assetCode]:[numShares]:[price]:2003-6-9 ) locally
+# todo: instructions for wallet and DWAC server
+# BT_DISTRIBUTOR sends account [numShares] stock with memo [price]||uncovered||DWAC:[coveredDate]||
+# Account does manage_data( distriubtion paging_token: [assetCode]:[numShares]:[price]:[basisDate] ) locally
 #     case distributionMemo:
 #       match covered (has date)    -> paging_token: [assetCode]:[numShares]:[price]:2003-6-9
 #       match uncovered             -> paging_token: [assetCode]:[numShares]:uncovered:
@@ -311,9 +310,9 @@ def getPNLfromCombinedUncoveredTrade(data, addr):
 def getHistoricPositions(address):
   historicPositions = {}
   distributionPagingTokensMappedToHistoricData = getDistributionPagingTokensMappedToHistoricData(address)
-  return distributionPagingTokensMappedToMemos
+  return distributionPagingTokensMappedToHistoricData
 
-def getDistributionPagingTokensMappedToMemos(address):
+def getDistributionPagingTokensMappedToHistoricData(address):
   distributionPagingTokensMappedToHistoricData = {}
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/payments?limit={MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
@@ -329,31 +328,22 @@ def getDistributionPagingTokensMappedToMemos(address):
         try:
           memo = txnData["memo"]
         except KeyError:
-          memo = "42.00:2009-9-9"
-          memo = "DWAC:2009-9-9"
-          #memo = "42.00:"
+          memo = "42.00:2009-9-9" #tmp - testing
           # continue
+        # distributor sends shares with memo [price]||uncovered||DWAC:[coveredDate]||
+        distributionData = {}
         memo = memo.split(":")
-        price = memo[0]
-        match price:
-          case "uncovered":
-            date = ""
-          case "DWAC":
-            date = memo[1] if memo[1] else txnData["created_at"].split("T")[0]
-          case other:
-            date = memo[1]
-        
-        assetCode = payments["asset_issuer"]
-        numShares = payments["amount"]
+        distributionData["basis"] = memo[0]
+        try:
+          distributionData["date"] = memo[1]
+        except IndexError:
+          sys.exit(f"Failed to resolve memo {memo}")
+        distributionData["assetCode"] = payments["asset_code"]
+        distributionData["numShares"] = payments["amount"]
         pagingToken = payments["paging_token"]
-        distributionData = ()
         distributionPagingTokensMappedToHistoricData[pagingToken] = distributionData
-    #  [price]||uncovered||DWAC:[coveredDate]||
     ledger = getNextLedgerData(ledger)
   return distributionPagingTokensMappedToHistoricData
-  #date@price -> paging_token: [assetCode]:[numShares]:[price]:2003-6-9
-#       match uncovered             -> paging_token: [assetCode]:[numShares]:uncovered:
-#       match DWAC                  -> paging_token: [assetCode]:[numShares]:DWAC:[txnDate]
 
 print(getHistoricPositions("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML"))
 sys.exit()
