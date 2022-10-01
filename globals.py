@@ -23,14 +23,14 @@ USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4
 USD_ASSET = Asset("USD", BT_ISSUER)
 MICR_TXT = f"{G_DIR}/../pii/master-identity-catalog-records.txt" #todo: modify here to load from cloud
 
+INVESTOR_BASE_RESERVE = Decimal("7")
 BT_STELLAR_TOML = "https://blocktransfer.io/.well-known/stellar.toml"
 HORIZON_INST = "horizon.stellar.org"
 MAX_NUM_DECIMALS = "7"
 MAX_SEARCH = "200"
+WASH_SALE_DAY_RANGE = 30
 MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2
-WASH_SALE_DAY_RANGE = 30
-INVESTOR_BASE_RESERVE = Decimal("7")
 
 server = Server(horizon_url = "https://" + HORIZON_INST)
 issuer = server.load_account(account_id = BT_ISSUER)
