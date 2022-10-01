@@ -6,6 +6,17 @@ from taxTestingData import *
 
 USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C") # GARLIC testing
 # offerIDsMappedToChiefMemosForAccount = {} #override external tax data
+#print(range(1,18))
+#tradeMemo = "4788099622563426305"
+#match len(tradeMemo.split("-")[0]):
+#  case <17:
+#    return "offerID"
+#  case => 17 and <= 18:
+#    return "synthetic"
+#  case 19:
+#    return "paging_token"
+
+
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
@@ -90,8 +101,7 @@ def appendOfferIDsToArr(op, offerIDarr, address):
       try:
         offerID = resolveTakerOffer(getAttr(op.manage_sell_offer_result, takerIDattr), offerIDarr, address)
       except AttributeError:
-        try:
-          offerID = resolveTakerOffer(getAttr(op.manage_buy_offer_result, takerIDattr), offerIDarr, address)
+        offerID = resolveTakerOffer(getAttr(op.manage_buy_offer_result, takerIDattr), offerIDarr, address)
   return offerIDarr.append(offerID)
 
 def resolveTakerOffer(offersClaimed, offerIDarr, address):
@@ -163,7 +173,7 @@ def getTradeData(offerID, address):
           if type: continue
           tradeData["asset"] = counterAsset
           type = "sell"
-    tradeData["finalExecutionDate"] = pandas.to_datetime(trades["ledger_close_time"])
+    tradeData["fillDate"] = pandas.to_datetime(trades["ledger_close_time"])
     ledger = getNextLedgerData(ledger)
   tradeData["shares"] = shares
   tradeData["value"] = value
@@ -177,14 +187,14 @@ def getAssetGivenType(trade, type):
   except KeyError:
     return Asset.native()
 
-# todo: check all for:
+# todo - check on live data for:
 # assert(tradeData["asset"] == originTradeData["asset"])
-# assert(originTradeData["finalExecutionDate"] < tradeData["finalExecutionDate"])
+# assert(originTradeData["fillDate"] < tradeData["fillDate"])
 def combineTradeData(tradeData, originTradeData):
   combined = {}
   combined["type"] = "covered" if originTradeData else "uncovered"
   combined["asset"] = tradeData["asset"]
-  combined["originTradeDate"] = originTradeData["finalExecutionDate"] if originTradeData else 0
+  combined["originTradeDate"] = originTradeData["fillDate"] if originTradeData else 0
   combined["originTradeShares"] = adjustNumSharesForStockSplits(
     originTradeData["shares"],
     originTradeData["originTradeDate"],
@@ -193,14 +203,14 @@ def combineTradeData(tradeData, originTradeData):
   combined["originTradeValue"] = originTradeData["value"] if originTradeData else 0
   combined["exitTradeShares"] = tradeData["shares"]
   combined["exitTradeValue"] = tradeData["value"]
-  combined["exitTradeDate"] = tradeData["finalExecutionDate"]
+  combined["exitTradeDate"] = tradeData["fillDate"]
   return combined
 
 def getTradePNL(combinedTradeData, address):
-  case combinedTradeData["type"]:
-    match "covered":
+  match combinedTradeData["type"]:
+    case "covered":
       return getCoveredTradePNL(combinedTradeData)
-    match "uncovered":
+    case "uncovered":
       return getUncoveredTradePNL(combinedTradeData, address)
 
 def getCoveredTradePNL(data):
@@ -231,10 +241,12 @@ def getUncoveredTradePNL(data, addr):
     purchaseBasisAdj = sharesSold * purchasePrice
   return (purchaseBasisAdj, saleProceeds - purchaseBasis)
 
-
+# purchaseBasisAdj
+# PNL
 
 def getWashSaleOfferIDs(address):
-
+  return 1
+  
 def getHistoricPositions(address):
   historicPositions = {}
   
@@ -285,22 +297,10 @@ def adjustAllTradesForWashSales(combinedData, address):
       #
       a=1
       #if(combinedTrades[1]
-# 0   "covered",
-# 1   tradeData["asset"],
-# 2   originTradeData["finalExecutionDate"],
-# 3   originTradeData["shares"],
-# 4   originTradeData["value"],
-# 5   tradeData["shares"],
-# 6   tradeData["value"],
-# 7   tradeData["finalExecutionDate"],
-# 8   purchaseBasisAdj
-# 9  PNL
   
   if(washSaleAdjStart < saleTimestamp < taxYearStart):
     a = 1 
-  
     
-      
     matchOfferID = offerIDsMappedToChiefMemosForAccount[offerID]
     adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount)
     return ans
@@ -309,62 +309,6 @@ def adjustAllTradesForWashSales(combinedData, address):
     return tradeData
     
   return adjustedTrades
-  
-# todo: instructions for wallet and DWAC server
-# BT_DISTRIBUTOR sends account [numShares] stock with memo [price]||uncovered||DWAC:[coveredDate]||
-# Account does manage_data( distriubtion paging_token: [assetCode]:[numShares]:[price]:[basisDate] ) locally
-#     case distributionMemo:
-#       match covered (has date)    -> paging_token: [assetCode]:[numShares]:[price]:2003-6-9
-#       match uncovered             -> paging_token: [assetCode]:[numShares]:uncovered:
-#       match DWAC                  -> paging_token: [assetCode]:[numShares]:DWAC:[brokerDate]
-#   DWAC transfers may not include the basis - brokers can send it separately in a month
-#   Send user 0.0000001XLM txn w/ memo [paging_token]:[DWAC basis] so they can update
-#   Currently room in memo for stocks priced under 1M/share, which should be fine
-#   If becomes probalmatic, we can front truncate paging_token by a few numbers
-# Use paging_token as offerID in wallet when directing closing instructions
-# When selling with reference to trade, manage_data ( paging_token: [numShares - sharesSold]... )
-# 
-# for payments in incomingPaymentsStream:
-#   try:
-#     BTasset = payments["asset_issuer"] == BT_ISSUER
-#   except KeyError:
-#     continue
-#   if(BTasset and payments["from"] == BT_DISTRIBUTOR):
-#     txnAddr = payments["_links"]["transaction"]["href"]
-#     txnData = requests.get(txnAddr).json()
-#     try:
-#       memo = txnData["memo"]
-#     except KeyError:
-#       memo = "42.00:2009-9-9" #tmp - testing
-#       # continue
-#     # distributor sends shares with memo [price]||uncovered||DWAC:[coveredDate]||
-#     memo = memo.split(":")
-#     basis = memo[0]
-#     try:
-#       date = memo[1]
-#     except IndexError:
-#       sys.exit(f"Failed to resolve memo {memo}")
-#     assetCode = payments["asset_code"]
-#     numShares = payments["amount"]
-#     pagingToken = payments["paging_token"]
-#     txn.append_manage_data_op(pagingToken, f"{assetCode}:{numShares}:{basis}:{date}")
-
-# UPDATE SUCCEEDING COST BASIS FOR WASH SALE
-#    - account ledger value:pair entries mapping offer ID to new basis 
-#        - if(offerID in mappingItems ):
-#          -  basis = offerBasis + adj.
-#        - else:
-#          -  basis = offerBasis
-#      - requires user to publish wash sale value:pair the moment they execute the wash
-#      - can remove mapping once wash sale pos. closed 
-#        - must wait 30 days if sold at loss 
-#        - could automatically be done in wallet background next time they login after 1mo. mark (if loss)
-#          - requires computation of all open positions and potential washes when opening wallet
-
-# WALLET DETAILS
-#            - requires new offerID to post {succeedingOfferID: baseAdjustment<-lossDissallowedFromPriorTrade} value pair 
-#            - so requires a reply from Horizon with offerID || contra lookup and then sending new txn 
-#              - send the new value mapping txn with extremely high fee intentionally BEFORE displaying order confirmation to user
 
 def adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount):
   adjustedTrades = []
@@ -379,7 +323,7 @@ def adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMa
   ss.append(combined) 
 
 def filterTradesToTaxablePeriod(finalTrades):
-  return washSaleAdjStart <= sale[2]["finalExecutionDate"] <= washSaleAdjCutoff
+  return washSaleAdjStart <= sale[2]["fillDate"] <= washSaleAdjCutoff
 
 def placeFields(adjustedTrades):
   return 1
