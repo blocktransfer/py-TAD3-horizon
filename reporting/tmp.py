@@ -1,37 +1,8 @@
-
-# How do you want to keep record of stock splits, aside from just actually executing them? 
-# Ideas:
-#   - Data record in issuer account containing:
-#     - Stock ticker
-#     - Date of split execution/effectiveness (at 0:00:00am UTC)
-#       - e.g. split on 4/20
-#         - freeze trustlines at 4/20 10pm 
-#         - execute split op.s as needed
-#         - update account record to:
-#           - DEMO: X to Y split on 2022-4-20
-#         - the logic for adjustments would be:
-#           - numBasisShares = Z
-#           - read record
-#           - effectiveSplitDate = splitDate + pandas.DateOffset(days = 1)
-#           - for splits in readRecord
-#             - if(stock == queryAsset and originTradeData["finalExecutionDate"] < effectiveSplitDate):
-#               - numBasisShares = numBasisShares * X / Y
-#           - return numBasisShares
-#     - PROS:
-#       - Likely work
-#     - CONS:
-#       - Messy issuer account on chain
-#     - ALTERNATIVE:
-#       - Put the records on the distributor account
-#   - Internal record
-#     - Bad; no
-#   - Database of past splits on GitHub/stocks
-#     - Not unlike issuer materials
-#     - Given capital books are now on chain, I don't like this 
-#     - Further, Cede should def. be on chain
-#   - Attribute in toml
-#   - 
-#   - 
+# STOCK SPLIT TRUSTLINE EXECUTION
+#   - e.g. split on 4/20
+#     - freeze trustlines at 4/20 10pm 
+#     - execute split ops as needed
+#     - update toml record
 
 # - sumbmit DIV to FIRE
 # - export/email(?) 8949
@@ -44,6 +15,66 @@
 # basically just report if(fiat from BT_TREASURY to address)
 
 
+# DWAC SERVER INSTRUCTIONS
+# BT_DISTRIBUTOR sends account [numShares] stock with memo [price]||uncovered||DWAC:[coveredDate]||
+# Account does manage_data( distriubtion paging_token: [assetCode]:[numShares]:[price]:[basisDate] ) locally
+#     case distributionMemo:
+#       match covered (has date)    -> paging_token: [assetCode]:[numShares]:[price]:2003-6-9
+#       match uncovered             -> paging_token: [assetCode]:[numShares]:uncovered:
+#       match DWAC                  -> paging_token: [assetCode]:[numShares]:DWAC:[brokerDate]
+#   DWAC transfers may not include the basis - brokers can send it separately in a month
+#   Send user 0.0000001XLM txn w/ memo [paging_token]:[DWAC basis] so they can update
+#   Currently room in memo for stocks priced under 1M/share, which should be fine
+#   If becomes probalmatic, we can front truncate paging_token by a few numbers
+# Use paging_token as offerID in wallet when directing closing instructions
+# When selling with reference to trade, manage_data ( paging_token: [numShares - sharesSold]... )
+# 
+# for payments in incomingPaymentsStream:
+#   try:
+#     BTasset = payments["asset_issuer"] == BT_ISSUER
+#   except KeyError:
+#     continue
+#   if(BTasset and payments["from"] == BT_DISTRIBUTOR):
+#     txnAddr = payments["_links"]["transaction"]["href"]
+#     txnData = requests.get(txnAddr).json()
+#     try:
+#       memo = txnData["memo"]
+#     except KeyError:
+#       memo = "42.00:2009-9-9" #tmp - testing
+#       # continue
+#     # distributor sends shares with memo [price]||uncovered||DWAC:[coveredDate]||
+#     memo = memo.split(":")
+#     basis = memo[0]
+#     try:
+#       date = memo[1]
+#     except IndexError:
+#       sys.exit(f"Failed to resolve memo {memo}")
+#     assetCode = payments["asset_code"]
+#     numShares = payments["amount"]
+#     pagingToken = payments["paging_token"]
+#     txn.append_manage_data_op(pagingToken, f"{assetCode}:{numShares}:{basis}:{date}")
+
+# UPDATE SUCCEEDING COST BASIS FOR WASH SALE
+#    - account ledger value:pair entries mapping offer ID to new basis 
+#        - if(offerID in mappingItems ):
+#          -  basis = offerBasis + adj.
+#        - else:
+#          -  basis = offerBasis
+#      - requires user to publish wash sale value:pair the moment they execute the wash
+#      - can remove mapping once wash sale pos. closed 
+#        - must wait 30 days if sold at loss 
+#        - could automatically be done in wallet background next time they login after 1mo. mark (if loss)
+#          - requires computation of all open positions and potential washes when opening wallet
+
+# WASH SALE WALLET DETAILS
+#            - requires new offerID to post {succeedingOfferID: baseAdjustment<-lossDissallowedFromPriorTrade} value pair 
+#            - so requires a reply from Horizon with offerID || contra lookup and then sending new txn 
+#              - send the new value mapping txn with extremely high fee intentionally BEFORE displaying order confirmation to user
+
+
+
+
+# affidavit to broadridge:
 # If the registrant knows that securities of any class entitled to vote at a meeting are held of record by a broker, the registrant shall:the registrant shall:
 # (1) equally prompt means:
 #      (i) Inquire of Cede -> Brokers etc:

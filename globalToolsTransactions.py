@@ -37,6 +37,7 @@ def submitTxnGarunteed(transaction):
       return 1
 
 def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
+  splitsDict = {}
   data = loadTomlData(BT_STELLAR_TOML)
   for currencies in data["CURRENCIES"]:
     assetCode = getAssetCodeFromTomlLink(currencies["toml"])
@@ -50,7 +51,6 @@ def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
         denom = Decimal(splits[2])
         splitsDict[date] = num / denom
       return splitsDict
-  splitsDict = getSplitsDict(queryAsset)
   for splitTimestamps, splitRatios in splitsDict.items():
     if(purchaseTimestamp < splitTimestamps):
       numShares = numShares * splitRatios
