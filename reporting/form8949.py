@@ -4,19 +4,7 @@ from globals import *
 import functools, threading #todo: threads -> global
 from taxTestingData import *
 
-USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C") # GARLIC testing
 # offerIDsMappedToChiefMemosForAccount = {} #override external tax data
-#print(range(1,18))
-#tradeMemo = "4788099622563426305"
-#match len(tradeMemo.split("-")[0]):
-#  case <17:
-#    return "offerID"
-#  case => 17 and <= 18:
-#    return "synthetic"
-#  case 19:
-#    return "paging_token"
-
-
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
@@ -40,14 +28,16 @@ def bulkOutput():
 def form8949forAccount(address):
   washSaleOfferIDs = getWashSaleOfferIDs(address)
   # TODO: Impliment dict caching w/ MICR: start at last known offerID timestamp
-  offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
+  #offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
   for offerIDs, memoOpeningInstr in offerIDsMappedToChiefMemosForAccount.items():
     offerTradeData = getTradeData(offerIDs, address)
     if(offerTradeData["type"] == "sell"): # sell = closing (todo: support short sales by adding "exit" flag)
       openingOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
-      openingTradeData = getTradeData(memoOpeningInstr, address)
-      combinedTradeData = combineTradeData(offerTradeData, openingTradeData)
-      reportingTradeData = getTradePNL(combined, address)
+      originTradeData = getTradeData(memoOpeningInstr, address)
+      print(originTradeData["type"])
+      combinedTradeData = combineTradeData(offerTradeData, originTradeData)
+      pprint(combinedTradeData["type"])
+      reportingTradeData = getTradePNL(combinedTradeData, address)
       
       taxableSales.append(combined)
 
@@ -90,10 +80,6 @@ def appendOfferIDsToArr(op, offerIDarr, address):
   takerIDattr = "success.offers_claimed"
   try:
     offerID = getAttr(op.manage_sell_offer_result, makerIDattr)
-    if(len(str(offerID)) > 10):
-      pprint(offerID)
-      pprint(op)
-      pprint(op.to_xdr())
   except AttributeError:
     try:
       offerID = getAttr(op.manage_buy_offer_result, makerIDattr)
@@ -130,14 +116,14 @@ def getOfferIDfromContraID(offerID, address):
     ledger = getNextLedgerData(ledger)
 
 def getTradeData(offerID, address):
-  try:
-    int(offerID)
-  except ValueError: 
-    return 0
-  tradeData = {}
+  #print(offerID)
+  tradeData = {"type": 0}
   type = ""
   value = shares = Decimal("0")
-  requestAddr = f"{HORIZON_INST}/offers/{offerID}/trades?{MAX_SEARCH}"
+  try:
+    requestAddr = f"{HORIZON_INST}/offers/{int(offerID)}/trades?{MAX_SEARCH}"
+  except ValueError:
+    return tradeData
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for trades in ledger["_embedded"]["records"]:
@@ -179,7 +165,7 @@ def getTradeData(offerID, address):
   tradeData["value"] = value
   tradeData["offerID"] = offerID
   tradeData["type"] = type
-  return tradeData if value else {"type": 0}
+  return tradeData
 
 def getAssetGivenType(trade, type):
   try:
@@ -192,15 +178,15 @@ def getAssetGivenType(trade, type):
 # assert(originTradeData["fillDate"] < tradeData["fillDate"])
 def combineTradeData(tradeData, originTradeData):
   combined = {}
-  combined["type"] = "covered" if originTradeData else "uncovered"
+  combined["type"] = "covered" if originTradeData["type"] else "uncovered"
   combined["asset"] = tradeData["asset"]
-  combined["originTradeDate"] = originTradeData["fillDate"] if originTradeData else 0
+  combined["originTradeDate"] = originTradeData["fillDate"] if originTradeData["type"] else 0
   combined["originTradeShares"] = adjustNumSharesForStockSplits(
     originTradeData["shares"],
     originTradeData["originTradeDate"],
     originTradeData["asset"].code
-  ) if originTradeData else 0
-  combined["originTradeValue"] = originTradeData["value"] if originTradeData else 0
+  ) if originTradeData["type"] else 0
+  combined["originTradeValue"] = originTradeData["value"] if originTradeData["type"] else 0
   combined["exitTradeShares"] = tradeData["shares"]
   combined["exitTradeValue"] = tradeData["value"]
   combined["exitTradeDate"] = tradeData["fillDate"]
@@ -223,11 +209,12 @@ def getCoveredTradePNL(data):
   else:
     sys.exit("todo: test on live data, see if can combine")
 
-def getUncoveredTradePNL(data, addr):
-  historicPositions = getHistoricPositionsFromAccountData(addr)
+def getUncoveredTradePNL(data, address):
+  historicPositions = getHistoricPositions(address)
   
   # code on interface as paging_token from sending shares initially for positional close
-  historicPositions = getHistoricPositionsDataFromBTdistributionMemos(address)
+  
+  
   
   sharesBought = adjustNumSharesForStockSplits(a, b, data[1].code)
   purchaseBasis = Decimal(getUncoveredBasis("Set up a basic google sheet")) if 0 else data[4]
@@ -248,8 +235,8 @@ def getWashSaleOfferIDs(address):
   return 1
   
 def getHistoricPositions(address):
-  historicPositions = {}
-  
+  distributionPagingTokensMappedToHistoricData = getAccountDataDict(address)
+  # There shouldn't be anything else in account data
   return distributionPagingTokensMappedToHistoricData
 
 def getWashSaleAdjustments(address):
@@ -344,7 +331,7 @@ def placeFields(adjustedTrades):
 # print(getHistoricPositions("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML"))
 # print(getHistoricPositionsFromAccountData("GAJ4BSGJE6UQHZAZ5U5IUOABPDCYPKPS3RFS2NVNGFGFXGVQDLBQJW2P"))
 # print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
-form8949forAccount("GC2EUCIRRDSVMTG5IG3X7NJZPWQLXMJRXV6REUAF3ALOK2GPL6GC625J")
+form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
 #fetchInvestorPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")
 
 
