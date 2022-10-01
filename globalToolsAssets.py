@@ -26,7 +26,11 @@ def getStellarBlockchainBalances(queryAsset):
 def getNextLedgerData(ledger):
   nextAddr = ledger["_links"]["next"]["href"].replace("%3A", ":").replace("\u0026", "&")
   ledger = requests.get(nextAddr).json()
-  return ledger
+  try:
+    if(not ledger["status"]):
+      return requests.get(nextAddr).json()
+  except KeyError:
+    return ledger
 
 def getStockOutstandingShares(queryAsset):
   requestAddr = f"{HORIZON_INST}/assets?asset_code={QueryAsset}&asset_issuer=BT_ISSUER"
