@@ -94,8 +94,6 @@ def appendOfferIDsToArr(op, offerIDarr, address):
       except AttributeError:
         try:
           offerID = resolveTakerOffer(getAttr(op.manage_buy_offer_result, takerIDattr), offerIDarr, address)
-        except AttributeError:
-          sys.exit(f"Failed to resolve offerID in\n{op}")
   return offerIDarr.append(offerID)
 
 def resolveTakerOffer(offersClaimed, offerIDarr, address):
@@ -180,9 +178,6 @@ def getAssetGivenType(trade, type):
     return Asset(trade[f"{type}_asset_code"], trade[f"{type}_asset_issuer"])
   except KeyError:
     return Asset.native()
-
-def isFiat(queryAsset):
-  return queryAsset == USD_ASSET or queryAsset == USDC_ASSET
 
 # todo: check all for:
 # assert(tradeData["asset"] == originTradeData["asset"])
