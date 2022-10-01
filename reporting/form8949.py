@@ -1,10 +1,10 @@
 import sys
 sys.path.append("../")
 from globals import *
+import functools, threading #todo: threads -> global
 from taxTestingData import *
-import functools, threading #thread -> global post: test
 
-# offerIDsMappedToChiefMemosForAccount = {} #tmp
+# offerIDsMappedToChiefMemosForAccount = {} #override external tax data
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
@@ -12,7 +12,6 @@ taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd
 washSaleAdjStart = taxYearStart - pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
-# import threading -> global
 def bulkOutput():
   MICRlines = open("access_me.csv").readlines().split("|")
   threads = []
@@ -27,9 +26,9 @@ def bulkOutput():
     threads[i].start().join()
 
 def form8949forAccount(address):
-  taxableSales = washSaleReferenceList = []
-  
-  # offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) # TODO: Impliment some kind of caching here (associated with MICR?)
+  # taxableSales = washSaleReferenceList = []
+  # TODO: Impliment dict caching w/ MICR: start at last known offerID timestamp
+  # offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
   for offerIDs, memoOpeningInstr in offerIDsMappedToChiefMemosForAccount.items():
     offerIDtradeData = getTradeData(offerIDs, address)
     if(offerIDtradeData[1] == "sell"): # This is a closing offer
@@ -63,8 +62,6 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
             offerIDarr = []
             appendOpTrOfferIDsToArr(ops, offerIDarr, address)
             for offerIDs in offerIDarr:
-              if(offerIDs == 4728565770907353089 or offerIDs == 4733736958776672257):
-                sys.exit()
               if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
                 try:
                   memo = txns["memo"]
@@ -251,38 +248,21 @@ def getPNLfromCombinedCoveredTrade(data):
     sys.exit("todo: test on live data")
 
 # acct data entry format for prexisting basis:
-#                                                   {CUSIP: numShares@price}
 # later you can update with numShares - amoutn used
 # can reference data op paging num? 
 
 def getPNLfromCombinedUncoveredTrade(data, addr):
   historicPositions = getHistoricPositionsFromAccountData(addr)
-  # historicPositions = callToCloud()
-  historicPositionData = "Address|Asset Code|Uncovered Share Aquisition Date|Data Migration Date|Uncovered Share Amount|Uncovered Share Basis\nGDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7|yUSDC|2020-9-15|2021-1-1|15000|256654\nGARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG|XLM|2018-9-15|2021-1-1|15000|3200"
-  for lines in historicPositionData.split("\n")[1:]:
-    for address, assetCode, purchaseDate, shares, basis in lines.split("|"):
-      if(address == addr):
-        historicPositions.append(
-          (
-            assetCode,
-            pandas.to_datetime(f"{purchaseDate}T20:00:00Z"),
-            Decimal(shares),
-            Decimal(basis)
-          )
-        )
-  # todo: impliment this with a backend database
-  
-  # backend databases = bad
-  
-  # how can we do all this on-chain?
-  
-  # suggestion: account data values 
-  #             claimable balances?
-  
+ 
 
 
+# for address, assetCode, purchaseDate, shares, basis in lines.split("|"):
   
-        
+  # assetCode,
+  # pandas.to_datetime(f"{purchaseDate}T20:00:00Z"),
+  # Decimal(shares),
+  # Decimal(basis)
+  # # suggestion: account data values 
         
         
 # "uncovered",
@@ -298,10 +278,8 @@ def getPNLfromCombinedUncoveredTrade(data, addr):
     if(oldBuys[0] == data[1].code):
       comparableAssets.append(oldBuys)
   
-  
-  
-  #what if instead of doing this, we just code it as independent txs with "offer codes" when sending shares initially
-  fetchPreExistingPositions(address, data[1].code)
+  # code on interface as paging_token from sending shares initially for positional close
+  historicPositions = getHistoricPositionsDataFromBTdistributionMemos(address)
   
   sharesBought = adjustNumSharesForStockSplits(a, b, data[1].code)
   purchaseBasis = Decimal(getUncoveredBasis("Set up a basic google sheet")) if 0 else data[4]
@@ -315,26 +293,56 @@ def getPNLfromCombinedUncoveredTrade(data, addr):
     purchaseBasisAdj = sharesSold * purchasePrice
   return (purchaseBasisAdj, saleProceeds - purchaseBasis)
 
-def fetchInvestorPreExistingPositionsForAsset(address, queryAsset):
+def getHistoricPositionsDataFromBTdistributionMemos(address):
   preExistingPositions = []
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/payments?limit={MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for payments in ledger["_embedded"]["records"]:
       try:
-        properAsset = Asset(payments["asset_code"], payments["asset_issuer"]) == Asset(queryAsset, BT_ISSUER)
+        BTasset = payments["asset_issuer"] == BT_ISSUER
       except KeyError:
         continue
-      if(properAsset and payments["from"] == BT_DISTRIBUTOR):
+      if(BTasset and payments["from"] == BT_DISTRIBUTOR):
         txnAddr = payments["_links"]["transaction"]["href"]
         txnData = requests.get(txnAddr).json()
         try:
-          priorBase = txnData["memo"] # Expect YEAR-MONTH-DAY@PRICE | uncovered
+          historicPositionData = txnData["memo"] # Expect YEAR-MONTH-DAY@PRICE | uncovered
         except KeyError:
-          sys.exit(f"Unlabelled distribution:\n{payments}") # TODO: DWAC transfers don't include the basis - brokers send it separately within a month, so we need some kind of other record for this 
+          # DWAC transfers don't include the basis - brokers send it separately within a month
+          # We can use account data entries to keep track of this
+          
         preExistingPositions.append((payments["amount"], priorBase))
     ledger = getNextLedgerData(ledger)
   return preExistingPositions
+
+getHistoricPositionsDataFromBTdistributionMemos("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML")
+# [CUSIP]: [numShares]|[price]|2003-6-9
+
+# paging_token: basis
+def getDWACbasisFromAccountData(addr):
+  data = getAccountCustomLedgerData(addr)
+  historicPositionsCUSIPsMappedToBasisData = {}
+  for key, value in data.items():
+    if(isCUSIP(key)):
+      historicPositionsCUSIPsMappedToBasisData[key] = value
+  return historicPositionsCUSIPsMappedToBasisData
+
+# [succeedingOfferID]: [lossDissallowedFromPriorTrade]
+def getWashSalesFromAccountData(addr):
+  data = getAccountCustomLedgerData(addr)
+  succeedingOffersMappedToBasisAdjustments = {}
+  for key, value in data.items():
+    if(key in offerIDsMappedToChiefMemosForAccount.keys()):
+      succeedingOffersMappedToBasisAdjustments[key] = value
+  return succeedingOffersMappedToBasisAdjustments
+
+def getAccountCustomLedgerData(addr):
+  requestAddr = f"https://{HORIZON_INST}/accounts/{addr}"
+  try:
+    return requests.get(requestAddr).json()["data"]
+  except KeyError:
+    return 0
 
 def getUncoveredBasis(data):
   # you can't get the basis for uncovered shares ?
@@ -472,30 +480,13 @@ def placeFields(adjustedTrades):
 #                  support for sending path payments (incl. to self)
 
 # testing: "GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG"
-
-
-def getHistoricPositionsFromAccountData(addr):
-  data = getAccountCustomLedgerData(addr)
-  historicPositions = []
-  for key, value in data.items():
-    if(isCUSIP(key)):
-      historicPositions.append((key, value))
-  return historicPositions
-
-def getWashSalesFromAccountData(addr):
-  data = getAccountCustomLedgerData(addr)
-
-def getAccountCustomLedgerData(addr):
-  requestAddr = f"https://{HORIZON_INST}/accounts/{addr}"
-  return requests.get(requestAddr).json()["data"]
-
-def isCUSIP(query):
-  allAssets = listAllIssuerAssets()
-  for assets in allAssets:
-    getCUSIP(queryAsset)
-  return query in allCUSIPs
-
-getHistoricPositionsFromAccountData("GAJ4BSGJE6UQHZAZ5U5IUOABPDCYPKPS3RFS2NVNGFGFXGVQDLBQJW2P")
+print(getHistoricPositionsFromAccountData("GAJ4BSGJE6UQHZAZ5U5IUOABPDCYPKPS3RFS2NVNGFGFXGVQDLBQJW2P"))
 # print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
-form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
-fetchInvestorPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")
+#form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
+#fetchInvestorPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")
+
+
+
+
+
+
