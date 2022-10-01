@@ -95,7 +95,7 @@ def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
     for everyInvestorData in ledger["_embedded"]["records"]:
       numInvestors += 1
       if(everyInvestorData["account_id"] in validAccountPublicKeys):
-        paymentsAddrs = everyInvestorData["_links"]["payments"]["href"].replace("{?cursor,limit,order}", f"?limit={MAX_SEARCH}")
+        paymentsAddrs = everyInvestorData["_links"]["payments"]["href"].replace("{?cursor,limit,order}", f"?{MAX_SEARCH}")
         paymentData = requests.get(paymentsAddrs).json()
         accountPaymentRecords = paymentData["_embedded"]["records"]
         while(accountPaymentRecords != []):

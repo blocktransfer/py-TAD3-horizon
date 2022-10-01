@@ -50,7 +50,7 @@ def form8949forAccount(address):
 
 def getOfferIDsMappedToChiefMemosForAccount(address):
   offerIDsMappedToChiefMemosForAccount = {}
-  requestAddr = f"{HORIZON_INST}/accounts/{address}/transactions?limit={MAX_SEARCH}"
+  requestAddr = f"{HORIZON_INST}/accounts/{address}/transactions?{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for txns in ledger["_embedded"]["records"]:
@@ -113,7 +113,7 @@ def resolveTakerOffer(offersClaimed, offerIDarr, address):
   return offerID
 
 def getOfferIDfromContraID(offerID, address):
-  requestAddr = f"{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
+  requestAddr = f"{HORIZON_INST}/offers/{offerID}/trades?{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for trades in ledger["_embedded"]["records"]:
@@ -131,7 +131,7 @@ def getTradeData(offerID, address):
   tradeData = {}
   type = ""
   value = shares = Decimal("0")
-  requestAddr = f"{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
+  requestAddr = f"{HORIZON_INST}/offers/{offerID}/trades?{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for trades in ledger["_embedded"]["records"]:

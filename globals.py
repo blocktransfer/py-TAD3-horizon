@@ -26,8 +26,8 @@ MICR_TXT = f"{G_DIR}/../pii/master-identity-catalog-records.txt" #todo: modify h
 INVESTOR_BASE_RESERVE = Decimal("7")
 BT_STELLAR_TOML = "https://blocktransfer.io/.well-known/stellar.toml"
 HORIZON_INST = "https://horizon.stellar.org"
+MAX_SEARCH = "limit=200"
 MAX_NUM_DECIMALS = "7"
-MAX_SEARCH = "200"
 WASH_SALE_DAY_RANGE = 30
 MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2

@@ -1,7 +1,7 @@
 from globals import *
 
 def getAssetAccountsRequestAddr(queryAsset):
-  return f"{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&limit={MAX_SEARCH}"
+  return f"{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&{MAX_SEARCH}"
 
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
@@ -45,7 +45,7 @@ def getStockOutstandingShares(queryAsset):
 
 def listAllIssuerAssets():
   allAssets = []
-  requestAddress = f"{HORIZON_INST}/assets?asset_issuer={BT_ISSUER}&limit={MAX_SEARCH}"
+  requestAddress = f"{HORIZON_INST}/assets?asset_issuer={BT_ISSUER}&{MAX_SEARCH}"
   ledger = requests.get(requestAddress).json()
   while(ledger["_embedded"]["records"]):
     for entries in ledger["_embedded"]["records"]:
