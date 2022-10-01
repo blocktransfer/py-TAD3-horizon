@@ -12,9 +12,13 @@
 # Since atomic swaps instantly fill, you never reference syntheticIDs in a closing txn memo
 # Thus, you can simplify to memo = "preExistingDataKeyPT" if len(query) > 16 else "offerID"
 
+# OfferIDs will stay mapped to account with format offerID: {YEAR}:washSaleAdjustment until five years after the wash sale and closed (can be simple wallet wrapup)
+# {"DWAC-[distributionPagingToken]": [basisPriceFromBrokerExcludedFromOriginDistribution]} stays forever
+# ^ some kind of way to push out for the wallet to sign this (just check that it's only a manageDataOp in this format & signed by signers of distributor
+
 # DWAC SERVER INSTRUCTIONS
 # BT_DISTRIBUTOR sends account [numShares] stock with memo [price]||uncovered||DWAC:[coveredDate]||
-# Account does manage_data( distriubtion paging_token: [assetCode]:[numShares]:[price]:[basisDate] ) locally
+# Account does manage_data( distriubtion paging_token: [assetCode]:[numShares]:[basis]:[basisDate] ) locally
 #     case distributionMemo:
 #       match covered (has date)    -> paging_token: [assetCode]:[numShares]:[price]:2003-6-9
 #       match uncovered             -> paging_token: [assetCode]:[numShares]:uncovered:
@@ -43,13 +47,13 @@
 #     memo = memo.split(":")
 #     basis = memo[0]
 #     try:
-#       date = memo[1]
+#       historicalDate = memo[1]
 #     except IndexError:
 #       sys.exit(f"Failed to resolve memo {memo}")
 #     assetCode = payments["asset_code"]
 #     numShares = payments["amount"]
 #     pagingToken = payments["paging_token"]
-#     txn.append_manage_data_op(pagingToken, f"{assetCode}:{numShares}:{basis}:{date}")
+#     txn.append_manage_data_op(pagingToken, f"{assetCode}:{numShares}:{basis}:{historicalDate}")
 
 # UPDATE SUCCEEDING COST BASIS FOR WASH SALE
 #    - account ledger value:pair entries mapping offer ID to new basis 
