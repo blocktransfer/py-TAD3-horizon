@@ -1,5 +1,8 @@
 from globals import *
 
+def isFiat(queryAsset):
+  return queryAsset == USD_ASSET or queryAsset == USDC_ASSET
+
 def getValidAccountPublicKeys():
   validAccountPublicKeys = []
   inFile = open(MICR_TXT)
