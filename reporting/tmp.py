@@ -7,16 +7,9 @@
 # - export DIV
 #     basically just report if(fiat from BT_TREASURY to address)
 
-# TRADE REFERENCING WALLET INSTRUCTIONS (assume open and semi-honest, as impacts your taxes not us)
-# Memo for all trades must be a valid (enough origin shares referenced to cover exit offer):
-#  match len(tradeMemo.split("-")[0]):
-#    case range(17):
-#      print("offerID")
-#    case range(17, 19):
-#      print("paging_token")
-#    case 19:
-#      print("synthetic")  
-# You never reference syntheticIDs in a closing txn memo since atomic swaps instantly fill.
+# TRADE REFERENCING WALLET INSTRUCTIONS (assume open and semi-honest, as impacts your taxes)
+# All trades must contain a valid memo (enough origin shares referenced to cover exit offer)
+# Since atomic swaps instantly fill, you never reference syntheticIDs in a closing txn memo
 # Thus, you can simplify to memo = "preExistingDataKeyPT" if len(query) > 16 else "offerID"
 
 # DWAC SERVER INSTRUCTIONS
