@@ -29,15 +29,13 @@ def form8949forAccount(address):
   washSaleOfferIDs = getWashSaleOfferIDs(address)
   # TODO: Impliment dict caching w/ MICR: start at last known offerID timestamp
   #offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
-  for offerIDs, memoOpeningInstr in offerIDsMappedToChiefMemosForAccount.items():
+  for offerIDs, memoOriginInstr in offerIDsMappedToChiefMemosForAccount.items():
     offerTradeData = getTradeData(offerIDs, address)
     if(offerTradeData["type"] == "sell"): # sell = closing (todo: support short sales by adding "exit" flag)
       openingOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
-      originTradeData = getTradeData(memoOpeningInstr, address)
-      print(originTradeData["type"])
+      originTradeData = getTradeData(memoOriginInstr, address)
       combinedTradeData = combineTradeData(offerTradeData, originTradeData)
-      pprint(combinedTradeData["type"])
-      reportingTradeData = getTradePNL(combinedTradeData, address)
+      reportingTradeData = getTradePNL(combinedTradeData, memoOriginInstr, address)
       
       taxableSales.append(combined)
 
@@ -116,7 +114,6 @@ def getOfferIDfromContraID(offerID, address):
     ledger = getNextLedgerData(ledger)
 
 def getTradeData(offerID, address):
-  #print(offerID)
   tradeData = {"type": 0}
   type = ""
   value = shares = Decimal("0")
@@ -192,12 +189,12 @@ def combineTradeData(tradeData, originTradeData):
   combined["exitTradeDate"] = tradeData["fillDate"]
   return combined
 
-def getTradePNL(combinedTradeData, address):
+def getTradePNL(combinedTradeData, memoOriginInstr, address):
   match combinedTradeData["type"]:
     case "covered":
       return getCoveredTradePNL(combinedTradeData)
     case "uncovered":
-      return getUncoveredTradePNL(combinedTradeData, address)
+      return getUncoveredTradePNL(combinedTradeData, memoOriginInstr, address)
 
 def getCoveredTradePNL(data):
   if(data["originTradeShares"] == data["exitTradeShares"]):
@@ -209,12 +206,19 @@ def getCoveredTradePNL(data):
   else:
     sys.exit("todo: test on live data, see if can combine")
 
-def getUncoveredTradePNL(data, address):
-  historicPositions = getHistoricPositions(address)
+paging_token_EX = "111720727958269953"
+data_EX = "DEMO:4000:17.22:2003-6-9"
+
+def getUncoveredTradePNL(data, memoOriginInstr, address):
+  originData = getOriginDataFromPagingToken(memoOriginInstr, address)
   
-  # code on interface as paging_token from sending shares initially for positional close
   
-  
+  numShares = adjustNumSharesForStockSplits(numSharesIn, date, asset.code)
+  price = 
+  assert(asset == data["asset"])
+  entryPrice = data["originTradeShares"] / data["originTradeValue"]
+  originBasisAdj = data["exitTradeShares"] * entryPrice
+  return(originBasisAdj, data["exitTradeValue"] - originBasisAdj)
   
   sharesBought = adjustNumSharesForStockSplits(a, b, data[1].code)
   purchaseBasis = Decimal(getUncoveredBasis("Set up a basic google sheet")) if 0 else data[4]
@@ -228,15 +232,44 @@ def getUncoveredTradePNL(data, address):
     purchaseBasisAdj = sharesSold * purchasePrice
   return (purchaseBasisAdj, saleProceeds - purchaseBasis)
 
+def getOriginDataFromPagingToken(opPagingToken, address):
+  originDistributionData = {}
+  requestAddr = f"{HORIZON_INST}/operations/{opPagingToken}"
+  opData = requests.get(requestAddr).json()["created_at"]
+  transactionAddr = opData[_"links"]["transaction"]["href"]
+  try:
+    memo = requests.get(transactionAddr).json()["memo"]
+  except KeyError: # [price]||uncovered||DWAC:[coveredDate]||
+    memo = "uncovered:" 
+  memo = memo.split(":")
+  match memo[0]:
+    case "uncovered":
+      legacyPrice = Decimal("0")
+    case "DWAC":
+      try:
+        legacyPrice = Decimal(getAccountDataDict(address)[f"DWAC-{opPagingToken}"])
+      except KeyError:
+        sys.exit(f"{address} missing DWAC mapping for {opPagingToken}")
+    case other:
+      legacyPrice = Decimal(memo[0])
+  originDistributionData["originTradeDate"] = memo[1]
+  originDistributionData["originTradeShares"] = adjustNumSharesForStockSplits(
+    opData["amount"],
+    opData["created_at"],
+    opData["asset_code"]
+  )
+  originDistributionData["originTradeValue"] = legacyPrice * opData["amount"]
+  return originDistributionData
+
 # purchaseBasisAdj
 # PNL
 
 def getWashSaleOfferIDs(address):
   return 1
-  
+
 def getHistoricPositions(address):
-  distributionPagingTokensMappedToHistoricData = getAccountDataDict(address)
-  # There shouldn't be anything else in account data
+  distributionPagingTokensMappedToHistoricData = {}
+  distributionPagingTokensMappedToHistoricData[paging_token_EX] = data_EX # testing
   return distributionPagingTokensMappedToHistoricData
 
 def getWashSaleAdjustments(address):
