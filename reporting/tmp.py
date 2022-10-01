@@ -16,7 +16,6 @@
 #      print("paging_token")
 #    case 19:
 #      print("synthetic")  
-# When closing multi-leg fill, just use the offerID repetatively
 # You never reference syntheticIDs in a closing txn memo since consumed instantly.
 # Thus, you can simplify to memo = "preExistingDataKeyPT" if len(query) > 16 else "offerID"
 # 
