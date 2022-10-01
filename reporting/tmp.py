@@ -8,13 +8,17 @@
 #     basically just report if(fiat from BT_TREASURY to address)
 
 # TRADE REFERENCING WALLET INSTRUCTIONS (assume open and semi-honest, as impacts your taxes not us)
-# - Memo for all trades must be a valid (enough origin shares referenced to cover exit offer):
-#   - basis offerID,                     /  <= len 10
-#   - basis syntheticOfferID, or        {   len 19
-#   - preExistingDataKey paging_token.   \  17 <= len < 19 when .split("-")[0]
-# - When closing multi-leg fill:
-# 
-# 
+# Memo for all trades must be a valid (enough origin shares referenced to cover exit offer):
+#  match len(tradeMemo.split("-")[0]):
+#    case range(17):
+#      print("offerID")
+#    case range(17, 19):
+#      print("paging_token")
+#    case 19:
+#      print("synthetic")  
+# When closing multi-leg fill, just use the offerID repetatively
+# You never reference syntheticIDs in a closing txn memo since consumed instantly.
+# Thus, you can simplify to memo = "preExistingDataKeyPT" if len(query) > 16 else "offerID"
 # 
 # 
 # 
