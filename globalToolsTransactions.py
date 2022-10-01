@@ -1,4 +1,4 @@
-import globals
+from globals import *
 
 def getValidAccountPublicKeys():
   validAccountPublicKeys = []
@@ -32,3 +32,23 @@ def submitTxnGarunteed(transaction):
   while(True):
     if(server.submit_transaction(transaction)):
       return 1
+
+def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
+  data = loadTomlData(BT_STELLAR_TOML)
+  for currencies in data["CURRENCIES"]:
+    assetCode = getAssetCodeFromTomlLink(currencies["toml"])
+    if(assetCode == queryAsset):
+      data = loadTomlData(currencies["toml"])
+      splitData = data["CURRENCIES"][0]["splits"].split("|")
+      for splits in splitData:
+        date = pandas.to_datetime(f"{splits.split('effective ')[1]}T00:00:00Z")
+        splits = splits.split(" ")
+        num = Decimal(splits[0])
+        denom = Decimal(splits[2])
+        splitsDict[date] = num / denom
+      return splitsDict
+  splitsDict = getSplitsDict(queryAsset)
+  for splitTimestamps, splitRatios in splitsDict.items():
+    if(purchaseTimestamp < splitTimestamps):
+      numShares = numShares * splitRatios
+  return numShares
