@@ -28,10 +28,10 @@ def bulkOutput():
 def form8949forAccount(address):
   # taxableSales = washSaleReferenceList = []
   # TODO: Impliment dict caching w/ MICR: start at last known offerID timestamp
-  # offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
+  offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
   for offerIDs, memoOpeningInstr in offerIDsMappedToChiefMemosForAccount.items():
     offerIDtradeData = getTradeData(offerIDs, address)
-    if(offerIDtradeData["type"] == "sell"): # sell = closing (todo: support short sales)
+    if(offerIDtradeData["type"] == "sell"): # sell = closing (todo: support short sales by adding "exit" flag)
       openingOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
       openingTradeData = getTradeData(memoOpeningInstr, address)
       combined = combineTradeData(offerIDtradeData, openingTradeData)
@@ -69,6 +69,10 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
                   memo = ""
                 offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
     ledger = getNextLedgerData(ledger)
+    try: 
+      ledger["_embedded"]["records"]
+    except KeyError:
+      pprint(ledger)
   return offerIDsMappedToChiefMemosForAccount
 
 def getAttr(obj, attr):
@@ -76,57 +80,31 @@ def getAttr(obj, attr):
     return getattr(obj, attr)
   return functools.reduce(subGetAttr, [obj] + attr.split("."))
 
-class NoOffersClaimed(Exception):
-  def __init__(self, message = "Offer deleted"):
-    super(NoOffersClaimed, self).__init__(message)
-
 def appendOpTrOfferIDsToArr(op, offerIDarr, address):
   makerIDattr = "success.offer.offer.offer_id.int64"
+  takerIDattr = "success.offers_claimed"
   try:
     offerID = getAttr(op.manage_sell_offer_result, makerIDattr)
+    if(len(str(offerID)) > 10):
+      pprint(offerID)
+      pprint(op)
+      pprint(op.to_xdr())
   except AttributeError:
     try:
       offerID = getAttr(op.manage_buy_offer_result, makerIDattr)
     except AttributeError:
       try:
-        offerID = resolveTakerOffer(op.manage_sell_offer_result.success, offerIDarr, address)
+        offerID = resolveTakerOffer(getAttr(op.manage_sell_offer_result, takerIDattr), offerIDarr, address)
       except AttributeError:
         try:
-          offerID = resolveTakerOffer(op.manage_buy_offer_result.success, offerIDarr, address)
+          offerID = resolveTakerOffer(getAttr(op.manage_buy_offer_result, takerIDattr), offerIDarr, address)
         except AttributeError:
           sys.exit(f"Failed to resolve offerID in\n{op}\n")
   return offerIDarr.append(offerID)
 
-def resolveTakerOffer(taker, offerIDarr, address):
-  takerIDattr = "offer.offer.offer_id.int64"
-  try:
-    print(getAttr(taker, takerIDattr))
-    sys.exit(1)
-    return getOfferIDfromContraID(getAttr(taker, takerIDattr), address)
-  except AttributeError:
-    try:
-      return appendOfferIDsFromClaimedContras(taker.offers_claimed, offerIDarr, address, taker)
-    except NoOffersClaimed:
-      return 0
-
-def getOfferIDfromContraID(offerID, address):
-  requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
-  ledger = requests.get(requestAddr).json()
-  while(ledger["_embedded"]["records"]):
-    for trades in ledger["_embedded"]["records"]:
-      try:
-        if(trades["counter_account"] == address):
-          return int(trades["counter_offer_id"])
-        elif(trades["base_account"] == address):
-          return int(trades["base_offer_id"])
-      except KeyError:
-        sys.exit(f"No offerID found:\n{trades}")
-    ledger = getNextLedgerData(ledger)
-  sys.exit(f"No source trade found: {offerID}")
-
-def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address, t):
-  lastTrade = offersClaimed[-1:]
+def resolveTakerOffer(offersClaimed, offerIDarr, address):
   IDattr = "offer_id.int64"
+  offerID = 0
   for trades in offersClaimed:
     try:
       offerID = getOfferIDfromContraID(getAttr(trades.order_book, IDattr), address)
@@ -134,16 +112,20 @@ def appendOfferIDsFromClaimedContras(offersClaimed, offerIDarr, address, t):
       try:
         offerID = getOfferIDfromContraID(getAttr(trades.liquidity_pool, IDattr), address)
       except AttributeError:
-        try:
-          offerID = getOfferIDfromContraID(getAttr(trades.v0, IDattr), address)
-        except AttributeError:
-          sys.exit(f"Atomic swap contra discovery failed:\n{offersClaimed}")
-    if(trades != lastTrade):
-      offerIDarr.append(offerID)
-  try:
-    return offerID
-  except UnboundLocalError:
-    raise NoOffersClaimed
+        offerID = getOfferIDfromContraID(getAttr(trades.v0, IDattr), address)
+    offerIDarr.append(offerID)
+  return offerID
+
+def getOfferIDfromContraID(offerID, address):
+  requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
+  ledger = requests.get(requestAddr).json()
+  while(ledger["_embedded"]["records"]):
+    for trades in ledger["_embedded"]["records"]:
+      if(trades["counter_account"] == address):
+        return int(trades["counter_offer_id"])
+      elif(trades["base_account"] == address):
+        return int(trades["base_offer_id"])
+    ledger = getNextLedgerData(ledger)
 
 def getTradeData(offerID, address):
   try:
@@ -195,9 +177,9 @@ def getTradeData(offerID, address):
   tradeData["value"] = value
   tradeData["offerID"] = offerID
   tradeData["type"] = type
-  return tradeData if value else 0
+  return tradeData if value else {"type": 0}
 
-def getAssetGivenType(trade, type): # type <- "base" | "counter"
+def getAssetGivenType(trade, type):
   try:
     return Asset(trade[f"{type}_asset_code"], trade[f"{type}_asset_issuer"])
   except KeyError:
@@ -229,42 +211,14 @@ def getPNLfromCombinedCoveredTrade(data):
   if(data["originTradeShares"] == combined["exitTradeShares"]):
     return(data["originTradeValue"], data["exitTradeValue"] - data["originTradeValue"])
   elif(data["originTradeShares"] > data["exitTradeShares"]):
-    purchasePrice = data["originTradeShares"] / data["originTradeValue"]
-    purchaseBasisAdj = data["exitTradeShares"] * purchasePrice
-    return(purchaseBasisAdj, data["exitTradeValue"] - purchaseBasisAdj)
+    entryPrice = data["originTradeShares"] / data["originTradeValue"]
+    originBasisAdj = data["exitTradeShares"] * entryPrice
+    return(originBasisAdj, data["exitTradeValue"] - originBasisAdj)
   else:
-    sys.exit("todo: test on live data")
-
-# acct data entry format for prexisting basis:
-# later you can update with numShares - amoutn used
-# can reference data op paging num? 
+    sys.exit("todo: test on live data, see if can combine")
 
 def getPNLfromCombinedUncoveredTrade(data, addr):
   historicPositions = getHistoricPositionsFromAccountData(addr)
- 
-
-
-# for address, assetCode, purchaseDate, shares, basis in lines.split("|"):
-  
-  # assetCode,
-  # pandas.to_datetime(f"{purchaseDate}T20:00:00Z"),
-  # Decimal(shares),
-  # Decimal(basis)
-  # # suggestion: account data values 
-        
-        
-# "uncovered",
-# tradeData["asset"],
-# 0,                                originTradeData["finalExecutionDate"],
-# 0,                                originTradeData["shares"],
-# 0,                                originTradeData["value"],
-# tradeData["shares"],
-# tradeData["value"],
-# tradeData["finalExecutionDate"]
-  comparableAssets = []
-  for oldBuys in historicPositions:
-    if(oldBuys[0] == data[1].code):
-      comparableAssets.append(oldBuys)
   
   # code on interface as paging_token from sending shares initially for positional close
   historicPositions = getHistoricPositionsDataFromBTdistributionMemos(address)
@@ -326,15 +280,11 @@ def getHistoricPositions(address):
   return distributionPagingTokensMappedToHistoricData
 
 def getWashSaleAdjustments(address):
+  return 1
 
 def getAccountDataDict(address):
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}"
   return requests.get(requestAddr).json()["data"]
-
-print(getHistoricPositions("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML"))
-sys.exit()
-
-
 
 # paging_token: basis
 def basisFromAccountData(addr):
@@ -406,11 +356,9 @@ def adjustAllTradesForWashSales(combinedData, address):
   
   
   
-  # WHEN WE HAVE A WASH SALE:
-  # we have to update the cost basis for the succeeding trade
-  # HOW TO UPDATE SUCCEEDING COST BASIS? 
+  # HOW TO UPDATE SUCCEEDING COST BASIS FOR WASH SALE
   #    - account ledger value:pair entries mapping offer ID to new basis 
-  #        - if(lookup if offerID in mappingItems ):
+  #        - if(offerID in mappingItems ):
   #          -  basis = offerBasis + adj.
   #        - else:
   #          -  basis = offerBasis
@@ -471,9 +419,10 @@ def placeFields(adjustedTrades):
 #                  support for sending path payments (incl. to self)
 
 # testing: "GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG"
-print(getHistoricPositionsFromAccountData("GAJ4BSGJE6UQHZAZ5U5IUOABPDCYPKPS3RFS2NVNGFGFXGVQDLBQJW2P"))
+# print(getHistoricPositions("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML"))
+# print(getHistoricPositionsFromAccountData("GAJ4BSGJE6UQHZAZ5U5IUOABPDCYPKPS3RFS2NVNGFGFXGVQDLBQJW2P"))
 # print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
-#form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
+form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
 #fetchInvestorPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")
 
 
