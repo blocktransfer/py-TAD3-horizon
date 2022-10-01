@@ -14,9 +14,9 @@ washSaleAdjStart = taxYearStart - pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
 def bulkOutput():
-  MICRlines = open("access_me.csv").readlines().split("|")
+  MICRlines = open("access_me.txt").readlines().split("\n")
   threads = []
-  for addresses, i in enumerate(MICRlines[0]):
+  for addresses, i in enumerate(MICRlines.split("|")[0]):
     form8949forAccount(addresses)
     threads.append(
         threading.Thread(
@@ -27,7 +27,7 @@ def bulkOutput():
     threads[i].start().join()
 
 def form8949forAccount(address):
-  # taxableSales = washSaleReferenceList = []
+  washSaleOfferIDs = getWashSaleOfferIDs(address)
   # TODO: Impliment dict caching w/ MICR: start at last known offerID timestamp
   offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
   for offerIDs, memoOpeningInstr in offerIDsMappedToChiefMemosForAccount.items():
@@ -41,8 +41,7 @@ def form8949forAccount(address):
       else:
         combined += getPNLfromCombinedUncoveredTrade(combined, address)
       taxableSales.append(combined)
-    else:
-      washSaleReferenceList.append(trade)
+
   adjustedTrades = adjustAllTradesForWashSales(taxableSales, address, offerIDsMappedToChiefMemosForAccount)
   # mergedTrades = mergeForVARIOUS(adjustedTrades) ? or just do by orderID?
   finalTrades = filterTradesToTaxablePeriod(mergedTrades)
@@ -51,7 +50,7 @@ def form8949forAccount(address):
 
 def getOfferIDsMappedToChiefMemosForAccount(address):
   offerIDsMappedToChiefMemosForAccount = {}
-  requestAddr = f"https://{HORIZON_INST}/accounts/{address}/transactions?limit={MAX_SEARCH}"
+  requestAddr = f"{HORIZON_INST}/accounts/{address}/transactions?limit={MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for txns in ledger["_embedded"]["records"]:
@@ -118,7 +117,7 @@ def resolveTakerOffer(offersClaimed, offerIDarr, address):
   return offerID
 
 def getOfferIDfromContraID(offerID, address):
-  requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
+  requestAddr = f"{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for trades in ledger["_embedded"]["records"]:
@@ -136,7 +135,7 @@ def getTradeData(offerID, address):
   tradeData = {}
   type = ""
   value = shares = Decimal("0")
-  requestAddr = f"https://{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
+  requestAddr = f"{HORIZON_INST}/offers/{offerID}/trades?limit={MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for trades in ledger["_embedded"]["records"]:
@@ -275,6 +274,8 @@ def getPNLfromCombinedUncoveredTrade(data, addr):
 #     pagingToken = payments["paging_token"]
 #     txn.append_manage_data_op(pagingToken, f"{assetCode}:{numShares}:{basis}:{date}")
 
+def getWashSaleOfferIDs(address):
+
 def getHistoricPositions(address):
   historicPositions = {}
   
@@ -284,12 +285,12 @@ def getWashSaleAdjustments(address):
   return 1
 
 def getAccountDataDict(address):
-  requestAddr = f"https://{HORIZON_INST}/accounts/{address}"
+  requestAddr = f"{HORIZON_INST}/accounts/{address}"
   return requests.get(requestAddr).json()["data"]
 
 # paging_token: basis
 def basisFromAccountData(addr):
-  data = getAccountCustomLedgerData(addr)
+  data = getAccountDataDict(addr)
   historicPositionsCUSIPsMappedToBasisData = {}
   for key, value in data.items():
     if(isCUSIP(key)):
@@ -298,19 +299,12 @@ def basisFromAccountData(addr):
 
 # [succeedingOfferID]: [lossDissallowedFromPriorTrade]
 def getWashSalesFromAccountData(addr):
-  data = getAccountCustomLedgerData(addr)
+  data = getAccountDataDict(addr)
   succeedingOffersMappedToBasisAdjustments = {}
   for key, value in data.items():
     if(key in offerIDsMappedToChiefMemosForAccount.keys()):
       succeedingOffersMappedToBasisAdjustments[key] = value
   return succeedingOffersMappedToBasisAdjustments
-
-def getAccountCustomLedgerData(addr):
-  requestAddr = f"https://{HORIZON_INST}/accounts/{addr}"
-  try:
-    return requests.get(requestAddr).json()["data"]
-  except KeyError:
-    return 0
 
 def getUncoveredBasis(data):
   # you can't get the basis for uncovered shares ?

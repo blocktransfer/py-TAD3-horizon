@@ -57,7 +57,7 @@ def countProxyVotes(queryAsset, numVotingItems, meetingType):
 
 # Assume eligibility of all unrestricted outstanding shares on record date
 def getNumUnrestrictedShares(queryAsset):
-  requestAddr = f"https://{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
+  requestAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
   data = requests.get(requestAddr).json()
   try: 
     return Decimal(data["_embedded"]["records"][0]["amount"]) # Assume no voting of restricted shares

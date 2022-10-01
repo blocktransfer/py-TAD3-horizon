@@ -1,7 +1,7 @@
 from globals import *
 
 def getAssetAccountsRequestAddr(queryAsset):
-  return f"https://{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&limit={MAX_SEARCH}"
+  return f"{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&limit={MAX_SEARCH}"
 
 def getStellarBlockchainBalances(queryAsset):
   StellarBlockchainBalances = {}
@@ -26,14 +26,14 @@ def getStellarBlockchainBalances(queryAsset):
 def getNextLedgerData(ledger):
   nextAddr = ledger["_links"]["next"]["href"].replace("%3A", ":").replace("\u0026", "&")
   ledger = requests.get(nextAddr).json()
-  return ledger
+  return ledger if not ledger["status"] else requests.get(nextAddr).json()
 
 def getStockOutstandingShares(queryAsset):
-  requestAddr = f"https://{HORIZON_INST}/assets?asset_code={QueryAsset}&asset_issuer=BT_ISSUER"
+  requestAddr = f"{HORIZON_INST}/assets?asset_code={QueryAsset}&asset_issuer=BT_ISSUER"
   data = requests.get(requestAddr).json()
   outstandingInclTreasuryShares = data["_embedded"]["records"][0]["amount"]
   treasuryAddr = resolveFederationAddress(f"{queryAsset}*treasury.holdings")
-  requestAddr = f"https://{HORIZON_INST}/accounts/{treasuryAddr}"
+  requestAddr = f"{HORIZON_INST}/accounts/{treasuryAddr}"
   accountBalances = requests.get(requestAddr).json()["balances"]
   queryAsset = defGetAssetObjFromCode(queryAsset)
   for balances in accountBalances:
@@ -45,7 +45,7 @@ def getStockOutstandingShares(queryAsset):
 
 def listAllIssuerAssets():
   allAssets = []
-  requestAddress = f"https://{HORIZON_INST}/assets?asset_issuer={BT_ISSUER}&limit={MAX_SEARCH}"
+  requestAddress = f"{HORIZON_INST}/assets?asset_issuer={BT_ISSUER}&limit={MAX_SEARCH}"
   ledger = requests.get(requestAddress).json()
   while(ledger["_embedded"]["records"]):
     for entries in ledger["_embedded"]["records"]:
