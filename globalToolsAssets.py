@@ -27,6 +27,10 @@ def getNextLedgerData(ledger):
   nextAddr = ledger["_links"]["next"]["href"].replace("%3A", ":").replace("\u0026", "&")
   ledger = requests.get(nextAddr).json()
   return ledger if not ledger["status"] else requests.get(nextAddr).json()
+{'detail': 'The request cannot be serviced at this time.',
+ 'status': 503,
+ 'title': 'Service Unavailable',
+ 'type': 'https://stellar.org/horizon-errors/service_unavailable'}
 
 def getStockOutstandingShares(queryAsset):
   requestAddr = f"{HORIZON_INST}/assets?asset_code={QueryAsset}&asset_issuer=BT_ISSUER"

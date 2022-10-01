@@ -1,19 +1,34 @@
-# STOCK SPLIT TRUSTLINE EXECUTION
-#   - e.g. split on 4/20
-#     - freeze trustlines at 4/20 10pm 
-#     - execute split ops as needed
-#     - update toml record
-
 # - sumbmit DIV to FIRE
-# - export/email(?) 8949
 
+# - export/email(?) 8949
 # different doc:
 #   - interest
 #     - pay all dividends via USDC for recordkeeping?
 # - export DIV
+#     basically just report if(fiat from BT_TREASURY to address)
 
-# basically just report if(fiat from BT_TREASURY to address)
-
+# TRADE REFERENCING WALLET INSTRUCTIONS (assume open and semi-honest, as impacts your taxes not us)
+# - Memo for all trades must be a valid (enough origin shares referenced to cover exit offer):
+#   - basis offerID,                     /  <= len 10
+#   - basis syntheticOfferID, or        {   len 19
+#   - preExistingDataKey paging_token.   \  17 <= len < 19 when .split("-")[0]
+# - When closing multi-leg fill:
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
 
 # DWAC SERVER INSTRUCTIONS
 # BT_DISTRIBUTOR sends account [numShares] stock with memo [price]||uncovered||DWAC:[coveredDate]||
