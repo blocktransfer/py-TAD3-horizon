@@ -57,10 +57,10 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
       if(txns["source_account"] == address):
         resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
         for ops in resultXDR.result.results:
-          ops = ops.tr
-          if(ops.manage_buy_offer_result or ops.manage_sell_offer_result):
+          op = ops.tr
+          if(op.manage_buy_offer_result or op.manage_sell_offer_result):
             offerIDarr = []
-            appendOpTrOfferIDsToArr(ops, offerIDarr, address)
+            appendOfferIDsToArr(op, offerIDarr, address)
             for offerIDs in offerIDarr:
               if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
                 try:
@@ -69,10 +69,6 @@ def getOfferIDsMappedToChiefMemosForAccount(address):
                   memo = ""
                 offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
     ledger = getNextLedgerData(ledger)
-    try: 
-      ledger["_embedded"]["records"]
-    except KeyError:
-      pprint(ledger)
   return offerIDsMappedToChiefMemosForAccount
 
 def getAttr(obj, attr):
@@ -80,7 +76,7 @@ def getAttr(obj, attr):
     return getattr(obj, attr)
   return functools.reduce(subGetAttr, [obj] + attr.split("."))
 
-def appendOpTrOfferIDsToArr(op, offerIDarr, address):
+def appendOfferIDsToArr(op, offerIDarr, address):
   makerIDattr = "success.offer.offer.offer_id.int64"
   takerIDattr = "success.offers_claimed"
   try:
