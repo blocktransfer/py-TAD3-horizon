@@ -214,7 +214,11 @@ def combineTradeData(tradeData, originTradeData):
   combined["type"] = "covered" if originTradeData else "uncovered"
   combined["asset"] = tradeData["asset"]
   combined["originTradeDate"] = originTradeData["finalExecutionDate"] if originTradeData else 0
-  combined["originTradeNumShares"] = originTradeData["shares"] if originTradeData else 0
+  combined["originTradeShares"] = adjustNumSharesForStockSplits(
+    originTradeData["shares"],
+    originTradeData["originTradeDate"],
+    originTradeData["asset"].code
+  ) if originTradeData else 0
   combined["originTradeValue"] = originTradeData["value"] if originTradeData else 0
   combined["exitTradeShares"] = tradeData["shares"]
   combined["exitTradeValue"] = tradeData["value"]
@@ -222,14 +226,10 @@ def combineTradeData(tradeData, originTradeData):
   return combined
 
 def getPNLfromCombinedCoveredTrade(data):
-  sharesOriginallyAquired = adjustNumSharesForStockSplits(data["originTradeNumShares"], data["originTradeDate"], data["asset"].code)
-  purchaseBasis = 
-  sharesSold = 
-  saleProceeds = 
-  if(sharesBought == sharesSold):
+  if(data["originTradeShares"] == combined["exitTradeShares"]):
     return(data["originTradeValue"], data["exitTradeValue"] - data["originTradeValue"])
-  elif(sharesBought > data["exitTradeShares"]):
-    purchasePrice = sharesBought / data["originTradeValue"]
+  elif(data["originTradeShares"] > data["exitTradeShares"]):
+    purchasePrice = data["originTradeShares"] / data["originTradeValue"]
     purchaseBasisAdj = data["exitTradeShares"] * purchasePrice
     return(purchaseBasisAdj, data["exitTradeValue"] - purchaseBasisAdj)
   else:
