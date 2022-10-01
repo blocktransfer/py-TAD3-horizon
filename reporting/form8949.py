@@ -300,7 +300,7 @@ def getPNLfromCombinedUncoveredTrade(data, addr):
 #     case distributionMemo:
 #       match covered (has date)    -> paging_token: [assetCode]:[numShares]:[price]:2003-6-9
 #       match uncovered             -> paging_token: [assetCode]:[numShares]:uncovered:
-#       match DWAC                  -> paging_token: [assetCode]:[numShares]:DWAC:[txnDate]
+#       match DWAC                  -> paging_token: [assetCode]:[numShares]:DWAC:[brokerDate]
 #   DWAC transfers may not include the basis - brokers can send it separately in a month
 #   Send user 0.0000001XLM txn w/ memo [paging_token]:[DWAC basis] so they can update
 #   Currently room in memo for stocks priced under 1M/share, which should be fine
@@ -310,11 +310,11 @@ def getPNLfromCombinedUncoveredTrade(data, addr):
 
 def getHistoricPositions(address):
   historicPositions = {}
-  distributionPagingTokensMappedToMemos = getDistributionPagingTokensMappedToMemos(address)
+  distributionPagingTokensMappedToHistoricData = getDistributionPagingTokensMappedToHistoricData(address)
   return distributionPagingTokensMappedToMemos
 
 def getDistributionPagingTokensMappedToMemos(address):
-  distributionPagingTokensMappedToMemos = {}
+  distributionPagingTokensMappedToHistoricData = {}
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/payments?limit={MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
@@ -324,7 +324,6 @@ def getDistributionPagingTokensMappedToMemos(address):
       except KeyError:
         continue
       if(BTasset and payments["from"] == BT_DISTRIBUTOR):
-        distributionPagingToken = payments["paging_token"]
         txnAddr = payments["_links"]["transaction"]["href"]
         txnData = requests.get(txnAddr).json()
         try:
@@ -335,12 +334,6 @@ def getDistributionPagingTokensMappedToMemos(address):
           #memo = "42.00:"
           # continue
         memo = memo.split(":")
-        # try:
-        #   price = memo[0]
-        #   date = memo[1]
-        # except IndexError:
-        #    sys.exit(f"Distribution memo malformed: {''.join(memo)}") 
-        
         price = memo[0]
         match price:
           case "uncovered":
@@ -350,14 +343,14 @@ def getDistributionPagingTokensMappedToMemos(address):
           case other:
             date = memo[1]
         
-        print(price)
-        print(date)
-        
-        distributionData = payments["amount"]
-        distributionPagingTokensMappedToMemos[distributionPagingToken] = distributionData
+        assetCode = payments["asset_issuer"]
+        numShares = payments["amount"]
+        pagingToken = payments["paging_token"]
+        distributionData = ()
+        distributionPagingTokensMappedToHistoricData[pagingToken] = distributionData
     #  [price]||uncovered||DWAC:[coveredDate]||
     ledger = getNextLedgerData(ledger)
-  return distributionPagingTokensMappedToMemos
+  return distributionPagingTokensMappedToHistoricData
   #date@price -> paging_token: [assetCode]:[numShares]:[price]:2003-6-9
 #       match uncovered             -> paging_token: [assetCode]:[numShares]:uncovered:
 #       match DWAC                  -> paging_token: [assetCode]:[numShares]:DWAC:[txnDate]
