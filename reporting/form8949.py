@@ -31,11 +31,11 @@ def form8949forAccount(address):
   # offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
   for offerIDs, memoOpeningInstr in offerIDsMappedToChiefMemosForAccount.items():
     offerIDtradeData = getTradeData(offerIDs, address)
-    if(offerIDtradeData["type"] == "sell"): # sell = closing offer (todo: support short sales)
+    if(offerIDtradeData["type"] == "sell"): # sell = closing (todo: support short sales)
       openingOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
       openingTradeData = getTradeData(memoOpeningInstr, address)
       combined = combineTradeData(offerIDtradeData, openingTradeData)
-      if(combined[0] == "covered"):
+      if(combined["type"] == "covered"):
         combined += getPNLfromCombinedCoveredTrade(combined)
       else:
         combined += getPNLfromCombinedUncoveredTrade(combined, address)
@@ -222,16 +222,16 @@ def combineTradeData(tradeData, originTradeData):
   return combined
 
 def getPNLfromCombinedCoveredTrade(data):
-  sharesBought = adjustSharesBoughtForStockSplits(data[3], data[2], data[1].code)
-  purchaseBasis = data[4]
-  sharesSold = data[5]
-  saleProceeds = data[6]
+  sharesOriginallyAquired = adjustNumSharesForStockSplits(data["originTradeNumShares"], data["originTradeDate"], data["asset"].code)
+  purchaseBasis = 
+  sharesSold = 
+  saleProceeds = 
   if(sharesBought == sharesSold):
-    return(purchaseBasis, saleProceeds - purchaseBasis)
-  elif(sharesBought > sharesSold):
-    purchasePrice = sharesBought / purchaseBasis
-    purchaseBasisAdj = sharesSold * purchasePrice
-    return(purchaseBasisAdj, saleProceeds - purchaseBasisAdj)
+    return(data["originTradeValue"], data["exitTradeValue"] - data["originTradeValue"])
+  elif(sharesBought > data["exitTradeShares"]):
+    purchasePrice = sharesBought / data["originTradeValue"]
+    purchaseBasisAdj = data["exitTradeShares"] * purchasePrice
+    return(purchaseBasisAdj, data["exitTradeValue"] - purchaseBasisAdj)
   else:
     sys.exit("todo: test on live data")
 
@@ -364,32 +364,6 @@ def getAccountCustomLedgerData(addr):
 def getUncoveredBasis(data):
   # you can't get the basis for uncovered shares ?
   return 1
-
-def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
-  splitsDict = getSplitsDict(queryAsset)
-  for splitTimestamps, splitRatios in splitsDict.items():
-    if(purchaseTimestamp < splitTimestamps):
-      numShares = numShares * splitRatios
-  return numShares
-
-def getSplitsDict(queryAsset):
-  splitsDict = {}
-  try:
-    data = loadTomlData(BT_STELLAR_TOML)
-    for currencies in data["CURRENCIES"]:
-      assetCode = getAssetCodeFromTomlLink(currencies["toml"])
-      if(assetCode == queryAsset):
-        data = loadTomlData(currencies["toml"])
-        splitData = data["CURRENCIES"][0]["splits"].split("|")
-        for splits in splitData:
-          date = pandas.to_datetime(f"{splits.split('effective ')[1]}T00:00:00Z")
-          flexData = splits.split(" ")
-          num = Decimal(flexData[0])
-          denom = Decimal(flexData[2])
-          splitsDict[date] = num / denom
-        return splitsDict
-  except Exception:
-    sys.exit(f"Failed to lookup split info for {queryAsset}")
 
 def adjustAllTradesForWashSales(combinedData, address):
   adjustedTrades = washSaleWatchlist = []
