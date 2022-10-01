@@ -4,6 +4,7 @@ from globals import *
 import functools, threading #todo: threads -> global
 from taxTestingData import *
 
+USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C") # GARLIC testing
 # offerIDsMappedToChiefMemosForAccount = {} #override external tax data
 
 lastYear = datetime.today().year - 1
@@ -99,7 +100,7 @@ def appendOpTrOfferIDsToArr(op, offerIDarr, address):
         try:
           offerID = resolveTakerOffer(getAttr(op.manage_buy_offer_result, takerIDattr), offerIDarr, address)
         except AttributeError:
-          sys.exit(f"Failed to resolve offerID in\n{op}\n")
+          sys.exit(f"Failed to resolve offerID in\n{op}")
   return offerIDarr.append(offerID)
 
 def resolveTakerOffer(offersClaimed, offerIDarr, address):
@@ -356,37 +357,22 @@ def adjustAllTradesForWashSales(combinedData, address):
   
   
   
-  # HOW TO UPDATE SUCCEEDING COST BASIS FOR WASH SALE
-  #    - account ledger value:pair entries mapping offer ID to new basis 
-  #        - if(offerID in mappingItems ):
-  #          -  basis = offerBasis + adj.
-  #        - else:
-  #          -  basis = offerBasis
-  #      - requires user to publish wash sale value:pair the moment they execute the wa
-  #      - as such, must be implimented via wallet on the order level 
-  #        - basically not going to happed for users with hardware wallets, but neither wi
-  #          - so then everything works with SH as long as they use our platform 
-  #            - this should be fine as long as everything is open-source
-  #      - can remove mapping once wash sale pos. closed 
-  #        - must wait 30 days if sold at loss 
-  #        - could automatically be done in  wallet background next time they login after 1mo. mark (if loss)
-  #          - requires computation of all open positions and potentials washes when opening wallet, which could be compute heavy
-  #          - could slow down succeeding order execution
-  #PROS
-  #            - pretty minimal calculation if you cache recent potential wash sales in wallet
-  #            - only 1 more txn op which isn't a huge deal 
-  #CONS
-  #            - requires new offerID to post {succeedingOfferID: baseAdjustment<-lossDissallowedFromPriorTrade} value pair 
-  #            - so requires a reply from Horizon with offerID | contra lookup and then sending new txn 
-  #              - SH user could accidentally quit wallet after sale
-  #              - new value txn would need to be cached and sent at next wallet launch
-  #              - when possible: could prevent user from closing wallet until new value mapped
-  #                - or just send the new value mapping txns intentionally BEFORE displaying order confirmation to user with extremely high fee to ensure immediate acceptance
-  #    - 
-  #    - 
-  #    - 
-  #    - 
-  
+# UPDATE SUCCEEDING COST BASIS FOR WASH SALE
+#    - account ledger value:pair entries mapping offer ID to new basis 
+#        - if(offerID in mappingItems ):
+#          -  basis = offerBasis + adj.
+#        - else:
+#          -  basis = offerBasis
+#      - requires user to publish wash sale value:pair the moment they execute the wash
+#      - can remove mapping once wash sale pos. closed 
+#        - must wait 30 days if sold at loss 
+#        - could automatically be done in wallet background next time they login after 1mo. mark (if loss)
+#          - requires computation of all open positions and potential washes when opening wallet
+
+# WALLET DETAILS
+#            - requires new offerID to post {succeedingOfferID: baseAdjustment<-lossDissallowedFromPriorTrade} value pair 
+#            - so requires a reply from Horizon with offerID || contra lookup and then sending new txn 
+#              - send the new value mapping txn with extremely high fee intentionally BEFORE displaying order confirmation to user
 
 def adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount):
   adjustedTrades = []
@@ -422,7 +408,7 @@ def placeFields(adjustedTrades):
 # print(getHistoricPositions("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML"))
 # print(getHistoricPositionsFromAccountData("GAJ4BSGJE6UQHZAZ5U5IUOABPDCYPKPS3RFS2NVNGFGFXGVQDLBQJW2P"))
 # print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
-form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
+form8949forAccount("GC2EUCIRRDSVMTG5IG3X7NJZPWQLXMJRXV6REUAF3ALOK2GPL6GC625J")
 #fetchInvestorPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")
 
 
