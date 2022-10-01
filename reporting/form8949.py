@@ -293,8 +293,28 @@ def getPNLfromCombinedUncoveredTrade(data, addr):
     purchaseBasisAdj = sharesSold * purchasePrice
   return (purchaseBasisAdj, saleProceeds - purchaseBasis)
 
-def getHistoricPositionsDataFromBTdistributionMemos(address):
-  preExistingPositions = []
+# How flow works (assume semi-honest user since it's their taxes returns at stake):
+# BT_DISTRIBUTOR sends account [numShares] stock with memo:
+#   [price]||uncovered||DWAC:[coveredDate]||
+# Account does manage_data( distriubtion paging_token: [assetCode]:[numShares]:[price]:2003-6-9 ) locally
+#     case distributionMemo:
+#       match covered (has date)    -> paging_token: [assetCode]:[numShares]:[price]:2003-6-9
+#       match uncovered             -> paging_token: [assetCode]:[numShares]:uncovered:
+#       match DWAC                  -> paging_token: [assetCode]:[numShares]:DWAC:[txnDate]
+#   DWAC transfers may not include the basis - brokers can send it separately in a month
+#   Send user 0.0000001XLM txn w/ memo [paging_token]:[DWAC basis] so they can update
+#   Currently room in memo for stocks priced under 1M/share, which should be fine
+#   If becomes probalmatic, we can front truncate paging_token by a few numbers
+# Use paging_token as offerID in wallet when directing closing instructions
+# When selling with reference to trade, manage_data ( paging_token: [numShares - sharesSold]... )
+
+def getHistoricPositions(address):
+  historicPositions = {}
+  distributionPagingTokensMappedToMemos = getDistributionPagingTokensMappedToMemos(address)
+  return distributionPagingTokensMappedToMemos
+
+def getDistributionPagingTokensMappedToMemos(address):
+  distributionPagingTokensMappedToMemos = {}
   requestAddr = f"https://{HORIZON_INST}/accounts/{address}/payments?limit={MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
@@ -304,20 +324,46 @@ def getHistoricPositionsDataFromBTdistributionMemos(address):
       except KeyError:
         continue
       if(BTasset and payments["from"] == BT_DISTRIBUTOR):
+        distributionPagingToken = payments["paging_token"]
         txnAddr = payments["_links"]["transaction"]["href"]
         txnData = requests.get(txnAddr).json()
         try:
-          historicPositionData = txnData["memo"] # Expect YEAR-MONTH-DAY@PRICE | uncovered
+          memo = txnData["memo"]
         except KeyError:
-          # DWAC transfers don't include the basis - brokers send it separately within a month
-          # We can use account data entries to keep track of this
-          
-        preExistingPositions.append((payments["amount"], priorBase))
+          memo = "42.00:2009-9-9"
+          memo = "DWAC:2009-9-9"
+          #memo = "42.00:"
+          # continue
+        memo = memo.split(":")
+        # try:
+        #   price = memo[0]
+        #   date = memo[1]
+        # except IndexError:
+        #    sys.exit(f"Distribution memo malformed: {''.join(memo)}") 
+        
+        price = memo[0]
+        match price:
+          case "uncovered":
+            date = ""
+          case "DWAC":
+            date = memo[1] if memo[1] else txnData["created_at"].split("T")[0]
+          case other:
+            date = memo[1]
+        
+        print(price)
+        print(date)
+        
+        distributionData = payments["amount"]
+        distributionPagingTokensMappedToMemos[distributionPagingToken] = distributionData
+    #  [price]||uncovered||DWAC:[coveredDate]||
     ledger = getNextLedgerData(ledger)
-  return preExistingPositions
+  return distributionPagingTokensMappedToMemos
+  #date@price -> paging_token: [assetCode]:[numShares]:[price]:2003-6-9
+#       match uncovered             -> paging_token: [assetCode]:[numShares]:uncovered:
+#       match DWAC                  -> paging_token: [assetCode]:[numShares]:DWAC:[txnDate]
 
-getHistoricPositionsDataFromBTdistributionMemos("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML")
-# [CUSIP]: [numShares]|[price]|2003-6-9
+print(getHistoricPositions("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML"))
+sys.exit()
 
 # paging_token: basis
 def getDWACbasisFromAccountData(addr):
