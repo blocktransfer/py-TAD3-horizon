@@ -9,8 +9,8 @@ from taxTestingData import *
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
 taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd for 52-53 week
-washSaleAdjStart = taxYearStart - pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
-washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
+# washSaleAdjStart = taxYearStart - pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
+# washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
 def bulkOutput():
   MICRlines = open("access_me.txt").readlines().split("\n")
@@ -26,24 +26,31 @@ def bulkOutput():
     threads[i].start().join()
 
 def form8949forAccount(address):
-  washSaleOfferIDs = getWashSaleOfferIDs(address)
+  allTrades = []
   # TODO: Impliment dict caching w/ MICR: start at last known offerID timestamp
   #offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
   for offerIDs, memoOriginInstr in offerIDsMappedToChiefMemosForAccount.items():
     offerTradeData = getTradeData(offerIDs, address)
-    if(offerTradeData["type"] == "sell"): # sell = closing (todo: support short sales by adding "exit" flag)
+    # todo: 
+    # sell = closing | support short sales by adding "exit" flag)
+    # "(un)covered" attribute | depricate for default zero value
+    if(offerTradeData["type"] == "sell"): 
       openingOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
       originTradeData = getTradeData(memoOriginInstr, address)
       combinedTradeData = combineTradeData(offerTradeData, originTradeData)
       reportingTradeData = getTradePNL(combinedTradeData, memoOriginInstr, address)
-      
-      pprint(reportingTradeData)
-
-  adjustedTrades = adjustAllTradesForWashSales(taxableSales, address, offerIDsMappedToChiefMemosForAccount)
-  # mergedTrades = mergeForVARIOUS(adjustedTrades) ? or just do by orderID?
-  finalTrades = filterTradesToTaxablePeriod(mergedTrades)
+      allTrades.append(reportingTradeData)
+  generateAnnual8949(allTrades)
   finalFormData = placeFieldsplaceFields(adjustedTrades)
-  #export to 8949 PDF(s)
+  exportForm8949(finalFormData)
+
+def generateAnnual8949(allTrades):
+  for trades in allTrades:
+    tradeDate = trades["exitTradeDate"]
+    if(taxYearStart <= tradeDate < taxYearEnd):
+      pprint(trades)
+    
+    # mergeForVARIOUS
 
 def getOfferIDsMappedToChiefMemosForAccount(address):
   offerIDsMappedToChiefMemosForAccount = {}
@@ -158,9 +165,9 @@ def getTradeData(offerID, address):
           type = "sell"
     tradeData["fillDate"] = pandas.to_datetime(trades["ledger_close_time"])
     ledger = getNextLedgerData(ledger)
+  tradeData["offerID"] = offerID
   tradeData["shares"] = shares
   tradeData["value"] = value
-  tradeData["offerID"] = offerID
   tradeData["type"] = type
   return tradeData
 
@@ -175,38 +182,39 @@ def getAssetGivenType(trade, type):
 # assert(originTradeData["fillDate"] < tradeData["fillDate"])
 def combineTradeData(tradeData, originTradeData):
   combined = {}
-  combined["type"] = "covered" if originTradeData["type"] else "uncovered"
   combined["asset"] = tradeData["asset"]
+  combined["originOfferID"] = originTradeData["offerID"] if originTradeData["type"] else 0
   combined["originTradeDate"] = originTradeData["fillDate"] if originTradeData["type"] else 0
   combined["originTradeShares"] = adjustNumSharesForStockSplits(
     originTradeData["shares"],
-    originTradeData["originTradeDate"],
+    originTradeData["fillDate"],
     originTradeData["asset"].code
   ) if originTradeData["type"] else 0
   combined["originTradeValue"] = originTradeData["value"] if originTradeData["type"] else 0
+  combined["exitOfferID"] = tradeData["offerID"]
+  combined["exitTradeDate"] = tradeData["fillDate"]
   combined["exitTradeShares"] = tradeData["shares"]
   combined["exitTradeValue"] = tradeData["value"]
-  combined["exitTradeDate"] = tradeData["fillDate"]
   return combined
 
-paging_token_EX = "111720727958269953"
-data_EX = "DEMO:4000:17.22:2003-6-9"
+# paging_token_EX = "111720727958269953"
+# data_EX = "DEMO:4000:17.22:2003-6-9"
+# distributionPagingTokensMappedToHistoricData = {}
+# accountData[paging_token_EX] = data_EX # testing
 
 def getTradePNL(fill, memoOriginInstr, address):
   if(not fill["originTradeValue"]):
     fill.update(getOriginDataFromPagingToken(memoOriginInstr, address))
   if(fill["originTradeShares"] == fill["exitTradeShares"]):
     fill["PNL"] = fill["exitTradeValue"] - fill["originTradeValue"]
-    return fill
   elif(fill["originTradeShares"] > fill["exitTradeShares"]):
     entryPrice = fill["originTradeShares"] / fill["originTradeValue"]
     originBasisAdj = fill["exitTradeShares"] * entryPrice
     fill["PNL"] = fill["exitTradeValue"] - originBasisAdj
-    return fill
   else:
     fill["PNL"] = fill["exitTradeValue"]
-    return fill
-    sys.exit("todo: test on live data, see if can combine")
+  fill["PNL"] -= adjustForWashSale(fill)
+  return fill
 
 def getOriginDataFromPagingToken(opPagingToken, address):
   originDistributionData = {}
@@ -240,13 +248,11 @@ def getOriginDataFromPagingToken(opPagingToken, address):
   originDistributionData["originTradeValue"] = legacyPrice * opData["amount"]
   return originDistributionData
 
-def getHistoricPositions(address):
-  distributionPagingTokensMappedToHistoricData = {}
-  distributionPagingTokensMappedToHistoricData[paging_token_EX] = data_EX # testing
-  return distributionPagingTokensMappedToHistoricData
-
-
-
+def adjustForWashSale(fill):
+  # search data dict for origin offer id adj
+  
+  
+  return 1
 
 def getWashSaleOfferIDs(address):
   return 1
@@ -343,7 +349,8 @@ def placeFields(adjustedTrades):
 # print(getHistoricPositions("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML"))
 # print(getHistoricPositionsFromAccountData("GAJ4BSGJE6UQHZAZ5U5IUOABPDCYPKPS3RFS2NVNGFGFXGVQDLBQJW2P"))
 # print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
-form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
+form8949forAccount(BT_ISSUER)
+#form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
 #fetchInvestorPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")
 
 
