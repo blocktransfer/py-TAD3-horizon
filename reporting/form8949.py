@@ -37,7 +37,7 @@ def form8949forAccount(address):
       combinedTradeData = combineTradeData(offerTradeData, originTradeData)
       reportingTradeData = getTradePNL(combinedTradeData, memoOriginInstr, address)
       
-      taxableSales.append(combined)
+      pprint(reportingTradeData)
 
   adjustedTrades = adjustAllTradesForWashSales(taxableSales, address, offerIDsMappedToChiefMemosForAccount)
   # mergedTrades = mergeForVARIOUS(adjustedTrades) ? or just do by orderID?
@@ -189,54 +189,33 @@ def combineTradeData(tradeData, originTradeData):
   combined["exitTradeDate"] = tradeData["fillDate"]
   return combined
 
-def getTradePNL(combinedTradeData, memoOriginInstr, address):
-  match combinedTradeData["type"]:
-    case "covered":
-      return getCoveredTradePNL(combinedTradeData)
-    case "uncovered":
-      return getUncoveredTradePNL(combinedTradeData, memoOriginInstr, address)
-
-def getCoveredTradePNL(data):
-  if(data["originTradeShares"] == data["exitTradeShares"]):
-    return(data["originTradeValue"], data["exitTradeValue"] - data["originTradeValue"])
-  elif(data["originTradeShares"] > data["exitTradeShares"]):
-    entryPrice = data["originTradeShares"] / data["originTradeValue"]
-    originBasisAdj = data["exitTradeShares"] * entryPrice
-    return(originBasisAdj, data["exitTradeValue"] - originBasisAdj)
-  else:
-    sys.exit("todo: test on live data, see if can combine")
-
 paging_token_EX = "111720727958269953"
 data_EX = "DEMO:4000:17.22:2003-6-9"
 
-def getUncoveredTradePNL(data, memoOriginInstr, address):
-  originData = getOriginDataFromPagingToken(memoOriginInstr, address)
-  
-  
-  numShares = adjustNumSharesForStockSplits(numSharesIn, date, asset.code)
-  price = 
-  assert(asset == data["asset"])
-  entryPrice = data["originTradeShares"] / data["originTradeValue"]
-  originBasisAdj = data["exitTradeShares"] * entryPrice
-  return(originBasisAdj, data["exitTradeValue"] - originBasisAdj)
-  
-  sharesBought = adjustNumSharesForStockSplits(a, b, data[1].code)
-  purchaseBasis = Decimal(getUncoveredBasis("Set up a basic google sheet")) if 0 else data[4]
-  sharesSold = data[5]
-  saleProceeds = data[6]
-  pprint(data)
-  if(sharesBought == sharesSold):
-    return(purchaseBasis, saleProceeds - purchaseBasis)
-  elif(sharesBought > sharesSold):
-    purchasePrice = sharesBought / purchaseBasis
-    purchaseBasisAdj = sharesSold * purchasePrice
-  return (purchaseBasisAdj, saleProceeds - purchaseBasis)
+def getTradePNL(fill, memoOriginInstr, address):
+  if(not fill["originTradeValue"]):
+    fill.update(getOriginDataFromPagingToken(memoOriginInstr, address))
+  if(fill["originTradeShares"] == fill["exitTradeShares"]):
+    fill["PNL"] = fill["exitTradeValue"] - fill["originTradeValue"]
+    return fill
+  elif(fill["originTradeShares"] > fill["exitTradeShares"]):
+    entryPrice = fill["originTradeShares"] / fill["originTradeValue"]
+    originBasisAdj = fill["exitTradeShares"] * entryPrice
+    fill["PNL"] = fill["exitTradeValue"] - originBasisAdj
+    return fill
+  else:
+    fill["PNL"] = fill["exitTradeValue"]
+    return fill
+    sys.exit("todo: test on live data, see if can combine")
 
 def getOriginDataFromPagingToken(opPagingToken, address):
   originDistributionData = {}
   requestAddr = f"{HORIZON_INST}/operations/{opPagingToken}"
-  opData = requests.get(requestAddr).json()["created_at"]
-  transactionAddr = opData[_"links"]["transaction"]["href"]
+  try:
+    opData = requests.get(requestAddr).json()["created_at"]
+  except KeyError:
+    return {"badOriginData": True}
+  transactionAddr = opData["_links"]["transaction"]["href"]
   try:
     memo = requests.get(transactionAddr).json()["memo"]
   except KeyError: # [price]||uncovered||DWAC:[coveredDate]||
@@ -261,16 +240,16 @@ def getOriginDataFromPagingToken(opPagingToken, address):
   originDistributionData["originTradeValue"] = legacyPrice * opData["amount"]
   return originDistributionData
 
-# purchaseBasisAdj
-# PNL
-
-def getWashSaleOfferIDs(address):
-  return 1
-
 def getHistoricPositions(address):
   distributionPagingTokensMappedToHistoricData = {}
   distributionPagingTokensMappedToHistoricData[paging_token_EX] = data_EX # testing
   return distributionPagingTokensMappedToHistoricData
+
+
+
+
+def getWashSaleOfferIDs(address):
+  return 1
 
 def getWashSaleAdjustments(address):
   return 1
