@@ -12,6 +12,7 @@
 # Since atomic swaps instantly fill, you never reference syntheticIDs in a closing txn memo
 # Thus, you can simplify to memo = "preExistingDataKeyPT" if len(query) > 16 else "offerID"
 
+# wallet: manageData PNL adjustment dissallowed loss when opening wash sale
 # OfferIDs will stay mapped to account with format offerID: {YEAR}:washSaleAdjustment until five years after the wash sale and closed (can be simple wallet wrapup)
 # {"DWAC-[distributionPagingToken]": [basisPriceFromBrokerExcludedFromOriginDistribution]} stays forever
 # ^ some kind of way to push out for the wallet to sign this (just check that it's only a manageDataOp in this format & signed by signers of distributor
