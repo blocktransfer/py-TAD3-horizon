@@ -18,7 +18,7 @@
 
 # DWAC SERVER INSTRUCTIONS
 # BT_DISTRIBUTOR sends account [numShares] stock with memo [price]||uncovered||DWAC:[coveredDate]||
-# Account does manage_data( distriubtion paging_token: [assetCode]:[numShares]:[basis]:[basisDate] ) locally
+# Account does manage_data( [distriubtionPagingToken]: [assetCode]:[numShares]:[basis]:[basisDate] ) locally
 #     case distributionMemo:
 #       match covered (has date)    -> paging_token: [assetCode]:[numShares]:[price]:2003-6-9
 #       match uncovered             -> paging_token: [assetCode]:[numShares]:uncovered:
