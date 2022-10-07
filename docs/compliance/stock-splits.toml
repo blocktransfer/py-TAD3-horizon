@@ -4,7 +4,7 @@ LIVE_SPLITS = "We freeze all asset activity the day before a split becomes
 effective at 6PM Eastern (22:00:00 UTC). During the next two hours, we effect
 the split. We unfreeze accounts the day the split is effective beginning at
 00:00:00 UTC (not to exceed 2:00:00 UTC) or 8PM Eastern (10PM Eastern). As such,
-there exist at least two hours on the day before a split is "effective" in New
+there exist at least two hours on the day before a split is 'effective' in New
 York time during which investors can transfer their post-split balances.
 
 We find these operations in accordance with Rule 17Ad-15 since, inter alia, the
