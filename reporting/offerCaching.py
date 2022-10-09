@@ -2,6 +2,17 @@ import sys
 sys.path.append("../")
 from globals import *
 
+def getOfferIDsMappedToChiefMemosFromCache(queryAccount):
+  offerIDsMappedToChiefMemosForAccount = {}
+  cache = loadTomlData(OFFER_MEMO_TOML)
+  for offerIDs, memos in cache:
+    try:
+      memo = int(memos)
+    except ValueError:
+      continue
+    offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
+  return offerIDsMappedToChiefMemosForAccount
+
 def updateAllOfferIDs():
   allOffersMappedToMemos = {}
   for addrs in getValidAccountPublicKeys():
@@ -9,7 +20,7 @@ def updateAllOfferIDs():
   # check not in loadTomlData(OFFER_MEMO_TOML)
   # export
 
-def getOfferIDsMappedToChiefMemos(queryAccount):
+def getOfferIDsMappedToChiefMemosFromStellar(queryAccount):
   offerIDsMappedToChiefMemosForAccount = {}
   requestAddr = f"{HORIZON_INST}/accounts/{queryAccount}/transactions?{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
@@ -25,12 +36,9 @@ def getOfferIDsMappedToChiefMemos(queryAccount):
             for offerIDs in offerIDarr:
               if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
                 try:
-                  try:
-                    memo = int(txns["memo"])
-                  except ValueError:
-                    continue
+                  memo = txns["memo"]
                 except KeyError:
-                  memo = 0
+                  memo = ""
                 offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
     ledger = getNextLedgerData(ledger)
   return offerIDsMappedToChiefMemosForAccount
