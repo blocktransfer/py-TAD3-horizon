@@ -3,7 +3,6 @@ sys.path.append("../")
 from globals import *
 from offerCaching import *
 import threading #todo: threads -> global
-from taxTestingData import * #tmp
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
@@ -24,10 +23,22 @@ def bulkOutput():
       )
     threads[i].start().join()
 
+WASH_SALE_DIR = "https://blocktransfer.io/caching-data/wash-sales"
+i = 0
+while(True):
+  i += 1
+  try:
+    a = loadTomlData(f"{WASH_SALE_DIR}/{i}.toml")
+    pprint(a)
+  except toml.decoder.TomlDecodeError as err:
+    if "invalid" in str(e):
+      break
+    else:
+      print("Critical data validity error")
+
 def form8949forAccount(address):
   allTrades = []
-  # TODO: Impliment dict caching w/ MICR: start at last known offerID timestamp
-  #offerIDsMappedToChiefMemosForAccount = getOfferIDsMappedToChiefMemosForAccount(address) 
+  offerIDsMappedToChiefMemos = retrieveOfferIDsMappedToChiefMemos(address)
   for offerIDs, memos in offerIDsMappedToChiefMemosForAccount.items():
     memo = memos.split(":")
     type = memo[0]
@@ -37,7 +48,7 @@ def form8949forAccount(address):
     # sell = closing | support short sales by adding "exit" flag)
     if(offerTradeData["type"] == "sell"): 
       if(taxYearStart <= offerTradeData["fillDate"] < taxYearEnd):
-        openingOfferID = offerIDsMappedToChiefMemosForAccount[offerIDs]
+        openingOfferID = offerIDsMappedToChiefMemos[offerIDs]
         originTradeData = getTradeData(instructions, address)
         combinedTradeData = combineTradeData(offerTradeData, originTradeData)
         reportingTradeData = getTradePNL(combinedTradeData, instructions, address)

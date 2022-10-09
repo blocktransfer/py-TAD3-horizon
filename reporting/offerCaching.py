@@ -25,9 +25,12 @@ def getOfferIDsMappedToChiefMemos(queryAccount):
             for offerIDs in offerIDarr:
               if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
                 try:
-                  memo = txns["memo"]
+                  try:
+                    memo = int(txns["memo"])
+                  except ValueError:
+                    continue
                 except KeyError:
-                  memo = ""
+                  memo = 0
                 offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
     ledger = getNextLedgerData(ledger)
   return offerIDsMappedToChiefMemosForAccount
