@@ -35,3 +35,6 @@ verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44
 
 [[CURRENCIES]]
 toml = "https://blocktransfer.io/assets/DEMO.toml"
+
+[[CURRENCIES]]
+toml = "https://blocktransfer.io/assets/testing.toml"
