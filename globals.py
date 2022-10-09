@@ -24,14 +24,16 @@ USD_ASSET = Asset("USD", BT_ISSUER)
 USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C") # 8949 debug
 MICR_TXT = f"{G_DIR}/../pii/master-identity-catalog-records.txt" #todo: modify here to load from cloud
 
-INVESTOR_BASE_RESERVE = Decimal("7")
 BT_STELLAR_TOML = "https://blocktransfer.io/.well-known/stellar.toml"
+OFFER_MEMO_TOML = "https://blocktransfer.io/compliance/offer-memos.toml"
+WASH_SALE_TOML = "https://blocktransfer.io/compliance/wash-sales.toml"
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
 MAX_NUM_DECIMALS = "7"
 WASH_SALE_DAY_RANGE = 30
 MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2
+INVESTOR_BASE_RESERVE = Decimal("7")
 
 server = Server(horizon_url = HORIZON_INST)
 issuer = server.load_account(account_id = BT_ISSUER)
