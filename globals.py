@@ -25,8 +25,6 @@ USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DG
 MICR_TXT = f"{G_DIR}/../pii/master-identity-catalog-records.txt" #todo: modify here to load from cloud
 
 BT_STELLAR_TOML = "https://blocktransfer.io/.well-known/stellar.toml"
-OFFER_MEMO_TOML = "https://blocktransfer.io/compliance/offer-memos.toml"
-WASH_SALE_TOML = "https://blocktransfer.io/compliance/wash-sales.toml"
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
 MAX_NUM_DECIMALS = "7"
