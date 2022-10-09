@@ -23,27 +23,6 @@ def bulkOutput():
       )
     threads[i].start().join()
 
-things = {}
-WASH_SALE_DIR = "https://blocktransfer.io/caching-data/wash-sales"
-i = 0
-while(True):
-  i += 1
-  try:
-    a = loadTomlData(f"{WASH_SALE_DIR}/{i}.toml")
-    pprint(a)
-    for offerID, memo in a.items():
-      print(f"{offerID} -> {memo}")
-    
-    
-    
-    
-    
-  except toml.decoder.TomlDecodeError as err:
-    if "invalid" in str(err):
-      break
-    else:
-      sys.exit("Critical data validity error")
-
 def form8949forAccount(address):
   allTrades = []
   offerIDsMappedToChiefMemos = retrieveOfferIDsMappedToChiefMemos(address)

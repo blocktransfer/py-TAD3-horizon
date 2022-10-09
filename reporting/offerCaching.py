@@ -5,7 +5,7 @@ from globals import *
 def getOfferIDsMappedToChiefMemosFromCache(queryAccount):
   offerIDsMappedToChiefMemosForAccount = {}
   cache = loadTomlData(OFFER_MEMO_TOML)
-  for offerIDs, memos in cache:
+  for offerIDs, memos in cache.items():
     try:
       memo = int(memos)
     except ValueError:
