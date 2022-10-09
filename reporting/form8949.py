@@ -1,10 +1,9 @@
 import sys
 sys.path.append("../")
 from globals import *
-import functools, threading #todo: threads -> global
-from taxTestingData import *
-
-# offerIDsMappedToChiefMemosForAccount = {} #override external tax data
+from offerCaching import *
+import threading #todo: threads -> global
+from taxTestingData import * #tmp
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years

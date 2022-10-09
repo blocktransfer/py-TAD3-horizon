@@ -1,0 +1,6 @@
+# Block Transfer <blocktransfer.io>
+
+# Server cache for offerIDs mapped to memo provided at offer creation
+
+[["OFFER_MEMO_DATA"]]
+toml = "https://blocktransfer.io/compliance/stellar-cache/offer-memos/1.toml"

@@ -3,7 +3,7 @@ from stellar_sdk.xdr import TransactionResult
 from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
-import json, os.path, pandas, requests, sys, toml
+import functools, json, os.path, pandas, requests, sys, toml
 
 G_DIR = os.path.dirname(__file__)
 sys.path.append("../")
