@@ -23,7 +23,7 @@ Feel free to commit your own branched improvements!
 <div align="left">
   <h3>Testing Configuration</h3>
 
-Create a new folder titles ``pii`` in the same directory as ``stellar-interface``
+Create a new folder titled ``pii`` in the same directory as ``stellar-interface``
 
 In that folder, add the exampleMICR in ``/issuers``
 
