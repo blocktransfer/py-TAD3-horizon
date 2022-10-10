@@ -123,13 +123,13 @@ def getTradeData(offerID, address):
           shares += Decimal(trades["counter_amount"])
           if type: continue
           tradeData["asset"] = counterAsset
-          type = "buy"
+          type = "in"
         if(counterAssetFiat):
           value += Decimal(trades["counter_amount"])
           shares += Decimal(trades["base_amount"])
           if type: continue
           tradeData["asset"] = baseAsset
-          type = "sell"
+          type = "out"
       elif(trades["counter_account"] == address):
         tradeData["asset"] = baseAsset
         if(counterAssetFiat):
@@ -137,13 +137,13 @@ def getTradeData(offerID, address):
           shares += Decimal(trades["base_amount"])
           if type: continue
           tradeData["asset"] = baseAsset
-          type = "buy"
+          type = "in"
         if(baseAssetFiat):
           value += Decimal(trades["base_amount"])
           shares += Decimal(trades["counter_amount"])
           if type: continue
           tradeData["asset"] = counterAsset
-          type = "sell"
+          type = "out"
     tradeData["fillDate"] = pandas.to_datetime(trades["ledger_close_time"])
     ledger = getNextLedgerData(ledger)
   tradeData["offerID"] = offerID
