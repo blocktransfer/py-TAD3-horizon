@@ -19,31 +19,28 @@ def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
   accountOfferIDsMappedToChiefMemos = {}
   requestAddr = f"{HORIZON_INST}/accounts/{queryAccount}/transactions?{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
-  try:
-    while(ledger["_embedded"]["records"]):
-      for txns in ledger["_embedded"]["records"]:
-        if(txns["source_account"] == queryAccount):
-          resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
-          for ops in resultXDR.result.results:
-            op = ops.tr
-            if(op.manage_buy_offer_result or op.manage_sell_offer_result):
-              offerIDarr = []
-              appendOfferIDsToArr(op, offerIDarr, queryAccount)
-              for offerIDs in offerIDarr:
-                localNew = offerIDs not in accountOfferIDsMappedToChiefMemos.keys()
-                cacheNew = offerIDs not in cache.keys()
-                if(offerIDs and localNew and cacheNew):
-                  try:
-                    instructions = txns["memo"]
-                  except KeyError:
-                    instructions = ""
-                  except TypeError:
-                    pprint(txns)
-                  memo = "|".join([instructions, queryAccount])
-                  accountOfferIDsMappedToChiefMemos[offerIDs] = memo
-      ledger = getNextLedgerData(ledger)
-  except TypeError:
-    pprint(ledger)
+  while(ledger["_embedded"]["records"]):
+    for txns in ledger["_embedded"]["records"]:
+      if(txns["source_account"] == queryAccount):
+        resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
+        for ops in resultXDR.result.results:
+          op = ops.tr
+          if(op.manage_buy_offer_result or op.manage_sell_offer_result):
+            offerIDarr = []
+            appendOfferIDsToArr(op, offerIDarr, queryAccount)
+            for offerIDs in offerIDarr:
+              localNew = offerIDs not in accountOfferIDsMappedToChiefMemos.keys()
+              cacheNew = offerIDs not in cache.keys()
+              if(offerIDs and localNew and cacheNew):
+                try:
+                  instructions = txns["memo"]
+                except KeyError:
+                  instructions = ""
+                except TypeError:
+                  pprint(txns)
+                memo = "|".join([instructions, queryAccount])
+                accountOfferIDsMappedToChiefMemos[offerIDs] = memo
+    ledger = getNextLedgerData(ledger)
   return accountOfferIDsMappedToChiefMemos
 
 def getAttr(obj, attr):
