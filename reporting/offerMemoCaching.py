@@ -2,56 +2,48 @@ import sys
 sys.path.append("../")
 from globals import *
 
-def getOfferIDsMappedToChiefMemosFromCache():
-  accountOfferIDsMappedToChiefMemos = {}
-  cache = loadTomlData(OFFER_MEMO_TOML)
-  for offerIDs, memos in cache.items():
-    try:
-      offerID = int(offerIDs)
-    except ValueError:
-      sys.exit("Critical data validity error")
-    accountOfferIDsMappedToChiefMemos[offerID] = memos
-  return accountOfferIDsMappedToChiefMemos
-
 def updateAllOfferIDs():
-  existingCache = getOfferIDsMappedToChiefMemosFromCache()
+  cacheData = getOfferIDsMappedToChiefMemosFromCache()
   newOfferIDsMappedToChiefMemos = {}
   for addresses in getValidAccountPublicKeys():
     print(f"Querying new offers for {addresses}")
     newOfferIDsMappedToChiefMemos.update(
-      getNewOfferIDsMappedToChiefMemosFromStellar(
-        addresses,
-        existingCache
-      )
+      getNewOfferIDsMappedToChiefMemosFromStellar(addresses, cacheData)
     )
   cache = open(f"{G_DIR}/docs/caching-data/offer-memos.toml", "a")
   for offerIDs, memos in newOfferIDsMappedToChiefMemos.items():
     cache.write(f"{offerIDs} = \"{memos}\"\n")
+  cache.close()
 
 def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
   accountOfferIDsMappedToChiefMemos = {}
   requestAddr = f"{HORIZON_INST}/accounts/{queryAccount}/transactions?{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
-  while(ledger["_embedded"]["records"]):
-    for txns in ledger["_embedded"]["records"]:
-      if(txns["source_account"] == queryAccount):
-        resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
-        for ops in resultXDR.result.results:
-          op = ops.tr
-          if(op.manage_buy_offer_result or op.manage_sell_offer_result):
-            offerIDarr = []
-            appendOfferIDsToArr(op, offerIDarr, queryAccount)
-            for offerIDs in offerIDarr:
-              localNew = offerIDs not in accountOfferIDsMappedToChiefMemos.keys()
-              cacheNew = offerIDs not in cache.keys()
-              if(offerIDs and localNew and cacheNew):
-                try:
-                  instructions = txns["memo"]
-                except KeyError:
-                  instructions = ""
-                memo = "|".join([instructions, queryAccount])
-                accountOfferIDsMappedToChiefMemos[offerIDs] = memo
-    ledger = getNextLedgerData(ledger)
+  try:
+    while(ledger["_embedded"]["records"]):
+      for txns in ledger["_embedded"]["records"]:
+        if(txns["source_account"] == queryAccount):
+          resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
+          for ops in resultXDR.result.results:
+            op = ops.tr
+            if(op.manage_buy_offer_result or op.manage_sell_offer_result):
+              offerIDarr = []
+              appendOfferIDsToArr(op, offerIDarr, queryAccount)
+              for offerIDs in offerIDarr:
+                localNew = offerIDs not in accountOfferIDsMappedToChiefMemos.keys()
+                cacheNew = offerIDs not in cache.keys()
+                if(offerIDs and localNew and cacheNew):
+                  try:
+                    instructions = txns["memo"]
+                  except KeyError:
+                    instructions = ""
+                  except TypeError:
+                    pprint(txns)
+                  memo = "|".join([instructions, queryAccount])
+                  accountOfferIDsMappedToChiefMemos[offerIDs] = memo
+      ledger = getNextLedgerData(ledger)
+  except TypeError:
+    pprint(ledger)
   return accountOfferIDsMappedToChiefMemos
 
 def getAttr(obj, attr):
@@ -99,3 +91,4 @@ def getOfferIDfromContraID(offerID, address):
         return int(trades["base_offer_id"])
     ledger = getNextLedgerData(ledger)
 
+updateAllOfferIDs()

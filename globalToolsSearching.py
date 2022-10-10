@@ -50,3 +50,13 @@ def isCUSIP(query):
     allCUSIPs.append(getCUSIP(query))
   return query in allCUSIPs
 
+def getOfferIDsMappedToChiefMemosFromCache():
+  offerIDsMappedToChiefMemos = {}
+  cache = loadTomlData(OFFER_MEMO_TOML)
+  for offerIDs, memos in cache.items():
+    try:
+      offerID = int(offerIDs)
+    except ValueError:
+      sys.exit("Critical data validity error")
+    offerIDsMappedToChiefMemos[offerID] = memos
+  return offerIDsMappedToChiefMemos
