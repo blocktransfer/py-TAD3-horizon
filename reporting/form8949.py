@@ -36,7 +36,7 @@ def form8949forAccount(address):
   offerIDsMappedToChiefMemos = getOfferIDsMappedToChiefMemosFromCache()
   for offerIDs, memos in offerIDsMappedToChiefMemos.items():
     requestAddr = f"{HORIZON_INST}/offers/{offerIDs}/trades"
-    # memo format {in/out}:{refOfferID}|cachedAddr
+    # memo format {refOfferID}|cachedAddr
     memo = memos.split("|")
     instructions = memo[0]
     address = memo[1]
