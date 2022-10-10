@@ -47,7 +47,7 @@ def form8949(queryAccount):
           combinedTradeData = combineTradeData(offerTradeData, originTradeData)
           exportData = getTradePNL(combinedTradeData, instructions, address)
           
-          allTrades.append(reportingTradeData)
+          allTrades.append(exportData)
   pprint(allTrades)
   # finalFormData = placeFieldsplaceFields(adjustedTrades)
   # exportForm8949(finalFormData)
