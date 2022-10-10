@@ -11,16 +11,15 @@ taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd
 def bulkOutput():
   MICR = open(MICR_TXT)
   for lines in MICR:
-    print(lines)
     account = lines.split("|")
-    form8949forAccount(account[0])
+    form8949(account[0])
   MICR.close()
 
 ## Testing needed at scale
 # import threading
 # threads = []
 # for addresses, i in enumerate(lines.split("|")[0]):
-#   form8949forAccount(addresses)
+#   form8949(addresses)
 #   threads.append(
 #       threading.Thread(
 #         target = form8949forAccount,
@@ -30,8 +29,9 @@ def bulkOutput():
 #   threads[i].start().join()
 ##
 
-def form8949forAccount(address):
+def form8949(queryAccount):
   allTrades = []
+  
   offerIDsMappedToChiefMemos = getOfferIDsMappedToChiefMemosFromCache()
   for offerIDs, memos in offerIDsMappedToChiefMemos.items():
     requestAddr = f"{HORIZON_INST}/offers/{offerIDs}/trades"
@@ -39,17 +39,18 @@ def form8949forAccount(address):
     memo = memos.split("|")
     instructions = memo[0]
     address = memo[1]
-    offerTradeData = getTradeData(offerIDs, address)
-    if(offerTradeData["type"] == "out"): 
-      if(taxYearStart <= offerTradeData["fillDate"] < taxYearEnd):
-        openingOfferID = offerIDsMappedToChiefMemos[offerIDs]
-        originTradeData = getTradeData(instructions, address)
-        combinedTradeData = combineTradeData(offerTradeData, originTradeData)
-        reportingTradeData = getTradePNL(combinedTradeData, instructions, address)
-        allTrades.append(reportingTradeData)
-  
-  finalFormData = placeFieldsplaceFields(adjustedTrades)
-  exportForm8949(finalFormData)
+    if(address == queryAccount):
+      offerTradeData = getTradeData(offerIDs, address)
+      if(offerTradeData["type"] == "out"): 
+        if(tradeInTaxableYear(offerTradeData)):
+          originTradeData = getTradeData(instructions, address)
+          combinedTradeData = combineTradeData(offerTradeData, originTradeData)
+          exportData = getTradePNL(combinedTradeData, instructions, address)
+          
+          allTrades.append(reportingTradeData)
+  pprint(allTrades)
+  # finalFormData = placeFieldsplaceFields(adjustedTrades)
+  # exportForm8949(finalFormData)
 
 # a = [{'PNL': Decimal('105.2399095'),
 #  'asset': Asset("DEMO", BT_ISSUER),
@@ -78,7 +79,10 @@ def form8949forAccount(address):
 # else: 
 #   PT
 
-def generateAnnual8949(allTrades):
+def tradeInTaxableYear(tradeData):
+  return taxYearStart <= tradeData["fillDate"] < taxYearEnd
+
+def generateAnnual8949(allTrades): # rm
   taxableTrades = []
   usedDatesMappedToAssets = {}
   for trades in allTrades:
@@ -329,7 +333,8 @@ def placeFields(adjustedTrades):
 # print(getHistoricPositions("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML"))
 # print(getHistoricPositionsFromAccountData("GAJ4BSGJE6UQHZAZ5U5IUOABPDCYPKPS3RFS2NVNGFGFXGVQDLBQJW2P"))
 # print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
-form8949forAccount(BT_ISSUER)
+bulkOutput()
+# form8949(BT_ISSUER)
 #form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
 #fetchInvestorPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")
 
