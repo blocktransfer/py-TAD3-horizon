@@ -98,4 +98,3 @@ def getOfferIDfromContraID(offerID, address):
         return int(trades["base_offer_id"])
     ledger = getNextLedgerData(ledger)
 
-updateAllOfferIDs()
