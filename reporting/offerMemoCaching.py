@@ -5,7 +5,6 @@ from globals import *
 def getOfferIDsMappedToChiefMemosFromCache():
   offerIDsMappedToChiefMemosForAccount = {}
   cache = loadTomlData(OFFER_MEMO_TOML)
-  print(OFFER_MEMO_TOML)
   for offerIDs, memos in cache.items():
     try:
       memo = int(memos)
@@ -18,14 +17,17 @@ def updateAllOfferIDs():
   existingCache = getOfferIDsMappedToChiefMemosFromCache()
   newOfferIDsMappedToChiefMemos = {}
   for addresses in getValidAccountPublicKeys():
-    newOfferIDsMappedToChiefMemos.update(getNewOfferIDsMappedToChiefMemosFromStellar(addresses, existingCache))
+    print(f"Querying new offers for {addresses}")
+    newOfferIDsMappedToChiefMemos.update(
+      getNewOfferIDsMappedToChiefMemosFromStellar(
+        addresses,
+        existingCache
+      )
+    )
   cache = open(f"{G_DIR}/docs/caching-data/offer-memos.toml", "a")
-  for a in cache:
-    print(a)
   for offerIDs, memos in newOfferIDsMappedToChiefMemos.items():
-    print(1)
-  # check not in loadTomlData(OFFER_MEMO_TOML)
-  # export
+    memo = memos if memos else "''"
+    cache.write(f"{offerIDs} = {memo}\n")
 
 def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
   offerIDsMappedToChiefMemosForAccount = {}
@@ -43,12 +45,11 @@ def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
             for offerIDs in offerIDarr:
               localNew = offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()
               cacheNew = offerIDs not in cache.keys()
-              notworthy = localNew and cacheNew
-              if(offerIDs and noteworthy):
+              if(offerIDs and localNew and cacheNew):
                 try:
                   memo = txns["memo"]
                 except KeyError:
-                  memo = ""
+                  memo = "''"
                 offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
     ledger = getNextLedgerData(ledger)
   return offerIDsMappedToChiefMemosForAccount
