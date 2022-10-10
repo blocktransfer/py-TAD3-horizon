@@ -1,7 +1,7 @@
 import sys
 sys.path.append("../")
 from globals import *
-from offerCaching import *
+from offerMemoCaching import *
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
@@ -33,15 +33,15 @@ def bulkOutput():
 
 def form8949forAccount(address):
   allTrades = []
-  offerIDsMappedToChiefMemos = retrieveOfferIDsMappedToChiefMemos(address)
-  for offerIDs, memos in offerIDsMappedToChiefMemosForAccount.items():
-    memo = memos.split(":")
-    type = memo[0]
-    instructions = memo[1]
+  offerIDsMappedToChiefMemos = getOfferIDsMappedToChiefMemosFromCache()
+  for offerIDs, memos in offerIDsMappedToChiefMemos.items():
+    requestAddr = f"{HORIZON_INST}/offers/{offerIDs}/trades"
+    # memo format {in/out}:{refOfferID}|cachedAddr
+    memo = memos.split("|")
+    instructions = memo[0]
+    address = memo[1]
     offerTradeData = getTradeData(offerIDs, address)
-    # todo: 
-    # sell = closing | support short sales by adding "exit" flag)
-    if(offerTradeData["type"] == "sell"): 
+    if(offerTradeData["type"] == "out"): 
       if(taxYearStart <= offerTradeData["fillDate"] < taxYearEnd):
         openingOfferID = offerIDsMappedToChiefMemos[offerIDs]
         originTradeData = getTradeData(instructions, address)
