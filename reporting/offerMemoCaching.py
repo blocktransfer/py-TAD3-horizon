@@ -6,6 +6,7 @@ def getOfferIDsMappedToChiefMemosFromCache():
   offerIDsMappedToChiefMemosForAccount = {}
   cache = loadTomlData(OFFER_MEMO_TOML)
   for offerIDs, memos in cache.items():
+    print(f"{type(offerIDs)} {offerIDs} -> {type(memo)} {memo}")
     try:
       memo = int(memos)
     except ValueError:
