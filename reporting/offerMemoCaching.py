@@ -7,11 +7,7 @@ def getOfferIDsMappedToChiefMemosFromCache():
   cache = loadTomlData(OFFER_MEMO_TOML)
   for offerIDs, memos in cache.items():
     print(f"{type(offerIDs)} {offerIDs} -> {type(memos)} {memos}")
-    try:
-      memo = int(memos)
-    except ValueError:
-      continue
-    offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
+    offerIDsMappedToChiefMemosForAccount[offerIDs] = memos
   return offerIDsMappedToChiefMemosForAccount
 
 def updateAllOfferIDs():
@@ -27,7 +23,7 @@ def updateAllOfferIDs():
     )
   cache = open(f"{G_DIR}/docs/caching-data/offer-memos.toml", "a")
   for offerIDs, memos in newOfferIDsMappedToChiefMemos.items():
-    cache.write(f"{offerIDs} = {memos}\n")
+    cache.write(f"{offerIDs} = \"{memos}\"\n")
 
 def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
   offerIDsMappedToChiefMemosForAccount = {}
@@ -43,13 +39,13 @@ def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
             offerIDarr = []
             appendOfferIDsToArr(op, offerIDarr, queryAccount)
             for offerIDs in offerIDarr:
-              localNew = offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()
-              cacheNew = offerIDs not in cache.keys()
+              localNew = str(offerIDs) not in offerIDsMappedToChiefMemosForAccount.keys()
+              cacheNew = str(offerIDs) not in cache.keys()
               if(offerIDs and localNew and cacheNew):
                 try:
                   memo = txns["memo"]
                 except KeyError:
-                  memo = "''"
+                  memo = ""
                 offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
     ledger = getNextLedgerData(ledger)
   return offerIDsMappedToChiefMemosForAccount
