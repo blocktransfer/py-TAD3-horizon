@@ -29,6 +29,10 @@ def getFederationServerFromDomain(federationDomain):
     sys.exit(f"Failed to lookup federation server at {federationDomain}")
   return homeDomainFederationServer
 
+def getAccountDataDict(address):
+  requestAddr = f"{HORIZON_INST}/accounts/{address}"
+  return requests.get(requestAddr).json()["data"]
+
 def getCUSIP(queryAsset):
   CUSIP = 0
   try:
@@ -60,3 +64,11 @@ def getOfferIDsMappedToChiefMemosFromCache():
       sys.exit("Critical data validity error")
     offerIDsMappedToChiefMemos[offerID] = memos
   return offerIDsMappedToChiefMemos
+
+def getWashSaleOfferIDsMappedToAdjustments(combinedTradeData):
+  washSaleOfferIDsMappedToAdjustments = {}
+  cache = loadTomlData(WASH_SALES_TOML)
+  for offerIDs, adjustments in cache.items():
+    offerIDsMappedToChiefMemos[offerIDs] = adjustments
+  return washSaleOfferIDsMappedToAdjustments
+

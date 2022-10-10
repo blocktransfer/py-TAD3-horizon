@@ -2,6 +2,9 @@ import sys
 sys.path.append("../")
 from globals import *
 
+# testing: 
+USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C")
+
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
 taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd for 52-53 week
@@ -10,10 +13,16 @@ taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd
 
 def bulkOutput():
   MICR = open(MICR_TXT)
+  next(MICR)
+  numAccounts = len(open(MICR_TXT).readlines()) - 1
+  i = 0
   for lines in MICR:
-    account = lines.split("|")
-    form8949(account[0])
+    account = lines.split("|")[0]
+    i += 1
+    print(f"Executing export for {account} ({i}/{numAccounts})")
+    form8949(account)
   MICR.close()
+  return 1
 
 ## Testing needed at scale
 # import threading
@@ -35,13 +44,13 @@ def form8949(queryAccount):
   offerIDsMappedToChiefMemos = getOfferIDsMappedToChiefMemosFromCache()
   for offerIDs, memos in offerIDsMappedToChiefMemos.items():
     requestAddr = f"{HORIZON_INST}/offers/{offerIDs}/trades"
-    # memo format {refOfferID}|cachedAddr
+    # memo format: {refOfferID/pagingToken}|cachedAddr
     memo = memos.split("|")
     instructions = memo[0]
     address = memo[1]
     if(address == queryAccount):
       offerTradeData = getTradeData(offerIDs, address)
-      if(offerTradeData["type"] == "out"): 
+      if(offerTradeData["type"] == "out"):
         if(tradeInTaxableYear(offerTradeData)):
           originTradeData = getTradeData(instructions, address)
           combinedTradeData = combineTradeData(offerTradeData, originTradeData)
@@ -50,7 +59,7 @@ def form8949(queryAccount):
           allTrades.append(exportData)
   pprint(allTrades)
   # finalFormData = placeFieldsplaceFields(adjustedTrades)
-  # exportForm8949(finalFormData)
+  # exportForm8949(finalFormData) # mergeForVarious
 
 # a = [{'PNL': Decimal('105.2399095'),
 #  'asset': Asset("DEMO", BT_ISSUER),
@@ -81,28 +90,6 @@ def form8949(queryAccount):
 
 def tradeInTaxableYear(tradeData):
   return taxYearStart <= tradeData["fillDate"] < taxYearEnd
-
-def generateAnnual8949(allTrades): # rm
-  taxableTrades = []
-  usedDatesMappedToAssets = {}
-  for trades in allTrades:
-    fillDate = trades["exitTradeDate"]
-    if(taxYearStart <= fillDate < taxYearEnd):
-      dateInForm = fillDate.date() in taxableTradeDatesMappedToTradeAsset.keys()
-      sameAssetAlreadyOnThisDay = usedDatesMappedToAssets[fillDate.date()] == trades["asset"]
-      if():
-        return 1
-      for existing in taxableTrades:
-        if(trades["exitTradeDate"].date() == existing["exitTradeDate"].date()):
-          trades = merge
-      
-      
-      if(trades["exitTradeDate"].date() in taxableTrades):
-        mergeTogether = 1
-      else:
-        taxableTrades.append(trades)
-    
-    # mergeForVARIOUS
 
 def getTradeData(offerID, address):
   tradeData = {"type": 0}
@@ -197,28 +184,31 @@ def getTradePNL(fill, instructions, address):
     fill["PNL"] = fill["exitTradeValue"] - originBasisAdj
   else:
     fill["PNL"] = fill["exitTradeValue"]
-  fill["PNL"] -= adjustForWashSale(fill)
+  fill["wahSaleAdjustment"] = getWashSaleOfferIDsMappedToAdjustments(fill["originOfferID"]) 
+  # todo: identify and use succeedingOfferID -> lossDissallowedFromPriorTrade
+  fill["PNL"] -= fill["wahSaleAdjustment"]
   return fill
 
 def getOriginDataFromPagingToken(opPagingToken, address):
   originDistributionData = {}
   requestAddr = f"{HORIZON_INST}/operations/{opPagingToken}"
   try:
-    opData = requests.get(requestAddr).json()["created_at"]
+    opData = requests.get(requestAddr).json()
   except KeyError:
     return {"badOriginData": True}
   transactionAddr = opData["_links"]["transaction"]["href"]
   try:
     memo = requests.get(transactionAddr).json()["memo"]
-  except KeyError: # [price]||uncovered||DWAC:[coveredDate]||
+  except KeyError:
     memo = "uncovered:" 
-  memo = memo.split(":")
+  # memo format: {price/"uncovered"/"DWAC"}|{coveredDate/""}
+  memo = memo.split("|")
   match memo[0]:
     case "uncovered":
       legacyPrice = Decimal("0")
     case "DWAC":
       try:
-        legacyPrice = Decimal(getAccountDataDict(address)[f"DWAC-{opPagingToken}"])
+        legacyPrice = Decimal(getAccountDataDict(BT_DISTRIBUTOR)[f"DWAC|{opPagingToken}"])
       except KeyError:
         sys.exit(f"{address} missing DWAC mapping for {opPagingToken}")
     case other:
@@ -232,23 +222,8 @@ def getOriginDataFromPagingToken(opPagingToken, address):
   originDistributionData["originTradeValue"] = legacyPrice * opData["amount"]
   return originDistributionData
 
-def adjustForWashSale(fill):
-  # search data dict for origin offer id adj
-  
-  
-  return 1
-
-def getWashSaleOfferIDs(address):
-  return 1
-
-def getWashSaleAdjustments(address):
-  return 1
-
-def getAccountDataDict(address):
-  requestAddr = f"{HORIZON_INST}/accounts/{address}"
-  return requests.get(requestAddr).json()["data"]
-
-# paging_token: basis
+# individual account data should not be responsible for tracking wash sale adjusts;
+# investor only specifies sale lot
 def basisFromAccountData(addr):
   data = getAccountDataDict(addr)
   historicPositionsCUSIPsMappedToBasisData = {}
@@ -256,8 +231,6 @@ def basisFromAccountData(addr):
     if(isCUSIP(key)):
       historicPositionsCUSIPsMappedToBasisData[key] = value
   return historicPositionsCUSIPsMappedToBasisData
-
-# [succeedingOfferID]: [lossDissallowedFromPriorTrade]
 def getWashSalesFromAccountData(addr):
   data = getAccountDataDict(addr)
   succeedingOffersMappedToBasisAdjustments = {}
@@ -265,52 +238,14 @@ def getWashSalesFromAccountData(addr):
     if(key in offerIDsMappedToChiefMemosForAccount.keys()):
       succeedingOffersMappedToBasisAdjustments[key] = value
   return succeedingOffersMappedToBasisAdjustments
-
-def getUncoveredBasis(data):
-  # you can't get the basis for uncovered shares ?
-  return 1
-
-
-
 def adjustAllTradesForWashSales(combinedData, address):
-  adjustedTrades = washSaleWatchlist = []
-  replacementOptions = []
-  for combinedTrades in combinedData:
-    if(combinedTrades[9] < 0):
-      washSaleWatchlist.append(combinedTrades)
-  for potentialWashes in washSaleWatchlist:
-    # get all buys for stock
-    
-    for combinedTrades in combinedData:
-      # combinedData is only for sales 
-      #
-      a=1
-      #if(combinedTrades[1]
-  
-  if(washSaleAdjStart < saleTimestamp < taxYearStart):
-    a = 1 
-    
-    matchOfferID = offerIDsMappedToChiefMemosForAccount[offerID]
-    adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount)
-    return ans
-    
-    
-    return tradeData
-    
-  return adjustedTrades
-
+  matchOfferID = offerIDsMappedToChiefMemosForAccount[offerID]
+  adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount)
 def adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMappedToChiefMemosForAccount):
-  adjustedTrades = []
-  return 1
-  
   #origin = getBuyTradeData(matchOfferID, address)
-  origin = 1
-  combined = combineTradeData(sale[2], origin)
   if(combined[0] == "covered"):
     (basis, proceeds) = getCoveredBasisAndProceeds(combined)
     combined += (basis, proceeds, proceeds - basis)
-  ss.append(combined) 
-
 def filterTradesToTaxablePeriod(finalTrades):
   return washSaleAdjStart <= sale[2]["fillDate"] <= washSaleAdjCutoff
 
@@ -328,18 +263,4 @@ def placeFields(adjustedTrades):
 # future features: support liquidity pool D/W
 #                     (as interest income or cap gains? many aquisitions/dispositions?)
 #                  support for sending path payments (incl. to self)
-
-# testing: "GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG"
-# print(getHistoricPositions("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML"))
-# print(getHistoricPositionsFromAccountData("GAJ4BSGJE6UQHZAZ5U5IUOABPDCYPKPS3RFS2NVNGFGFXGVQDLBQJW2P"))
-# print(adjustSharesBoughtForStockSplits(Decimal("100"), date, "DEMO"))
-bulkOutput()
-# form8949(BT_ISSUER)
-#form8949forAccount("GARLIC4DDPDXHAWNV5EBBKI7RSGGGDGEL5LH3F3N3U6I4G4WFYIN7GBG")
-#fetchInvestorPreExistingPositionsForAsset("GAJ2HGPVZHCH6Q3HXQJMBZNIJFAHUZUGAEUQ5S7JPKDJGPVYOX54RBML", "DEMO")
-
-
-
-
-
 
