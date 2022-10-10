@@ -3,12 +3,15 @@ sys.path.append("../")
 from globals import *
 
 def getOfferIDsMappedToChiefMemosFromCache():
-  offerIDsMappedToChiefMemosForAccount = {}
+  accountOfferIDsMappedToChiefMemos = {}
   cache = loadTomlData(OFFER_MEMO_TOML)
   for offerIDs, memos in cache.items():
-    print(f"{type(offerIDs)} {offerIDs} -> {type(memos)} {memos}")
-    offerIDsMappedToChiefMemosForAccount[offerIDs] = memos
-  return offerIDsMappedToChiefMemosForAccount
+    try:
+      offerID = int(offerIDs)
+    except ValueError:
+      sys.exit("Critical data validity error")
+    accountOfferIDsMappedToChiefMemos[offerID] = memos
+  return accountOfferIDsMappedToChiefMemos
 
 def updateAllOfferIDs():
   existingCache = getOfferIDsMappedToChiefMemosFromCache()
@@ -26,7 +29,7 @@ def updateAllOfferIDs():
     cache.write(f"{offerIDs} = \"{memos}\"\n")
 
 def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
-  offerIDsMappedToChiefMemosForAccount = {}
+  accountOfferIDsMappedToChiefMemos = {}
   requestAddr = f"{HORIZON_INST}/accounts/{queryAccount}/transactions?{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
@@ -39,16 +42,16 @@ def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
             offerIDarr = []
             appendOfferIDsToArr(op, offerIDarr, queryAccount)
             for offerIDs in offerIDarr:
-              localNew = str(offerIDs) not in offerIDsMappedToChiefMemosForAccount.keys()
-              cacheNew = str(offerIDs) not in cache.keys()
+              localNew = offerIDs not in accountOfferIDsMappedToChiefMemos.keys()
+              cacheNew = offerIDs not in cache.keys()
               if(offerIDs and localNew and cacheNew):
                 try:
                   memo = txns["memo"]
                 except KeyError:
                   memo = ""
-                offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
+                accountOfferIDsMappedToChiefMemos[offerIDs] = memo
     ledger = getNextLedgerData(ledger)
-  return offerIDsMappedToChiefMemosForAccount
+  return accountOfferIDsMappedToChiefMemos
 
 def getAttr(obj, attr):
   def subGetAttr(obj, attr):
