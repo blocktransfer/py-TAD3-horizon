@@ -19,58 +19,58 @@ def getTotalOutstandingShares(queryAsset, numRestrictedShares):
   return totalOutstandingShares
 
 def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstandingShares, StellarBlockchainBalances):
-  inFile = open(unclaimedMSFinst)
-  unclaimedMSF = inFile.read().strip().split("\n")
-  inFile.close()
-  inFile = open(MICR_TXT)
-  MICR = inFile.read().strip().split("\n")
-  inFile.close()
+  MICR = open(MICR_TXT)
+  next(MICR)
+  unclaimedMSF = open(unclaimedMSFinst)
+  next(unclaimedMSF)
   day = datetime.now().strftime("%Y-%m-%d at %H%M")
   mergedMSF = open(f"{G_DIR}/../pii/outputs/{queryAsset} MSF as of {day}.txt", "w")
-  mergedMSF.write("Registration,Address,Email,Shares\n")
-  for lines in unclaimedMSF[1:]:
-    lines = lines.split("|")
-    cancelled = lines[10]
+  mergedMSF.write("Registration|Address|Email|Shares\n")
+  for accounts in unclaimedMSF:
+    account = accounts.split("|")
+    cancelled = account[10]
     if(not cancelled):
       address = toFullAddress(
-        lines[3],
-        lines[4],
-        lines[5],
-        lines[6],
-        lines[7],
-        lines[8]
+        account[3],
+        account[4],
+        account[5],
+        account[6],
+        account[7],
+        account[8]
       )
       output = [
-        lines[1],
+        account[1],
         address,
         "",
-        lines[0],
-        lines[11]
+        account[0],
+        account[11]
       ] # assume no email from old TA
       mergedMSF.write("|".join(output) + "\n")
-  for lines in MICR[1:]:
-    lines = lines.split("|")
+  unclaimedMSF.close()
+  for accounts in MICR:
+    account = accounts.split("|")
     try:
-      blockchainBalance = StellarBlockchainBalances[lines[0]]
+      blockchainBalance = StellarBlockchainBalances[account[0]]
       if(not blockchainBalance):
         continue
     except KeyError:
       continue
     address = toFullAddress(
-      lines[4],
-      lines[5],
-      lines[6],
-      lines[7],
-      lines[8],
-      lines[9]
+      account[4],
+      account[5],
+      account[6],
+      account[7],
+      account[8],
+      account[9]
     )
     output = [
-      lines[1],
+      account[1],
       address,
-      lines[2],
+      account[2],
       str(blockchainBalance)
     ]
     mergedMSF.write("|".join(output) + "\n")
+  MICR.close()
   mergedMSF.close()
 
 def generateInternalRecord(queryAsset, StellarBlockchainBalances):
@@ -80,4 +80,3 @@ def generateInternalRecord(queryAsset, StellarBlockchainBalances):
     internalRecord.write(f"'|'.join([addresses, str(balances)])\n")
   internalRecord.close()
 
-getMergedReportForAssetWithNumRestrictedSharesUsingMSF("DEMO", "0", "VeryRealStockIncUnclaimedMSF.txt")

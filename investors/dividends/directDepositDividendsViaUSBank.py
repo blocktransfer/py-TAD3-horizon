@@ -19,16 +19,15 @@ def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsC
     "Authorization": USBankAuthorization,
     "Content-Type": "application/json"
   }
-  inFile = open(recordDateShareholdersOptedForCashDividendsCSV)
-  readFile = inFile.read().strip().split("\n")
-  inFile.close()
+  cashDividendInvestors = open(recordDateShareholdersOptedForCashDividendsCSV)
+  next(cashDividendInvestors)
   print("*****\n\nDistributing dividend of $" + str(perShareDividend) + " per share\n\n*****\n")
   divSum = 0
   investorSum = 0
   mergedDirectDividendsMSF = open(f"Direct deposit dividends distributed on {datetime.now().date()}.csv", "a")
   mergedDirectDividendsMSF.write("Dividends Paid,Registration,Email,Routing # Direct Deposit,Account # Direct Deposit,Card # Card Deposit,Card CVV Card Deposit,Expiration Date Card Deposit,Billing Zip Card Deposit,For Internal Use: Card ID,Address,Address Extra,City,State,Postal Code,Country\n")
   mergedDirectDividendsMSF.close()
-  for lines in readFile[1:]:
+  for lines in cashDividendInvestors:
     lines = lines.split("|")
     if lines[5] != "": continue
     shareholderDividend = float(lines[0]) * perShareDividend
@@ -48,6 +47,7 @@ def directDepositDividendsViaUSBank(recordDateShareholdersOptedForCashDividendsC
     divSum += shareholderDividend
     investorSum += 1
     #break # testing: prevent MAX_CARDS
+  cashDividendInvestors.close()
   print("\n*****\n\nTotal of ${divSum:.2f} cash dividends direct deposited to {investorSum} securityholders\n\n*****\n")
 
 directDepositDividendsViaUSBank("demoCashDividendsMSF.csv", .0023)

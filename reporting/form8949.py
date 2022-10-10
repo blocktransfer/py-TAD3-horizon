@@ -2,7 +2,6 @@ import sys
 sys.path.append("../")
 from globals import *
 from offerCaching import *
-import threading #todo: threads -> global
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
@@ -11,17 +10,26 @@ taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd
 # washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
 def bulkOutput():
-  MICRlines = open("access_me.txt").readlines().split("\n")
-  threads = []
-  for addresses, i in enumerate(MICRlines.split("|")[0]):
-    form8949forAccount(addresses)
-    threads.append(
-        threading.Thread(
-          target = form8949forAccount,
-          args = (addresses,)
-        )
-      )
-    threads[i].start().join()
+  MICR = open(MICR_TXT)
+  for lines in MICR:
+    print(lines)
+    account = lines.split("|")
+    form8949forAccount(account[0])
+  MICR.close()
+
+## Testing needed at scale
+# import threading
+# threads = []
+# for addresses, i in enumerate(lines.split("|")[0]):
+#   form8949forAccount(addresses)
+#   threads.append(
+#       threading.Thread(
+#         target = form8949forAccount,
+#         args = (addresses,)
+#       )
+#     )
+#   threads[i].start().join()
+##
 
 def form8949forAccount(address):
   allTrades = []

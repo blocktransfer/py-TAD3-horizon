@@ -44,7 +44,7 @@ def distributeProxyNotices(queryAsset):
   sendProxyNotices(sumShareholderList)
 
 def getOtherInvestorsFromRecordDateMSF():
-  # fetch record date (queryAsset) using Open, .read().strip().split("\n") , Split; return ...
+  # fetch record date (queryAsset); return ...
   blockchainInvestors = getRecordDateBlockchainInvestorsMappedToMSFStyle()
   investorsNotClaimed = getOtherInvestorsFromRecordDateMSF()
   

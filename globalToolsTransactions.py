@@ -3,14 +3,15 @@ from globals import *
 def isFiat(queryAsset):
   return queryAsset == USD_ASSET or queryAsset == USDC_ASSET
 
+# todo: pulling info twice here
 def getValidAccountPublicKeys():
   validAccountPublicKeys = []
-  inFile = open(MICR_TXT)
-  MICR_TXT = inFile.read().strip().split("\n")
-  inFile.close()
-  for lines in MICR[1:]:
-    lines = lines.split(",")
-    validAccountPublicKeys.append(lines[0]) # assumes only one account
+  MICR = open(MICR_TXT)
+  next(MICR)
+  for accounts in MICR:
+    account = accounts.split("|")
+    validAccountPublicKeys.append(account[0])
+  MICR.close
   return validAccountPublicKeys
 
 def appendTransactionEnvelopeToArrayWithSourceAccount(transactionsArray, sourceAccount):
@@ -55,3 +56,4 @@ def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
     if(purchaseTimestamp < splitTimestamps):
       numShares = numShares * splitRatios
   return numShares
+

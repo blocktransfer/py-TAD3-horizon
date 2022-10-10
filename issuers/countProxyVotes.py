@@ -67,12 +67,12 @@ def getNumUnrestrictedShares(queryAsset):
 def getBalancesOnRecordDate(queryAsset):
   balancesOnRecordDate = {}
   internalRecordDateTXT = f"{G_DIR}/../pii/internal-record-date-snapshots/{str(datetime.today().year)}/{queryAsset}.txt"
-  inFile = open(internalRecordDateTXT)
-  internalRecordDateHoldings = inFile.read().strip().split("\n")
-  inFile.close()
-  for lines in internalRecordDateHoldings[1:]:
+  internalRecordDateHoldings = open(internalRecordDateTXT)
+  next(internalRecordDateHoldings)
+  for lines in internalRecordDateHoldings:
     lines = lines.split("|")
     balancesOnRecordDate[lines[0]] = Decimal(lines[1])
+  internalRecordDateHoldings.close()
   return balancesOnRecordDate
 
 def makeFirst28byteMapping():
