@@ -49,7 +49,7 @@ def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
                 try:
                   memo = txns["memo"]
                 except KeyError:
-                  memo = ""
+                  memo = "''"
                 offerIDsMappedToChiefMemosForAccount[offerIDs] = memo
     ledger = getNextLedgerData(ledger)
   return offerIDsMappedToChiefMemosForAccount
