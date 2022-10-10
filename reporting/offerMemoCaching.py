@@ -46,9 +46,10 @@ def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
               cacheNew = offerIDs not in cache.keys()
               if(offerIDs and localNew and cacheNew):
                 try:
-                  memo = txns["memo"]
+                  instructions = txns["memo"]
                 except KeyError:
-                  memo = ""
+                  instructions = ""
+                memo = "|".join([instructions, queryAccount])
                 accountOfferIDsMappedToChiefMemos[offerIDs] = memo
     ledger = getNextLedgerData(ledger)
   return accountOfferIDsMappedToChiefMemos
