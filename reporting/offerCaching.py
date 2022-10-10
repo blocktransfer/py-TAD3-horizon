@@ -2,9 +2,10 @@ import sys
 sys.path.append("../")
 from globals import *
 
-def getOfferIDsMappedToChiefMemosFromCache(queryAccount):
+def getOfferIDsMappedToChiefMemosFromCache():
   offerIDsMappedToChiefMemosForAccount = {}
   cache = loadTomlData(OFFER_MEMO_TOML)
+  print(OFFER_MEMO_TOML)
   for offerIDs, memos in cache.items():
     try:
       memo = int(memos)
@@ -14,13 +15,19 @@ def getOfferIDsMappedToChiefMemosFromCache(queryAccount):
   return offerIDsMappedToChiefMemosForAccount
 
 def updateAllOfferIDs():
-  allOffersMappedToMemos = {}
-  for addrs in getValidAccountPublicKeys():
-    allOffersMappedToMemos.update(getOfferIDsMappedToChiefMemos(addrs))
+  existingCache = getOfferIDsMappedToChiefMemosFromCache()
+  newOfferIDsMappedToChiefMemos = {}
+  for addresses in getValidAccountPublicKeys():
+    newOfferIDsMappedToChiefMemos.update(getNewOfferIDsMappedToChiefMemosFromStellar(addresses, existingCache))
+  cache = open(f"{G_DIR}/docs/caching-data/offer-memos.toml", "a")
+  for a in cache:
+    print(a)
+  for offerIDs, memos in newOfferIDsMappedToChiefMemos.items():
+    print(1)
   # check not in loadTomlData(OFFER_MEMO_TOML)
   # export
 
-def getOfferIDsMappedToChiefMemosFromStellar(queryAccount):
+def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
   offerIDsMappedToChiefMemosForAccount = {}
   requestAddr = f"{HORIZON_INST}/accounts/{queryAccount}/transactions?{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
@@ -34,7 +41,10 @@ def getOfferIDsMappedToChiefMemosFromStellar(queryAccount):
             offerIDarr = []
             appendOfferIDsToArr(op, offerIDarr, queryAccount)
             for offerIDs in offerIDarr:
-              if(offerIDs and offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()):
+              localNew = offerIDs not in offerIDsMappedToChiefMemosForAccount.keys()
+              cacheNew = offerIDs not in cache.keys()
+              notworthy = localNew and cacheNew
+              if(offerIDs and noteworthy):
                 try:
                   memo = txns["memo"]
                 except KeyError:
@@ -88,3 +98,4 @@ def getOfferIDfromContraID(offerID, address):
         return int(trades["base_offer_id"])
     ledger = getNextLedgerData(ledger)
 
+updateAllOfferIDs()
