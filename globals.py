@@ -44,3 +44,12 @@ fee = server.fetch_base_fee() * BASE_FEE_MULT
 from globalToolsAssets import *
 from globalToolsSearching import *
 from globalToolsTransactions import *
+
+def getNumOutstandingShares(queryAsset, numRestrictedShares):
+  tokens = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
+  numUnrestrictedShares = requests.get(tokens).json()["_embedded"]["records"][0]["amount"]
+  totalOutstandingShares = Decimal(numUnrestrictedShares) + Decimal(numRestrictedShares)
+  treasuryShares = getNumTreasuryShares(queryAsset)
+  employeeBenefitShares = getNumEmployeeBenefitShares(queryAsset)
+  return totalOutstandingShares - treasuryShares - employeeBenefitShares
+

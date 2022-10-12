@@ -32,21 +32,6 @@ def getNextLedgerData(ledger):
   except KeyError:
     return response
 
-def getStockOutstandingShares(queryAsset):
-  requestAddr = f"{HORIZON_INST}/assets?asset_code={QueryAsset}&asset_issuer=BT_ISSUER"
-  data = requests.get(requestAddr).json()
-  outstandingInclTreasuryShares = data["_embedded"]["records"][0]["amount"]
-  treasuryAddr = resolveFederationAddress(f"{queryAsset}*treasury.holdings")
-  requestAddr = f"{HORIZON_INST}/accounts/{treasuryAddr}"
-  accountBalances = requests.get(requestAddr).json()["balances"]
-  queryAsset = defGetAssetObjFromCode(queryAsset)
-  for balances in accountBalances:
-    asset = Asset(balances["asset_code"], balances["asset_issuer"])
-    if(balances["asset_type"] != "native" and asset == queryAsset):
-      treasuryShares = balances["balance"]
-      break
-  return outstandingInclTreasuryShares - treasuryShares
-
 def listAllIssuerAssets():
   allAssets = []
   requestAddress = f"{HORIZON_INST}/assets?asset_issuer={BT_ISSUER}&{MAX_SEARCH}"

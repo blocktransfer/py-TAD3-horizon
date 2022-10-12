@@ -3,31 +3,49 @@ from globals import *
 def loadTomlData(link):
   return toml.loads(requests.get(link).content.decode())
 
-def getAssetCodeFromTomlLink(link):
-  return link[32:-5]
-
-def resolveFederationAddress(properlyFormattedAddr):
-  splitAddr = properlyFormattedAddr.split("*")
-  federationName = splitAddr[0]
-  federationDomain = splitAddr[1]
-  homeDomainFederationServer = getFederationServerFromDomain(federationDomain)
-  requestAddr = f"{homeDomainFederationServer}?q={properlyFormattedAddr}&type=name"
-  data = requests.get(requestAddr).json()
-  try: 
-    return data["account_id"]
-  except Exception:
-    sys.exit("Could not find {}".format(properlyFormattedAddr))
-
 def getFederationServerFromDomain(federationDomain):
-  def formatNoEndSlash(link):
-    return link if link.split("/")[-1] else link[:-1]
   try:
     requestAddr = f"https://{federationDomain}/.well-known/stellar.toml"
     data = loadTomlData(requestAddr)
-    homeDomainFederationServer = formatNoEndSlash(data["FEDERATION_SERVER"])
-  except Exception:
-    sys.exit(f"Failed to lookup federation server at {federationDomain}")
-  return homeDomainFederationServer
+    return data["FEDERATION_SERVER"]
+  except requests.exceptions.ConnectionError:
+    return ""
+
+def resolveFederationAddress(queryAddr):
+  splitAddr = queryAddr.split("*")
+  federationName = splitAddr[0]
+  federationDomain = splitAddr[1]
+  homeDomainFederationServer = getFederationServerFromDomain(federationDomain)
+  requestAddr = f"{homeDomainFederationServer}?q={queryAddr}&type=name"
+  try:
+    return requests.get(requestAddr).json()["account_id"]
+  except requests.exceptions.MissingSchema:
+    return ""
+
+def getNumTreasuryShares(queryAsset):
+  treasuryAddr = resolveFederationAddress(f"{queryAsset}*treasury.holdings")
+  if(not treasuryAddr): return 0
+  requestAddr = f"{HORIZON_INST}/accounts/{treasuryAddr}"
+  accountBalances = requests.get(requestAddr).json()["balances"]
+  asset = Asset(queryAsset, BT_ISSUER)
+  for balances in accountBalances:
+    searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
+    if(balances["asset_type"] != "native" and searchAsset == asset):
+      return balances["balance"]
+
+def getNumEmployeeBenefitShares(queryAsset):
+  employeeBenefitAddr = resolveFederationAddress(f"{queryAsset}*authorized.employee.holdings")
+  if(not employeeBenefitAddr): return 0
+  requestAddr = f"{HORIZON_INST}/accounts/{employeeBenefitAddr}"
+  accountBalances = requests.get(requestAddr).json()["balances"]
+  asset = Asset(queryAsset, BT_ISSUER)
+  for balances in accountBalances:
+    searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
+    if(balances["asset_type"] != "native" and searchAsset == asset):
+      return balances["balance"]
+
+def getAssetCodeFromTomlLink(link):
+  return link[32:-5]
 
 def getAccountDataDict(address):
   requestAddr = f"{HORIZON_INST}/accounts/{address}"

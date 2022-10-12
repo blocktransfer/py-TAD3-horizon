@@ -4,19 +4,9 @@ from globals import *
 
 def getMergedReportForAssetWithNumRestrictedSharesUsingMSF(queryAsset, numRestrictedShares, unclaimedMSF):
   StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
-  totalOutstandingShares = getTotalOutstandingShares(queryAsset, numRestrictedShares)
+  totalOutstandingShares = getNumOutstandingShares(queryAsset, numRestrictedShares)
   mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSF, totalOutstandingShares, StellarBlockchainBalances)
   generateInternalRecord(queryAsset, StellarBlockchainBalances)
-
-def getTotalOutstandingShares(queryAsset, numRestrictedShares):
-  requestAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
-  data = requests.get(requestAddr).json()
-  try:
-    numUnrestrictedShares = Decimal(data["_embedded"]["records"][0]["amount"])
-  except Exception:
-    sys.exit("Input parameter error")
-  totalOutstandingShares = Decimal(numRestrictedShares) + numUnrestrictedShares
-  return totalOutstandingShares
 
 def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstandingShares, StellarBlockchainBalances):
   MICR = open(MICR_TXT)
