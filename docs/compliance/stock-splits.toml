@@ -1,7 +1,7 @@
 # Block Transfer <blocktransfer.io>
 
 RECORD_DATE = "We take record of all investors at the first ledger to close
-after 0:00:00 UTC on the split record date."
+after 0:00:00 UTC on a split record date, if opted for by an issuer."
 
 PAYMENT_DATE = "We freeze all asset activity the day before a split becomes
 effective at 6PM Eastern (22:00:00 UTC). During the next two hours, we effect
