@@ -24,6 +24,7 @@ def exportSplitNewShareTransactions(txnArr, queryAsset):
     output.write(txns.to_xdr())
     output.close()
 
-
-# todo: impliment dynamic claimable stock grants via clawback claimiable balalnce /
-# add to with same conditions (but still requiring an HR sign-off?)
+# for dynamic claimable stock grants:
+def fetchClaimableBalances(queryAsset):
+    return 1
+# clawback / create new distributor (same basis) claimiable balalnce in fwd/rvs code
