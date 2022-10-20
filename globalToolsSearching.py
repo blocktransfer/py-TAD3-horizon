@@ -34,7 +34,7 @@ def getNumTreasuryShares(queryAsset):
       return balances["balance"]
 
 def getNumEmployeeBenefitShares(queryAsset):
-  employeeBenefitAddr = resolveFederationAddress(f"{queryAsset}*authorized.employee.holdings")
+  employeeBenefitAddr = resolveFederationAddress(f"{queryAsset}*reserved.employee.holdings")
   if(not employeeBenefitAddr): return 0
   requestAddr = f"{HORIZON_INST}/accounts/{employeeBenefitAddr}"
   accountBalances = requests.get(requestAddr).json()["balances"]
