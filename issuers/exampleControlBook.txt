@@ -8,3 +8,6 @@ Class B: Number of Shares Authorized|1.51E+11
 Class B: Number of Shares Outstanding Including Restricted Shares|2236655412
 Class B: Treasury Stock|9002
 |
+
+todo: depricate in place of treasury.holdings, reserved.employee.holdings, and a company treasury authorized_shares data entry val which they can dynamically update
+      we can still do the legacy restricted shares with complex provisions internally + sparing legal opinion letters
