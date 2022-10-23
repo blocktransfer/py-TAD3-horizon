@@ -19,6 +19,7 @@ def getClaimableBalancesData(queryAsset):
           continue # Expect investor as claimant via not abs_before
       if(data["release"]):
         data["recipient"] = claimants["destination"]
+        # data["amount"] = Decimal(claimableBalances["amount"])
         data["amount"] = claimableBalances["amount"]
         claimableBalanceIDsMappedToData[claimableBalances["id"]] = data
     ledger = getNextLedgerData(ledger)
