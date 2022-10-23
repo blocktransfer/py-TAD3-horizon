@@ -1,12 +1,7 @@
 # Block Transfer <blocktransfer.io>
+# Per SEC Rules 17Ad-7/15
 
-# THIS DOCUMENT CREATED PER COMPLIANCE WITH THE SECURITIES EXCHANGE ACT OF 1934,
-# ADOPTED RULE 17Ad-15 — ACCEPTANCE OF SIGNATURE GUARANTEES FROM ELIDGIBLE
-# GUARANTOR INSTITUTIONS — AND ADOPTED RULE 17Ad-7 — RECORDKEEPING REQUIREMENTS
-
-EFFECTIVE_DATE = "6-18-2021"
-
-SIGNATURE_GUARANTEE_PROGRAM_SPECIFICATION = "BlockTrans Syndicate ('Block
+SIGNATURE_GUARANTEE_PROGRAM_SPECIFICATION = """BlockTrans Syndicate ('Block
 Transfer' herein) engages in all guarantee activities, as defined in Subsection
 17Ad-15(a)(3) and referenced herein, with equitable treatment of all eligible
 guarantor institutions and classes of institutions.
@@ -81,9 +76,4 @@ Block Transfer does not make a market for any of the issuers it services. Block
 Transfer will not directly accept or make payment with securities in exchange
 for value, except as a tender agent at its sole discresion pursuant to 17Ad-14.
 Rather, all good-standing market participants can directly trade assets through
-Stellar's decentralized exchange by signing order messages in their wallet."
-
-ATTESTATION = "The Board approves principal John Wooten to speak on its behalf.
-We attest to the validity of this signature guarantee program and, under penalty
-of purgery, claim its standards to be the operating by-laws of Block Transfer.
-/s/John Wooten"
+Stellar's decentralized exchange by signing order messages in their wallet."""
