@@ -43,10 +43,12 @@ def exportSplitNewShareTransactions(txnArr, queryAsset):
 
 def getClaimableBalancesData(queryAsset):
   claimableBalanceIDsMappedToData = data = {}
+  b = []
   requestAddr = f"{HORIZON_INST}/claimable_balances?asset={queryAsset}:{BT_ISSUER}&{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for claimableBalances in ledger["_embedded"]["records"]:
+      b.append(str(claimableBalances))
       data["release"] = 0
       for claimants in claimableBalances["claimants"]:
         try:
@@ -58,5 +60,5 @@ def getClaimableBalancesData(queryAsset):
         data["amount"] = Decimal(claimableBalances["amount"])
         claimableBalanceIDsMappedToData[claimableBalances["id"]] = data
     ledger = getNextLedgerData(ledger)
-  return claimableBalanceIDsMappedToData
+  return claimableBalanceIDsMappedToData, b
 
