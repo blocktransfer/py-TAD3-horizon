@@ -2,7 +2,7 @@ company_code = "DEMO"
 
 [[CURRENCIES]]
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
-anchor_asset = "private"
+anchor_asset = "private placement"
 anchor_asset_type = "stock"
 authorized = 100000000
 code = "DEMO"
@@ -13,7 +13,6 @@ conditions = "Fully paid and non-assessable shares."
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
 ein = 123456789
-hidden = false
 image = "https://blocktransfer.io/imgs/demo.png"
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
@@ -30,7 +29,7 @@ votes_per_share = 1
 
 [[CURRENCIES]]
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
-anchor_asset = "private"
+anchor_asset = "private placement"
 anchor_asset_type = "stock"
 authorized = 100000000
 code = "DEMO-B"
@@ -41,7 +40,6 @@ conditions = "Fully paid and non-assessable shares."
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
 ein = 123456789
-hidden = false
 image = "https://blocktransfer.io/imgs/demo.png"
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
