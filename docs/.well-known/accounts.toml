@@ -3,5 +3,7 @@
 [GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ]
 status = "bona fide"
 accredited = false
-exceptions = ["DEMO", "TEST"]
-affiliations = ["DEMO"]
+associations = ["DEMO"]
+regAlimit = "10000.11"
+regCFlimit = "5000.55"
+state = "GA"

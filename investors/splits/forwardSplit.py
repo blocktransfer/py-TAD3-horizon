@@ -9,7 +9,7 @@ def forwardSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesTXT, rec
   ledgerBalances = getLedgerBalances(queryAsset)
   newShareTxnArr = grantNewSplitSharesFromBalancesClaimedOnStellar(ledgerBalances, queryAsset, numerator, denominator, recordDate)
   exportSplitNewShareTransactions(newShareTxnArr, queryAsset)
-  generatePostSplitMSF(MSFpreSplitBalancesTXT, numerator, denominator, postSplitFileName)
+  generatePostSplitMSF(MSFpreSplitBalancesTXT, numerator / denominator, postSplitFileName)
 
 def grantNewSplitSharesFromBalancesClaimedOnStellar(ledgerBalances, queryAsset, numerator, denominator, recordDate):
   transactions = []

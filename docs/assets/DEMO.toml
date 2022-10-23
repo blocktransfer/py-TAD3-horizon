@@ -1,3 +1,5 @@
+company_code = "DEMO"
+
 [[CURRENCIES]]
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
 anchor_asset = "private"
@@ -6,7 +8,8 @@ authorized = 100000000
 code = "DEMO"
 cik = 0
 class = "A"
-conditions = "Fully paid and non-assessable shares of common stock."
+class_type = "common"
+conditions = "Fully paid and non-assessable shares."
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
 ein = 123456789
@@ -30,10 +33,11 @@ attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
 anchor_asset = "private"
 anchor_asset_type = "stock"
 authorized = 100000000
-code = "TEST"
+code = "DEMO-B"
 cik = 0
 class = "B"
-conditions = "Fully paid and non-assessable shares of preferred stock."
+class_type = "preffered"
+conditions = "Fully paid and non-assessable shares."
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
 ein = 123456789

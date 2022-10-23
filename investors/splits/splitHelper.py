@@ -13,18 +13,24 @@ def renew(transactions, source, idx):
   idx += 1
   return idx, 0
 
-def generatePostSplitMSF(MSFpreSplitBalancesTXT, numerator, denominator, postSplitFileName):
+def generatePostSplitMSF(MSFpreSplitBalancesTXT, ratio, postSplitFileName):
   oldMSF = open(MSFpreSplitBalancesTXT)
   newMSF = open(postSplitFileName, "w")
   newMSF.write(next(oldMSF) + "\n")
+  totalRoundingRecordDifference = 0
   for accounts in oldMSF:
     account = accounts.split("|")
     if(account[1]):
-      sharesAfterSplit = Decimal(account[1]) * numerator / denominator
-      account[1] = ("{:." + MAX_NUM_DECIMALS + "f}").format(sharesAfterSplit) # todo: test rounding errors
+      roundedValue = Decimal(account[1]) * ratio
+      account[1] = roundedValue.quantize(MAX_PREC, rounding = ROUND_UP)
+      difference = abs(roundedValue - sharesToClawback)
+      totalRoundingRecordDifference += difference
+      if(difference):
+        print(f"Rounded up for {account[2]}: {difference} shares")
       newMSF.write(f"{'|'.join(account)}")
     else:
       newMSF.write(f"{'|'.join(account)}")
+  print(f"\nRounded up {totalRoundingRecordDifference} total shares")
   oldMSF.close()
   newMSF.close()
   return newMSF
@@ -41,14 +47,16 @@ def getClaimableBalancesData(queryAsset):
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for claimableBalances in ledger["_embedded"]["records"]:
-      if(len(claimableBalances["claimants"]) > 1):
-        print(f"Malformed\n{claimableBalances}")
-        continue
-        #sys.exit("Critical operational error")
-      data["amount"] = Decimal(claimableBalances["amount"]),
-      data["recipient"] = claimableBalances["claimaints"][0]["destination"],
-      data["release"] = claimableBalances["claimaints"][0]["not"]["abs_before_epoch"]
-      claimableBalanceIDsMappedToData[claimableBalances["id"]] = data
+      data["release"] = 0
+      for claimants in claimableBalances["claimants"]:
+        try:
+          data["release"] = claimants["predicate"]["not"]["abs_before_epoch"]
+        except KeyError:
+          continue # Expect investor as claimant via not abs_before
+      if(data["release"]):
+        data["recipient"] = claimants["destination"]
+        data["amount"] = Decimal(claimableBalances["amount"])
+        claimableBalanceIDsMappedToData[claimableBalances["id"]] = data
     ledger = getNextLedgerData(ledger)
   return claimableBalanceIDsMappedToData
 
