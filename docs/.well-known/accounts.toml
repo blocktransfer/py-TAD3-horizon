@@ -3,5 +3,5 @@
 [GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ]
 status = "bona fide"
 accredited = false
-exceptions = ["DEMO", "TEST"] # For Rule 501(a)4/11
+exceptions = ["DEMO", "TEST"]
 affiliations = ["TEST"]
