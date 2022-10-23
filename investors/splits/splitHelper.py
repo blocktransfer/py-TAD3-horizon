@@ -3,7 +3,8 @@ sys.path.append("../../")
 from globals import *
 
 def getClaimableBalancesData(queryAsset):
-  claimableBalanceIDsMappedToData = data = {}
+  claimableBalanceIDsMappedToData = {}
+  data = {}
   b = []
   requestAddr = f"{HORIZON_INST}/claimable_balances?asset={queryAsset}:{BT_ISSUER}&{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
