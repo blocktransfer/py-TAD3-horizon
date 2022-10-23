@@ -1,0 +1,3 @@
+include:
+ - clause for uncertificated shares + conversion thereof in toto
+ - if private, clause recognizing all private sales as undeniable
