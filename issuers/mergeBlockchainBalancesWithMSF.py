@@ -3,12 +3,12 @@ sys.path.append("../")
 from globals import *
 
 def getMergedReportForAssetWithNumRestrictedSharesUsingMSF(queryAsset, numRestrictedShares, unclaimedMSF):
-  StellarBlockchainBalances = getStellarBlockchainBalances(queryAsset)
+  ledgerBalances = getLedgerBalances(queryAsset)
   totalOutstandingShares = getNumOutstandingShares(queryAsset, numRestrictedShares)
-  mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSF, totalOutstandingShares, StellarBlockchainBalances)
-  generateInternalRecord(queryAsset, StellarBlockchainBalances)
+  mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSF, totalOutstandingShares, ledgerBalances)
+  generateInternalRecord(queryAsset, ledgerBalances)
 
-def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstandingShares, StellarBlockchainBalances):
+def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstandingShares, ledgerBalances):
   MICR = open(MICR_TXT)
   next(MICR)
   unclaimedMSF = open(unclaimedMSFinst)
@@ -40,7 +40,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
   for accounts in MICR:
     account = accounts.split("|")
     try:
-      blockchainBalance = StellarBlockchainBalances[account[0]]
+      blockchainBalance = ledgerBalances[account[0]]
       if(not blockchainBalance):
         continue
     except KeyError:
@@ -63,10 +63,10 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
   MICR.close()
   mergedMSF.close()
 
-def generateInternalRecord(queryAsset, StellarBlockchainBalances):
+def generateInternalRecord(queryAsset, ledgerBalances):
   internalRecord = open(f"{G_DIR}/../pii/outputs/{queryAsset}.txt", "w")
   internalRecord.write(f"Public Key|Balance||Blockchain snapshot at {datetime.now()}\n")
-  for addresses, balances in StellarBlockchainBalances.items():
+  for addresses, balances in ledgerBalances.items():
     internalRecord.write(f"'|'.join([addresses, str(balances)])\n")
   internalRecord.close()
 

@@ -3,25 +3,25 @@ from globals import *
 def getAssetAccountsRequestAddr(queryAsset):
   return f"{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&{MAX_SEARCH}"
 
-def getStellarBlockchainBalances(queryAsset):
-  StellarBlockchainBalances = {}
+def getLedgerBalances(queryAsset):
+  ledgerBalances = {}
   requestAddr = getAssetAccountsRequestAddr(queryAsset)
   ledger = requests.get(requestAddr).json()
   queryAsset = defGetAssetObjFromCode(queryAsset)
   while(ledger["_embedded"]["records"]):
     for accounts in ledger["_embedded"]["records"]:
-      accountAddr = accounts["id"]
+      account = accounts["id"]
       for balances in accounts["balances"]:
         try:
           asset = Asset(balances["asset_code"], balances["asset_issuer"])
           if(asset == queryAsset):
-            queryBalance = Decimal(balances["balance"])
-            StellarBlockchainBalances[accountAddr] = queryBalance
+            balance = Decimal(balances["balance"])
+            ledgerBalances[account] = balance
             break
         except KeyError:
           continue
     ledger = getNextLedgerData(ledger)
-  return StellarBlockchainBalances
+  return ledgerBalances
 
 def getNextLedgerData(ledger):
   nextAddr = ledger["_links"]["next"]["href"].replace("%3A", ":").replace("\u0026", "&")

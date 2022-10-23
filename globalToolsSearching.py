@@ -1,5 +1,12 @@
 from globals import *
 
+def getNumRestrictedShares(queryAsset, numComplexOfflineRestrictedShares):
+  claimableBalancesData = getClaimableBalancesData(queryAsset)
+  numRestrictedShares = Decimal("0")
+  for restrictedShares in claimableBalancesData.values():
+    numRestrictedShares += restrictedShares[amount]
+  return numRestrictedShares + Decimal(numComplexOfflineRestrictedShares)
+
 def loadTomlData(link):
   return toml.loads(requests.get(link).content.decode())
 

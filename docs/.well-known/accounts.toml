@@ -4,4 +4,4 @@
 status = "bona fide"
 accredited = false
 exceptions = ["DEMO", "TEST"]
-affiliations = ["TEST"]
+affiliations = ["DEMO"]

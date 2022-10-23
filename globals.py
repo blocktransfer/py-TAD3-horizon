@@ -45,10 +45,10 @@ from globalToolsAssets import *
 from globalToolsSearching import *
 from globalToolsTransactions import *
 
-def getNumOutstandingShares(queryAsset, numRestrictedShares):
+def getNumOutstandingShares(queryAsset, numComplexOfflineRestrictedShares):
   tokens = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
-  numUnrestrictedShares = requests.get(tokens).json()["_embedded"]["records"][0]["amount"]
-  totalOutstandingShares = Decimal(numUnrestrictedShares) + Decimal(numRestrictedShares)
+  numUnrestrictedShares = requests.get(tokens).json()["_embedded"]["records"][0]["amount"] # testing: this should include CBs directly from issuer in the case of modified restricted shares during reverse splits
+  totalOutstandingShares = Decimal(numUnrestrictedShares) + Decimal(numComplexOfflineRestrictedShares)
   treasuryShares = getNumTreasuryShares(queryAsset)
   employeeBenefitShares = getNumEmployeeBenefitShares(queryAsset)
   return totalOutstandingShares - treasuryShares - employeeBenefitShares
