@@ -10,7 +10,7 @@ def updateAllOfferIDs():
     newOfferIDsMappedToChiefMemos.update(
       getNewOfferIDsMappedToChiefMemosFromStellar(addresses, cacheData)
     )
-  cache = open(f"{G_DIR}/docs/caching-data/offer-memos.toml", "a")
+  cache = open(f"{G_DIR}/docs/.well-known/offer-memos.toml", "a")
   for offerIDs, memos in newOfferIDsMappedToChiefMemos.items():
     cache.write(f"{offerIDs} = \"{memos}\"\n")
   cache.close()
