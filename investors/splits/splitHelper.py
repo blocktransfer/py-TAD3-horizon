@@ -26,7 +26,7 @@ def getClaimableBalancesData(queryAsset):
   return claimableBalanceIDsMappedToData, b
 
 def roundUp(numShares):
-  return numShares.quantize(MAX_PREC, rounding = ROUND_UP)
+  return numShares.quantize(MAX_PREC, rounding=ROUND_UP)
 
 def prep(transaction, reason):
   return transaction.add_text_memo(reason).set_timeout(7200).build()
