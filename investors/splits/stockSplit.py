@@ -106,7 +106,7 @@ def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
     numTxnOps += 2
     if(checkLimit(numTxnOps)):
       idx, numTxnOps = renew(transactions, ratio, idx)
-  return prepAndSignForOutput(transactions, reason)
+  return prepAndSignForOutput(transactions, reason), roundingUpDifference
 
 def getSource(ratio):
   if(ratio > 1):
@@ -133,12 +133,12 @@ def prepAndSignForOutput(transactionsArray, reason):
   return builtTransactions
 
 def getClaimableBalancesData(queryAsset):
-  claimableBalanceIDsMappedToData = data = {}
+  claimableBalanceIDsMappedToData = {}
   requestAddr = f"{HORIZON_INST}/claimable_balances?asset={queryAsset}:{BT_ISSUER}&{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for claimableBalances in ledger["_embedded"]["records"]:
-      data["release"] = 0
+      data = {"release": 0}
       for claimants in claimableBalances["claimants"]:
         try:
           data["release"] = int(claimants["predicate"]["not"]["abs_before_epoch"])
