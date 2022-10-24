@@ -11,11 +11,10 @@ def stockSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesTXT, recor
   adjustmentTransactionsArray, ledgerRoundingUpDiff = getTransactionsArrayToEffectSplit(queryAsset, ratio, reason)
   exportSplitTransactions(queryAsset, adjustmentTransactionsArray)
   totalRecordDifference = offlineRoundingUpDiff + ledgerRoundingUpDiff
-  print(f"""\n***\nRecord Differences:\n
-  \tOffline: {str(offlineRoundingUpDiff)} {queryAsset}\n
+  print(f"""\nRecord Differences:\n
+  \tOffline: {str(offlineRoundingUpDiff if offlineRoundingUpDiff else 0)} {queryAsset}\n
   \tLedger: {str(ledgerRoundingUpDiff)} {queryAsset}\n
-  \tTotal: {str(totalRecordDifference)} {queryAsset}\n
-  ***\n""")
+\tTotal: {str(totalRecordDifference)} {queryAsset}\n\n""")
 
 def generatePostSplitMSF(queryAsset, ratio, MSFpreSplitBalancesTXT):
   if(ratio > 1):
@@ -29,11 +28,11 @@ def generatePostSplitMSF(queryAsset, ratio, MSFpreSplitBalancesTXT):
       for accounts in oldMSF:
         account = accounts.split("|")
         if(account[1]):
-          offlineShares = Decimal(account[1])
-          roundedValue = roundUp(offlineShares * ratio)
-          recordDifference += roundedValue - offlineShares
+          adjustedOfflineShares = Decimal(account[1]) * ratio
+          roundedValue = roundUp(adjustedOfflineShares)
+          recordDifference += roundedValue - adjustedOfflineShares
           account[1] = str(roundedValue)
-        newMSF.write(f"{'|'.join(account)}")
+        newMSF.write("|".join(account))
   return recordDifference
 
 def roundUp(numShares):
@@ -42,7 +41,7 @@ def roundUp(numShares):
 def getTransactionsArrayToEffectSplit(queryAsset, ratio, reason):
   balanceAdjTransactionsArray, diffB = getBalanceAdjustments(queryAsset, ratio, reason)
   CBtransactionsArray, diffCB = getClaimableBalanceAdjustments(queryAsset, ratio, reason)
-  return balanceAdjTransactionsArray.append(CBtransactionsArray), diffB + diffCB
+  return balanceAdjTransactionsArray + CBtransactionsArray, diffB + diffCB
 
 def getBalanceAdjustments(queryAsset, ratio, reason):
   transactions = []
@@ -148,14 +147,13 @@ def getClaimableBalancesData(queryAsset):
         data["recipient"] = claimants["destination"]
         data["amount"] = Decimal(claimableBalances["amount"])
         claimableBalanceIDsMappedToData[claimableBalances["id"]] = data
-        pprint(claimableBalanceIDsMappedToData[claimableBalances["id"]].items())
     ledger = getNextLedgerData(ledger)
   return claimableBalanceIDsMappedToData
 
 def exportSplitTransactions(queryAsset, transactionsArray):
   for txns in transactionsArray:
     now = str(datetime.now()).replace(":",".")
-    with open(f"/outputs/{now} {queryAsset} StockSplitOutputXDR.txt", "w") as output:
+    with open(f"{G_DIR}/outputs/{now} {queryAsset} StockSplitOutputXDR.txt", "w") as output:
       output.write(txns.to_xdr())
 
 stockSplit("StellarMart", 1, 10, "preSplitVeryRealStockIncMSF.txt", "2022-1-18")
