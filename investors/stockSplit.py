@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../../")
+sys.path.append("../")
 from globals import *
 
 # testing: stockSplit("StellarMart", 1, 10, "preSplitVeryRealStockIncMSF.txt", "2022-1-18")
@@ -32,7 +32,7 @@ def generatePostSplitMSF(queryAsset, ratio, MSFpreSplitBalancesTXT):
           adjustedOfflineShares = Decimal(account[1]) * ratio
           roundedValue = roundUp(adjustedOfflineShares)
           recordDifference += roundedValue - adjustedOfflineShares
-          account[1] = str(roundedValue)
+          account[1] = str(roundedValue).replace(".0000000", "")
         newMSF.write("|".join(account))
   return recordDifference
 
@@ -46,30 +46,29 @@ def getTransactionsArrayToEffectSplit(queryAsset, ratio, reason):
 
 def getBalanceAdjustments(queryAsset, ratio, reason):
   transactions = []
-  numTxnOps = idx = 0
+  numTxnOps = i = 0
   source = getSource(ratio)
   roundingUpDifference = Decimal("0")
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, source)
   for addresses, balances in getLedgerBalances(queryAsset).items():
-    balanceAdjustment = getBalAdjAmount(balances, ratio)
-    if(balanceAdjustment):
-      rounded = roundUp(balanceAdjustment)
-      roundingUpDifference += rounded - balanceAdjustment
-      if(ratio > 1):
-        transactions[idx].append_payment_op(
-          destination = addresses,
-          asset = Asset(queryAsset, BT_ISSUER),
-          amount = rounded,
-        )
-      else:
-        transactions[idx].append_clawback_op(
-          asset = Asset(queryAsset, BT_ISSUER),
-          from_ = addresses,
-          amount = rounded,
-        )
-      numTxnOps += 1
+    adjustedBalance = getBalAdjAmount(balances, ratio)
+    rounded = roundUp(adjustedBalance)
+    roundingUpDifference += rounded - adjustedBalance
+    if(ratio > 1):
+      transactions[i].append_payment_op(
+        destination = addresses,
+        asset = Asset(queryAsset, BT_ISSUER),
+        amount = rounded,
+      )
+    else:
+      transactions[i].append_clawback_op(
+        asset = Asset(queryAsset, BT_ISSUER),
+        from_ = addresses,
+        amount = rounded,
+      )
+    numTxnOps += 1
     if(checkLimit(numTxnOps)):
-      idx, numTxnOps = renew(transactions, source, idx)
+      i, numTxnOps = renew(transactions, source, i)
   return prepAndSignForOutput(transactions, reason), roundingUpDifference
 
 def getBalAdjAmount(balances, ratio):
@@ -80,7 +79,7 @@ def getBalAdjAmount(balances, ratio):
 
 def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
   transactions = []
-  numTxnOps = idx = 0
+  numTxnOps = i = 0
   source = getSource(ratio)
   roundingUpDifference = Decimal("0")
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, source)
@@ -88,10 +87,10 @@ def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
     adjustedAmount = data["amount"] * ratio
     rounded = roundUp(adjustedAmount)
     roundingUpDifference += rounded - adjustedAmount
-    transactions[idx].append_clawback_claimable_balance_op(
+    transactions[i].append_clawback_claimable_balance_op(
       balance_id = balanceIDs
     )
-    transactions[idx].append_create_claimable_balance_op(
+    transactions[i].append_create_claimable_balance_op(
       asset = Asset(queryAsset, BT_ISSUER),
       amount = rounded,
       claimants = [
@@ -105,7 +104,7 @@ def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
     )
     numTxnOps += 2
     if(checkLimit(numTxnOps)):
-      idx, numTxnOps = renew(transactions, ratio, idx)
+      i, numTxnOps = renew(transactions, ratio, i)
   return prepAndSignForOutput(transactions, reason), roundingUpDifference
 
 def getSource(ratio):
@@ -120,9 +119,9 @@ def checkLimit(numTxnOps):
 def prep(transaction, reason):
   return transaction.add_text_memo(reason).set_timeout(7200).build()
 
-def renew(transactions, source, idx):
+def renew(transactions, source, i):
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, source)
-  return idx + 1, 0
+  return i + 1, 0
 
 def prepAndSignForOutput(transactionsArray, reason):
   builtTransactions = []
@@ -157,3 +156,4 @@ def exportSplitTransactions(queryAsset, transactionsArray):
     with open(f"{G_DIR}/outputs/{now} {queryAsset} StockSplitOutputXDR.txt", "w") as output:
       output.write(txns.to_xdr())
 
+stockSplit("AQUA", 3, 7, "preSplitVeryRealStockIncMSF.txt", "2022-1-18")

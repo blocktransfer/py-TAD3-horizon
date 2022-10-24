@@ -48,9 +48,10 @@ def generatePostSplitMSF(MSFpreSplitBalancesTXT, ratio, postSplitFileName):
     account = accounts.split("|")
     if(account[1]):
       roundedValue = Decimal(account[1]) * ratio
-      account[1] = roundedValue.quantize(MAX_PREC, rounding = ROUND_UP)
+      account[1] = roundedValue.quantize(MAX_PREC, rounding = "ROUND_UP")
       difference = abs(roundedValue - Decimal(account[1]))
       totalRoundingRecordDifference += difference
+      account[1] = str(roundedValue.quantize(MAX_PREC, rounding = "ROUND_UP"))
       if(difference):
         print(f"Rounded up for {account[2]}: {difference} shares")
       newMSF.write(f"{'|'.join(account)}")
