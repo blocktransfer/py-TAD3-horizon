@@ -63,10 +63,10 @@ def signBulkTrustlineApprovals(addressesMappedToAssets):
   transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
   return transactions
 
+# todo: replace with submit to network func in global assets
 def exportTrustlineApprovalTransactions(txnXDRarr):
   for txn in txnXDRarr:
-    output = open(f"{datetime.now()} signedFreezeAssetTrustlinesXDR.txt", "w")
-    output.write(txn.to_xdr())
-    output.close()
+    with open(f"{datetime.now()} signedFreezeAssetTrustlinesXDR.txt", "w") as output:
+      output.write(txn.to_xdr())
 
 approveBulkPendingTrustlines()
