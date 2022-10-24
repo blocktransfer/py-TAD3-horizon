@@ -13,13 +13,17 @@ def distributeLegacyShares(account, queryAsset, amount, basis, vestingDate):
         destination = account,
         predicate = ClaimPredicate.predicate_unconditional() if not vestingDate else ClaimPredicate.predicate_not(
           ClaimPredicate.predicate_before_absolute_time(
-              epochFromDay(pandas.to_datetime(vestingDate))
+            epochFromDay(
+              pandas.to_datetime(vestingDate)
+            )
           )
         )
       )
     ]
-  ).set_timeout(30).add_text_memo("").build()
-  
+  )
+  a = transactions[0].set_timeout(30).add_text_memo("").build()
+  a.sign(Keypair.from_secret(DISTRIBUTOR_KEY))
+  print(a.to_xdr())
   #getAllInvestors # global func 
   #availableLumensDict = getAddrsMappedToAvailableLumens(allInvestors)
   #replenishTxn = replenishDepletedBalances(availableLumensDict) # impliment some kind of way to watch for misuse
