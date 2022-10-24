@@ -1,0 +1,4 @@
+# Block Transfer <blocktransfer.io>
+# Server cache for claimable balance IDs mapped to [legacy cost basis]|[price]|
+
+00000000605431f61f09573681e09c704603a23d152b2c29934940779a841be56e9be115 = "{price/'uncovered'/'DWAC'}|{buyDate/''}"
