@@ -1,4 +1,4 @@
-import base91, functools, json, os.path, pandas, requests, sys, toml
+import functools, json, os.path, pandas, requests, sys, toml
 from stellar_sdk.xdr import TransactionResult
 from datetime import datetime
 from hashlib import sha3_256
@@ -24,7 +24,6 @@ except ModuleNotFoundError:
   TRIAL_KEY = "SBTPLXTXJDMJOXFPYU2ANLZI2ARDPHFKPKK4MJFYVZVBLXYM5AIP3LPK"
   ISSUER_KEY = DISTRIBUTOR_KEY = TREASURY_KEY = CEDE_KEY = TRIAL_KEY
 
-print(sha3_256("a"))
 # Debug issuers:
 # accounts - GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM
 # trustlines - GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS
@@ -45,6 +44,7 @@ MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2
 MAX_PREC = Decimal("0.0000001")
 INVESTOR_BASE_RESERVE = Decimal("7")
+UNIX = datetime.utcfromtimestamp(0)
 
 server = Server(horizon_url = HORIZON_INST)
 issuer = server.load_account(account_id = BT_ISSUER)

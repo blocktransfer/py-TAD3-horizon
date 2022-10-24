@@ -57,3 +57,9 @@ def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
       numShares = numShares * splitRatios
   return numShares
 
+def epochFromDay(day):
+  return int((day - UNIX).total_seconds())
+
+def dayFromEpoch(epoch):
+  return datetime.datetime.utcfromtimestamp(epoch)
+

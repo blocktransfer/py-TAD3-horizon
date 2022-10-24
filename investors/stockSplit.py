@@ -12,10 +12,10 @@ def stockSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesTXT, recor
   adjustmentTransactionsArray, ledgerRoundingUpDiff = getTransactionsArrayToEffectSplit(queryAsset, ratio, reason)
   exportSplitTransactions(queryAsset, adjustmentTransactionsArray)
   totalRecordDifference = offlineRoundingUpDiff + ledgerRoundingUpDiff
-  print(f"""\nRecord Differences:\n
+  print(f"""\n  Record Differences:\n
   \tOffline: {str(offlineRoundingUpDiff if offlineRoundingUpDiff else 0)} {queryAsset}\n
   \tLedger: {str(ledgerRoundingUpDiff)} {queryAsset}\n
-\tTotal: {str(totalRecordDifference)} {queryAsset}\n\n""")
+  \tTotal: {str(totalRecordDifference)} {queryAsset}\n\n""")
 
 def generatePostSplitMSF(queryAsset, ratio, MSFpreSplitBalancesTXT):
   if(ratio > 1):
@@ -97,7 +97,7 @@ def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
         Claimant(
           destination = data["recipient"],
           predicate = ClaimPredicate.predicate_not(
-            ClaimPredicate.predicate_before_relative_time(data["release"])
+            ClaimPredicate.predicate_before_absolute_time(data["release"])
           )
         )
       ]

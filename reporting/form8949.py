@@ -200,7 +200,7 @@ def getOriginDataFromPagingToken(opPagingToken, address):
   try:
     memo = requests.get(transactionAddr).json()["memo"]
   except KeyError:
-    memo = "uncovered:" 
+    memo = "uncovered|" 
   # memo format: {price/"uncovered"/"DWAC"}|{buyDate/""}
   memo = memo.split("|")
   match memo[0]:

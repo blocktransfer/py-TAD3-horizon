@@ -1,6 +1,4 @@
 # Block Transfer <blocktransfer.io>
-# Server cache for claimable balance IDs mapped to vesting/144 unrestriction date
+# Server cache for claimable balance IDs mapped to vesting/144 unrestriction date for distribution bases
 
-# globals -> UNIX = datetime(1970,1,1)
-#(datetime(vestingYear, vestingMonth, vestingDay, 0, 0) - UNIX).total_seconds()
 00000000582e8b98edbbce06fb5f991b39b16864e751f4384c33325d33db2bcc72dd3433 = "1724368215" # example
