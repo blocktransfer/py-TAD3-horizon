@@ -25,7 +25,7 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, queryAsset, reason):
   for addresses in outstandingTrustlines:
     transactions[idx].append_set_trust_line_flags_op(
       trustor = addresses,
-      asset = Asset(queryAsset, BT_ISSUER),
+      asset = getAssetObjFromCode(queryAsset),
       clear_flags = TrustLineFlags(1),
     )
     numTxnOps += 1

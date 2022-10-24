@@ -6,7 +6,7 @@ def distributeLegacyShares(account, queryAsset, amount, basis, vestingDate):
   transactions = []
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, distributor)
   transactions[0].append_create_claimable_balance_op(
-    asset = Asset(queryAsset, BT_ISSUER),
+    asset = getAssetObjFromCode(queryAsset),
     amount = amount,
     claimants = [
       Claimant(

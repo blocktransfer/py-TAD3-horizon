@@ -34,7 +34,7 @@ def getNumTreasuryShares(queryAsset):
   if(not treasuryAddr): return 0
   requestAddr = f"{HORIZON_INST}/accounts/{treasuryAddr}"
   accountBalances = requests.get(requestAddr).json()["balances"]
-  asset = Asset(queryAsset, BT_ISSUER)
+  asset = getAssetObjFromCode(queryAsset)
   for balances in accountBalances:
     searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
     if(balances["asset_type"] != "native" and searchAsset == asset):
@@ -45,7 +45,7 @@ def getNumEmployeeBenefitShares(queryAsset):
   if(not employeeBenefitAddr): return 0
   requestAddr = f"{HORIZON_INST}/accounts/{employeeBenefitAddr}"
   accountBalances = requests.get(requestAddr).json()["balances"]
-  asset = Asset(queryAsset, BT_ISSUER)
+  asset = getAssetObjFromCode(queryAsset)
   for balances in accountBalances:
     searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
     if(balances["asset_type"] != "native" and searchAsset == asset):

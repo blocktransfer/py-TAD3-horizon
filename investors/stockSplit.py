@@ -57,12 +57,12 @@ def getBalanceAdjustments(queryAsset, ratio, reason):
     if(ratio > 1):
       transactions[i].append_payment_op(
         destination = addresses,
-        asset = Asset(queryAsset, BT_ISSUER),
+        asset = getAssetObjFromCode(queryAsset),
         amount = rounded,
       )
     else:
       transactions[i].append_clawback_op(
-        asset = Asset(queryAsset, BT_ISSUER),
+        asset = getAssetObjFromCode(queryAsset),
         from_ = addresses,
         amount = rounded,
       )
@@ -91,7 +91,7 @@ def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
       balance_id = balanceIDs
     )
     transactions[i].append_create_claimable_balance_op(
-      asset = Asset(queryAsset, BT_ISSUER),
+      asset = getAssetObjFromCode(queryAsset),
       amount = rounded,
       claimants = [
         Claimant(

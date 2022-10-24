@@ -7,7 +7,7 @@ def getLedgerBalances(queryAsset):
   ledgerBalances = {}
   requestAddr = getAssetAccountsRequestAddr(queryAsset)
   ledger = requests.get(requestAddr).json()
-  queryAsset = defGetAssetObjFromCode(queryAsset)
+  queryAsset = getAssetObjFromCode(queryAsset)
   while(ledger["_embedded"]["records"]):
     for accounts in ledger["_embedded"]["records"]:
       account = accounts["id"]
@@ -42,6 +42,6 @@ def listAllIssuerAssets():
     ledger = getNextLedgerData(ledger)
   return allAssets
 
-def defGetAssetObjFromCode(code):
+def getAssetObjFromCode(code):
   return Asset(code, BT_ISSUER)
 
