@@ -21,9 +21,14 @@ def distributeLegacyShares(account, queryAsset, amount, basis, vestingDate):
       )
     ]
   )
-  a = transactions[0].set_timeout(30).add_text_memo("").build()
-  a.sign(Keypair.from_secret(DISTRIBUTOR_KEY))
-  print(a.to_xdr())
+  txn = transactions[0].set_timeout(90).add_text_memo(basis).build()
+  txn.sign(Keypair.from_secret(DISTRIBUTOR_KEY))
+  response = submitTxnGuaranteed(txn)
+  claimableBalanceID = ""
+  with open(f"{G_DIR}/docs/.well-known/distribution-bases.toml", "a") as cache:
+    cache.write(f"{claimableBalanceID} = \"{basis}\"\n")
+  
+  
   #getAllInvestors # global func 
   #availableLumensDict = getAddrsMappedToAvailableLumens(allInvestors)
   #replenishTxn = replenishDepletedBalances(availableLumensDict) # impliment some kind of way to watch for misuse

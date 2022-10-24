@@ -9,64 +9,60 @@ def getMergedReportForAssetWithNumRestrictedSharesUsingMSF(queryAsset, numRestri
   generateInternalRecord(queryAsset, ledgerBalances)
 
 def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstandingShares, ledgerBalances):
-  MICR = open(MICR_TXT)
-  next(MICR)
-  unclaimedMSF = open(unclaimedMSFinst)
-  next(unclaimedMSF)
   day = datetime.now().strftime("%Y-%m-%d at %H%M")
-  mergedMSF = open(f"{MICR_DIR}/outputs/{queryAsset} MSF as of {day}.txt", "w")
-  mergedMSF.write("Registration|Address|Email|Shares\n")
-  for accounts in unclaimedMSF:
-    account = accounts.split("|")
-    cancelled = account[10]
-    if(not cancelled):
-      address = toFullAddress(
-        account[3],
-        account[4],
-        account[5],
-        account[6],
-        account[7],
-        account[8]
-      )
-      output = [
-        account[1],
-        address,
-        "",
-        account[0],
-        account[11]
-      ] # assume no email from old TA
-      mergedMSF.write("|".join(output) + "\n")
-  unclaimedMSF.close()
-  for accounts in MICR:
-    account = accounts.split("|")
-    try:
-      blockchainBalance = ledgerBalances[account[0]]
-      if(not blockchainBalance):
-        continue
-    except KeyError:
-      continue
-    address = toFullAddress(
-      account[4],
-      account[5],
-      account[6],
-      account[7],
-      account[8],
-      account[9]
-    )
-    output = [
-      account[1],
-      address,
-      account[2],
-      str(blockchainBalance)
-    ]
-    mergedMSF.write("|".join(output) + "\n")
-  MICR.close()
-  mergedMSF.close()
+  with open(MICR_TXT) as MICR:
+    with open(unclaimedMSFinst) as unclaimedMSF:
+      with open(f"{MICR_DIR}/outputs/{queryAsset} MSF as of {day}.txt", "w") as mergedMSF:
+        next(MICR)
+        next(unclaimedMSF)
+        mergedMSF.write("Registration|Address|Email|Shares\n")
+        for accounts in unclaimedMSF:
+          account = accounts.split("|")
+          cancelled = account[10]
+          if(not cancelled):
+            address = toFullAddress(
+              account[3],
+              account[4],
+              account[5],
+              account[6],
+              account[7],
+              account[8]
+            )
+            output = [
+              account[1],
+              address,
+              "",
+              account[0],
+              account[11]
+            ] # assume no email from old TA
+            mergedMSF.write("|".join(output) + "\n")
+        for accounts in MICR:
+          account = accounts.split("|")
+          try:
+            blockchainBalance = ledgerBalances[account[0]]
+            if(not blockchainBalance):
+              continue
+          except KeyError:
+            continue
+          address = toFullAddress(
+            account[4],
+            account[5],
+            account[6],
+            account[7],
+            account[8],
+            account[9]
+          )
+          output = [
+            account[1],
+            address,
+            account[2],
+            str(blockchainBalance)
+          ]
+          mergedMSF.write("|".join(output) + "\n")
 
 def generateInternalRecord(queryAsset, ledgerBalances):
-  internalRecord = open(f"{MICR_DIR}/outputs/{queryAsset}.txt", "w")
-  internalRecord.write(f"Public Key|Balance||Blockchain snapshot at {datetime.now()}\n")
-  for addresses, balances in ledgerBalances.items():
-    internalRecord.write(f"'|'.join([addresses, str(balances)])\n")
-  internalRecord.close()
+  with (f"{MICR_DIR}/outputs/{queryAsset}.txt", "w") as internalRecord:
+    internalRecord.write(f"Public Key|Balance||Blockchain snapshot at {datetime.now()}\n")
+    for addresses, balances in ledgerBalances.items():
+      internalRecord.write(f"'|'.join([addresses, str(balances)])\n")
 

@@ -32,7 +32,7 @@ def toFullAddress(street, streetExtra, city, state, postal, country):
   return ", ".join(cleanArr)
 
 #todo: stress test
-def submitTxnGarunteed(transaction):
+def submitTxnGuaranteed(transaction):
   while(True):
     if(server.submit_transaction(transaction)):
       return 1

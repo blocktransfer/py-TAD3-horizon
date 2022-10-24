@@ -10,10 +10,9 @@ def updateAllOfferIDs():
     newOfferIDsMappedToChiefMemos.update(
       getNewOfferIDsMappedToChiefMemosFromStellar(addresses, cacheData)
     )
-  cache = open(f"{G_DIR}/docs/.well-known/offer-memos.toml", "a")
-  for offerIDs, memos in newOfferIDsMappedToChiefMemos.items():
-    cache.write(f"{offerIDs} = \"{memos}\"\n")
-  cache.close()
+  with open(f"{G_DIR}/docs/.well-known/offer-memos.toml", "a") as cache:
+    for offerIDs, memos in newOfferIDsMappedToChiefMemos.items():
+      cache.write(f"{offerIDs} = \"{memos}\"\n")
 
 def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
   accountOfferIDsMappedToChiefMemos = {}
