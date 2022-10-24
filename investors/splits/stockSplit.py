@@ -7,9 +7,9 @@ def stockSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesTXT, recor
   denominator = Decimal(denominator)
   ratio = numerator / denominator
   reason = f"{numerator}-for-{denominator} split ({recordDate})"
-  offlineRoundingUpDiff = generatePostSplitMSF(MSFpreSplitBalancesTXT, ratio)
+  offlineRoundingUpDiff = generatePostSplitMSF(queryAsset, ratio, MSFpreSplitBalancesTXT)
   adjustmentTransactionsArray, ledgerRoundingUpDiff = getTransactionsArrayToEffectSplit(queryAsset, ratio, reason)
-  exportSplitTransactions(adjustmentTransactionsArray, queryAsset)
+  exportSplitTransactions(queryAsset, adjustmentTransactionsArray)
   totalRecordDifference = offlineRoundingUpDiff + ledgerRoundingUpDiff
   print(f"""\n***\nRecord Differences:\n
   \tOffline: {str(offlineRoundingUpDiff)} {queryAsset}\n
@@ -17,19 +17,19 @@ def stockSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesTXT, recor
   \tTotal: {str(totalRecordDifference)} {queryAsset}\n
   ***\n""")
 
-def generatePostSplitMSF(MSFpreSplitBalancesTXT, ratio):
+def generatePostSplitMSF(queryAsset, ratio, MSFpreSplitBalancesTXT):
   if(ratio > 1):
     postSplitFileName = f"[FORWARD] {queryAsset} Post-Split Master Securityholder File.txt"
   else:
     postSplitFileName = f"[REVERSE] {queryAsset} Post-Split Master Securityholder File.txt"
   with open(MSFpreSplitBalancesTXT) as oldMSF:
-    with open(f"/outputs/{postSplitFileName}", "w") as newMSF:
+    with open(f"{G_DIR}/outputs/{postSplitFileName}", "w") as newMSF:
       newMSF.write(f"{next(oldMSF)}\n")
       recordDifference = Decimal("0")
       for accounts in oldMSF:
         account = accounts.split("|")
-        offlineShares = Decimal(account[1])
-        if(offlineShares):
+        if(account[1]):
+          offlineShares = Decimal(account[1])
           roundedValue = roundUp(offlineShares * ratio)
           recordDifference += roundedValue - offlineShares
           account[1] = str(roundedValue)
@@ -40,11 +40,11 @@ def roundUp(numShares):
   return numShares.quantize(MAX_PREC, rounding = "ROUND_UP")
 
 def getTransactionsArrayToEffectSplit(queryAsset, ratio, reason):
-  balanceAdjTransactionsArray, diffB = getBalanceAdjustments(queryAsset, ratio)
-  CBtransactionsArray, diffCB = getClaimableBalanceAdjustments(queryAsset, ratio)
+  balanceAdjTransactionsArray, diffB = getBalanceAdjustments(queryAsset, ratio, reason)
+  CBtransactionsArray, diffCB = getClaimableBalanceAdjustments(queryAsset, ratio, reason)
   return balanceAdjTransactionsArray.append(CBtransactionsArray), diffB + diffCB
 
-def getBalanceAdjustments(queryAsset, ratio):
+def getBalanceAdjustments(queryAsset, ratio, reason):
   transactions = []
   numTxnOps = idx = 0
   source = getSource(ratio)
@@ -70,7 +70,7 @@ def getBalanceAdjustments(queryAsset, ratio):
       numTxnOps += 1
     if(checkLimit(numTxnOps)):
       idx, numTxnOps = renew(transactions, source, idx)
-  return prepAndSignForOutput(transactions, reason)
+  return prepAndSignForOutput(transactions, reason), roundingUpDifference
 
 def getBalAdjAmount(balances, ratio):
   if(ratio > 1):
@@ -78,7 +78,7 @@ def getBalAdjAmount(balances, ratio):
   else:
     return balances - (balances * ratio)
 
-def getClaimableBalanceAdjustments(queryAsset, ratio):
+def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
   transactions = []
   numTxnOps = idx = 0
   source = getSource(ratio)
@@ -114,6 +114,12 @@ def getSource(ratio):
   else:
     return issuer
 
+def checkLimit(numTxnOps):
+  return numTxnOps >= MAX_NUM_TXN_OPS
+
+def prep(transaction, reason):
+  return transaction.add_text_memo(reason).set_timeout(7200).build()
+
 def renew(transactions, source, idx):
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, source)
   return idx + 1, 0
@@ -124,9 +130,29 @@ def prepAndSignForOutput(transactionsArray, reason):
     builtTransactions.append(prep(txns, reason))
   for txns in builtTransactions:
     txns.sign(Keypair.from_secret(ISSUER_KEY))
-  return output
+  return builtTransactions
 
-def exportSplitTransactions(transactionsArray, queryAsset):
+def getClaimableBalancesData(queryAsset):
+  claimableBalanceIDsMappedToData = data = {}
+  requestAddr = f"{HORIZON_INST}/claimable_balances?asset={queryAsset}:{BT_ISSUER}&{MAX_SEARCH}"
+  ledger = requests.get(requestAddr).json()
+  while(ledger["_embedded"]["records"]):
+    for claimableBalances in ledger["_embedded"]["records"]:
+      data["release"] = 0
+      for claimants in claimableBalances["claimants"]:
+        try:
+          data["release"] = int(claimants["predicate"]["not"]["abs_before_epoch"])
+        except KeyError:
+          continue # Expect investor as claimant via not abs_before
+      if(data["release"]):
+        data["recipient"] = claimants["destination"]
+        data["amount"] = Decimal(claimableBalances["amount"])
+        claimableBalanceIDsMappedToData[claimableBalances["id"]] = data
+        pprint(claimableBalanceIDsMappedToData[claimableBalances["id"]].items())
+    ledger = getNextLedgerData(ledger)
+  return claimableBalanceIDsMappedToData
+
+def exportSplitTransactions(queryAsset, transactionsArray):
   for txns in transactionsArray:
     now = str(datetime.now()).replace(":",".")
     with open(f"/outputs/{now} {queryAsset} StockSplitOutputXDR.txt", "w") as output:
