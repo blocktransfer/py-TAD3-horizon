@@ -2,6 +2,7 @@ import sys
 sys.path.append("../../")
 from globals import *
 
+# testing: stockSplit("StellarMart", 1, 10, "preSplitVeryRealStockIncMSF.txt", "2022-1-18")
 def stockSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesTXT, recordDate):
   numerator = Decimal(numerator)
   denominator = Decimal(denominator)
@@ -156,4 +157,3 @@ def exportSplitTransactions(queryAsset, transactionsArray):
     with open(f"{G_DIR}/outputs/{now} {queryAsset} StockSplitOutputXDR.txt", "w") as output:
       output.write(txns.to_xdr())
 
-stockSplit("StellarMart", 1, 10, "preSplitVeryRealStockIncMSF.txt", "2022-1-18")
