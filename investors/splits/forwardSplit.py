@@ -20,24 +20,27 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(ledgerBalances, queryAsset, 
   for addresses, balances in ledgerBalances.items():
     sharesToPay = (balances * ratio) - balances
     if(sharesToPay):
-      numTxnOps += 1
+      rounded = roundUp(sharesToPay)
+      recordDifference += rounded - sharesToPay
       transactions[idx].append_payment_op(
         destination = addresses,
         asset = Asset(queryAsset, BT_ISSUER),
-        amount = sharesToPay,
+        amount = rounded,
       )
+      numTxnOps += 1
     if(checkLimit(numTxnOps)):
       transactions[idx] = prep(transactions[idx], reason)
       transactions[idx].sign(Keypair.from_secret(DISTRIBUTOR_KEY))
       idx, numTxnOps = renew(transactions, distributor, idx)
   # todo: sub-functions (and outputs?) for claririty
   for balanceIDs, data in getClaimableBalancesData(queryAsset).items():
-    print(data["id"])
-    newNumRestrictedShares = data["amount"] * ratio
     transactions[idx].append_clawback_op(balance_id = data["id"])
+    newNumRestrictedShares = data["amount"] * ratio
+    rounded = roundUp(newNumRestrictedShares)
+    recordDifference += rounded - newNumRestrictedShares
     transactions[idx].append_create_claimable_balance_op(
       asset = Asset(queryAsset, BT_ISSUER),
-      amount = newNumRestrictedShares,
+      amount = rounded,
       claimants = [
         Claimant(
           destination = data["recipient"],
@@ -52,5 +55,6 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(ledgerBalances, queryAsset, 
       idx, numTxnOps = renew(transactions, issuer, idx)
   transactions[idx] = prep(transactions[idx], reason)
   transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
+  displayDifference(recordDifference)
   return transactions
 

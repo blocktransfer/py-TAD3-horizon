@@ -14,7 +14,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
   unclaimedMSF = open(unclaimedMSFinst)
   next(unclaimedMSF)
   day = datetime.now().strftime("%Y-%m-%d at %H%M")
-  mergedMSF = open(f"{G_DIR}/../pii/outputs/{queryAsset} MSF as of {day}.txt", "w")
+  mergedMSF = open(f"{MICR_DIR}/outputs/{queryAsset} MSF as of {day}.txt", "w")
   mergedMSF.write("Registration|Address|Email|Shares\n")
   for accounts in unclaimedMSF:
     account = accounts.split("|")
@@ -64,7 +64,7 @@ def mergeBlockchainRecordsWithMSF(queryAsset, unclaimedMSFinst, totalOutstanding
   mergedMSF.close()
 
 def generateInternalRecord(queryAsset, ledgerBalances):
-  internalRecord = open(f"{G_DIR}/../pii/outputs/{queryAsset}.txt", "w")
+  internalRecord = open(f"{MICR_DIR}/outputs/{queryAsset}.txt", "w")
   internalRecord.write(f"Public Key|Balance||Blockchain snapshot at {datetime.now()}\n")
   for addresses, balances in ledgerBalances.items():
     internalRecord.write(f"'|'.join([addresses, str(balances)])\n")

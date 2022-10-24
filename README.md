@@ -23,8 +23,8 @@ Feel free to commit your own branched improvements!
 <div align="left">
   <h3>Testing Configuration</h3>
 
-Create a new folder titled ``pii`` in the same directory as ``stellar-interface``
+Create a new folder titled ``master-identity-catalog-records`` in the same directory as ``stellar-interface``
 
 In that folder, add the exampleMICR in ``/issuers``
 
-Rename to ``master-identity-catalog-records.txt``
+Rename to ``master-identity-account-mapping.txt``

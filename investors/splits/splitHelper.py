@@ -25,6 +25,10 @@ def getClaimableBalancesData(queryAsset):
     ledger = getNextLedgerData(ledger)
   return claimableBalanceIDsMappedToData, b
 
+def roundUp(numShares):
+  roundedValue = numShares.quantize(MAX_PREC, rounding = ROUND_UP)
+  return roundedValue
+
 def prep(transaction, reason):
   return transaction.add_text_memo(reason).set_timeout(7200).build()
 
@@ -35,6 +39,9 @@ def renew(transactions, source, idx):
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, source)
   idx += 1
   return idx, 0
+
+def displayDifference(difference):
+  print(f"\n***\ntotalRecordDifference: {str(difference)}\n***\n")
 
 def generatePostSplitMSF(MSFpreSplitBalancesTXT, ratio, postSplitFileName):
   oldMSF = open(MSFpreSplitBalancesTXT)
