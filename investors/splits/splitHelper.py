@@ -26,14 +26,17 @@ def getClaimableBalancesData(queryAsset):
   return claimableBalanceIDsMappedToData, b
 
 def roundUp(numShares):
-  roundedValue = numShares.quantize(MAX_PREC, rounding = ROUND_UP)
-  return roundedValue
+  return numShares.quantize(MAX_PREC, rounding = ROUND_UP)
 
 def prep(transaction, reason):
   return transaction.add_text_memo(reason).set_timeout(7200).build()
 
 def checkLimit(numTxnOps):
-  return numTxnOps >= MAX_NUM_TXN_OPS
+  switch numTxnOps:
+    case 1:
+      return numTxnOps >= MAX_NUM_TXN_OPS
+    case 2:
+      return numTxnOps >= MAX_NUM_TXN_OPS - 1
 
 def renew(transactions, source, idx):
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, source)
