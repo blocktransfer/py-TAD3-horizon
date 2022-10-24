@@ -32,7 +32,7 @@ def prep(transaction, reason):
   return transaction.add_text_memo(reason).set_timeout(7200).build()
 
 def checkLimit(numTxnOps):
-  switch numTxnOps:
+  match numTxnOps:
     case 1:
       return numTxnOps >= MAX_NUM_TXN_OPS
     case 2:
