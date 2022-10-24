@@ -41,8 +41,7 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, queryAsset, reason):
 
 def exportTrustlineRevocationTransaction(txnArr):
   for txns in txnArr:
-    output = open(f"{datetime.now()} signedFreezeAssetTrustlinesXDR.txt", "w")
-    output.write(txns.to_xdr())
-    output.close()
+    with open(f"{datetime.now()} signedFreezeAssetTrustlinesXDR.txt", "w") as output:
+      output.write(txns.to_xdr())
 
 freezeBulkAssetTrustlines("DEMO", "Temporary freeze for split")
