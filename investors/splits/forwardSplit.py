@@ -30,9 +30,9 @@ def grantNewSplitSharesFromBalancesClaimedOnStellar(ledgerBalances, queryAsset, 
       transactions[idx] = prep(transactions[idx], reason)
       transactions[idx].sign(Keypair.from_secret(DISTRIBUTOR_KEY))
       idx, numTxnOps = renew(transactions, distributor, idx)
-  # todo: sub-functions (and outputs?) for claririty
+  # todo: sub-functions (and outputs) for claririty
   for balanceIDs, data in getClaimableBalancesData(queryAsset).items():
-    transactions[idx].append_clawback_op(balance_id = data["id"])
+    transactions[idx].append_clawback_op(balance_id = balanceIDs)
     transactions[idx].append_create_claimable_balance_op(
       asset = Asset(queryAsset, BT_ISSUER),
       amount = data["amount"] * ratio,

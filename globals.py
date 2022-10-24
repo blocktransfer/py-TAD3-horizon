@@ -1,10 +1,18 @@
-from stellar_sdk import Asset, Keypair, Network, Server, TransactionBuilder, TrustLineFlags
+import functools, json, os.path, pandas, requests, sys, toml
 from stellar_sdk.xdr import TransactionResult
 from datetime import datetime
 from decimal import Decimal
 from pprint import pprint
-import functools, json, os.path, pandas, requests, sys, toml
-
+from stellar_sdk import (
+  Asset,
+  Claimant,
+  ClaimPredicate,
+  Keypair,
+  Network,
+  Server,
+  TransactionBuilder,
+  TrustLineFlags
+)
 sys.path.append("../")
 G_DIR = os.path.dirname(__file__)
 MICR_DIR = f"{G_DIR}/../master-identity-catalog-records"
@@ -54,3 +62,4 @@ def getNumOutstandingShares(queryAsset, numComplexOfflineRestrictedShares):
   employeeBenefitShares = getNumEmployeeBenefitShares(queryAsset)
   return totalOutstandingShares - treasuryShares - employeeBenefitShares
 
+# todo: change distributions from payments to CBs so that accounts don't need trustlines with all issuer assets

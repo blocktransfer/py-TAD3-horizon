@@ -4,39 +4,32 @@ from globals import *
 
 def getClaimableBalancesData(queryAsset):
   claimableBalanceIDsMappedToData = {}
-  data = {}
-  b = []
   requestAddr = f"{HORIZON_INST}/claimable_balances?asset={queryAsset}:{BT_ISSUER}&{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for claimableBalances in ledger["_embedded"]["records"]:
-      b.append(str(claimableBalances))
       data["release"] = 0
       for claimants in claimableBalances["claimants"]:
         try:
-          data["release"] = claimants["predicate"]["not"]["abs_before_epoch"]
+          data["release"] = int(claimants["predicate"]["not"]["abs_before_epoch"])
         except KeyError:
           continue # Expect investor as claimant via not abs_before
       if(data["release"]):
         data["recipient"] = claimants["destination"]
-        # data["amount"] = Decimal(claimableBalances["amount"])
-        data["amount"] = claimableBalances["amount"]
+        data["amount"] = Decimal(claimableBalances["amount"])
         claimableBalanceIDsMappedToData[claimableBalances["id"]] = data
+        pprint(claimableBalanceIDsMappedToData[claimableBalances["id"]].items())
     ledger = getNextLedgerData(ledger)
-  return claimableBalanceIDsMappedToData, b
+  return claimableBalanceIDsMappedToData
 
 def roundUp(numShares):
-  return numShares.quantize(MAX_PREC, rounding=ROUND_UP)
+  return numShares.quantize(MAX_PREC, rounding = "ROUND_UP")
 
 def prep(transaction, reason):
   return transaction.add_text_memo(reason).set_timeout(7200).build()
 
 def checkLimit(numTxnOps):
-  match numTxnOps:
-    case 1:
-      return numTxnOps >= MAX_NUM_TXN_OPS
-    case 2:
-      return numTxnOps >= MAX_NUM_TXN_OPS - 1
+  return numTxnOps >= MAX_NUM_TXN_OPS
 
 def renew(transactions, source, idx):
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, source)
@@ -56,7 +49,7 @@ def generatePostSplitMSF(MSFpreSplitBalancesTXT, ratio, postSplitFileName):
     if(account[1]):
       roundedValue = Decimal(account[1]) * ratio
       account[1] = roundedValue.quantize(MAX_PREC, rounding = ROUND_UP)
-      difference = abs(roundedValue - sharesToClawback)
+      difference = abs(roundedValue - Decimal(account[1]))
       totalRoundingRecordDifference += difference
       if(difference):
         print(f"Rounded up for {account[2]}: {difference} shares")
@@ -70,7 +63,7 @@ def generatePostSplitMSF(MSFpreSplitBalancesTXT, ratio, postSplitFileName):
 
 def exportSplitNewShareTransactions(txnArr, queryAsset):
   for txns in txnArr:
-    output = open(f"{str(datetime.now()).replace(':','.')} {queryAsset} StockSplitOutputXDR.txt", "w")
+    output = open(f"/outputs/{str(datetime.now()).replace(':','.')} {queryAsset} StockSplitOutputXDR.txt", "w")
     output.write(txns.to_xdr())
     output.close()
 
