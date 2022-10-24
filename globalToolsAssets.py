@@ -44,3 +44,4 @@ def listAllIssuerAssets():
 
 def defGetAssetObjFromCode(code):
   return Asset(code, BT_ISSUER)
+
