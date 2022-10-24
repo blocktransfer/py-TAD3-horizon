@@ -104,7 +104,7 @@ def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
     )
     numTxnOps += 2
     if(checkLimit(numTxnOps)):
-      i, numTxnOps = renew(transactions, ratio, i)
+      i, numTxnOps = renew(transactions, source, i)
   return prepAndSignForOutput(transactions, reason), roundingUpDifference
 
 def getSource(ratio):
