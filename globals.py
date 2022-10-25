@@ -1,10 +1,11 @@
-import functools, json, os.path, pandas, requests, sys, toml
+import asyncio, functools, json, os.path, pandas, requests, sys, toml
 from stellar_sdk.xdr import TransactionResult
 from datetime import datetime
 from hashlib import sha3_256
 from decimal import Decimal
 from pprint import pprint
 from stellar_sdk import (
+  AiohttpClient,
   Asset,
   Claimant,
   ClaimPredicate,
@@ -39,6 +40,7 @@ OFFER_MEMO_TOML = f"{BT_WEB}/caching-data/offer-memos.toml"
 WASH_SALE_TOML = f"{BT_WEB}/caching-data/wash-sales.toml"
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
+MAX_SUBMISSION_ATTEMPTS = 15
 WASH_SALE_DAY_RANGE = 30
 MAX_NUM_TXN_OPS = 100
 BASE_FEE_MULT = 2

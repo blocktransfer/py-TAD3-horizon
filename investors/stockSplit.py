@@ -102,6 +102,7 @@ def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
         )
       ]
     )
+    print(f'{data["amount"]} -> {rounded} aval. {dayFromEpoch(data["release"])}')
     numTxnOps += 2
     if(checkLimit(numTxnOps)):
       i, numTxnOps = renew(transactions, source, i)
@@ -141,12 +142,14 @@ def getClaimableBalancesData(queryAsset):
       for claimants in claimableBalances["claimants"]:
         try:
           data["release"] = int(claimants["predicate"]["not"]["abs_before_epoch"])
+          break
         except KeyError:
           continue # Expect investor as claimant via not abs_before
       if(data["release"]):
         data["recipient"] = claimants["destination"]
         data["amount"] = Decimal(claimableBalances["amount"])
         claimableBalanceIDsMappedToData[claimableBalances["id"]] = data
+        pprint(claimants)
     ledger = getNextLedgerData(ledger)
   return claimableBalanceIDsMappedToData
 
@@ -156,4 +159,3 @@ def exportSplitTransactions(queryAsset, transactionsArray):
     with open(f"{G_DIR}/outputs/{now} {queryAsset} StockSplitOutputXDR.txt", "w") as output:
       output.write(txns.to_xdr())
 
-stockSplit("AQUA", 3, 7, "preSplitVeryRealStockIncMSF.txt", "2022-1-18")

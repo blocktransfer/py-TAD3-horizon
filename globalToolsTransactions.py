@@ -31,11 +31,30 @@ def toFullAddress(street, streetExtra, city, state, postal, country):
       cleanArr.append(items)
   return ", ".join(cleanArr)
 
-#todo: stress test
+async def submitTxnAndWait(transaction):
+  async with ServerAsync(
+    horizon_url = HORIZON_INST,
+    client = AiohttpClient()
+  ) as server:
+    return await server.submit_transaction(transaction)
+
 def submitTxnGuaranteed(transaction):
-  while(True):
-    if(server.submit_transaction(transaction)):
-      return 1
+  return redundant(transaction, 0)
+
+def redundant(transaction, attempt):
+  if(attempt > MAX_SUBMISSION_ATTEMPTS):
+    return submitTxnStd(transaction)
+  response, success = submitTxnStd(transaction)
+  if(success):
+    return response
+  else:
+    return redundant(transaction, attempt + 1)
+
+def submitTxnStd(transaction):
+  try:
+    return server.submit_transaction(transaction), 1
+  except (BadRequestError, BadResponseError) as err:
+    return f"Tx submission failed: {err}", 0
 
 def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
   splitsDict = {}
@@ -61,5 +80,8 @@ def epochFromDay(day):
   return int((day - UNIX).total_seconds())
 
 def dayFromEpoch(epoch):
-  return datetime.datetime.utcfromtimestamp(epoch)
+  try:
+    return datetime.utcfromtimestamp(epoch)
+  except ValueError:
+    return "Epoch out of range"
 
