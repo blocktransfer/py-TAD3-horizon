@@ -34,4 +34,16 @@ id_photo_hash = "0dce43292a7dd2c6ef021cca9f84330ceeec34e8587172453bc2b05f1bd13ed
 verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44f0b8e62ff48"
 
 [[CURRENCIES]]
+attestation_of_reserve = "https://stocks.blocktransfer.io/demo/financial-statements/2022.pdf"
+anchor_asset = "private placement"
+anchor_asset_type = "stock"
+code = "DEMO"
+conditions = "Fully paid and non-assessable shares."
+desc = "Example Company is used interally for product demos and development."
+image = "https://blocktransfer.io/imgs/demo.png"
+issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
+name = "Example Security Inc."
+redemption_instructions = "This is book-entry stock. Contact your broker to move public shares to them."
+
+[[CURRENCIES]]
 toml = "https://blocktransfer.io/assets/DEMO.toml"
