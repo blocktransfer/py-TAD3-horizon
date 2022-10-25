@@ -45,5 +45,6 @@ issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 name = "Example Security Inc."
 redemption_instructions = "This is book-entry stock. Contact your broker to move public shares to them."
 
-[[CURRENCIES]]
-toml = "https://blocktransfer.io/assets/DEMO.toml"
+# Nested referencing does not work yet. TBD in Dynamic Asset Metadata
+# [[CURRENCIES]]
+# toml = "https://blocktransfer.io/assets/DEMO.toml"
