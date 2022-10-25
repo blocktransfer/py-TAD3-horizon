@@ -102,7 +102,6 @@ def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
         )
       ]
     )
-    print(f'{data["amount"]} -> {rounded} aval. {dayFromEpoch(data["release"])}')
     numTxnOps += 2
     if(checkLimit(numTxnOps)):
       i, numTxnOps = renew(transactions, source, i)
@@ -149,7 +148,6 @@ def getClaimableBalancesData(queryAsset):
         data["recipient"] = claimants["destination"]
         data["amount"] = Decimal(claimableBalances["amount"])
         claimableBalanceIDsMappedToData[claimableBalances["id"]] = data
-        pprint(claimants)
     ledger = getNextLedgerData(ledger)
   return claimableBalanceIDsMappedToData
 
