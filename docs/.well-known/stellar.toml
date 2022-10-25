@@ -40,10 +40,12 @@ anchor_asset_type = "stock"
 code = "DEMO"
 conditions = "Fully paid and non-assessable shares."
 desc = "Example Company is used interally for product demos and development."
+is_asset_anchored = true
 image = "https://blocktransfer.io/imgs/demo.png"
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 name = "Example Security Inc."
 redemption_instructions = "This is book-entry stock. Contact your broker to move public shares to them."
+status = "test"
 
 # Nested referencing does not work yet. TBD in Dynamic Asset Metadata
 # [[CURRENCIES]]
