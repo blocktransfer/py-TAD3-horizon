@@ -1,4 +1,5 @@
 company_code = "DEMO"
+reporting_company = false
 
 [[CURRENCIES]]
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
