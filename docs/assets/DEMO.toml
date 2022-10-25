@@ -1,56 +1,36 @@
-company_code = "DEMO"
-reporting_company = false
-
-[[CURRENCIES]]
+[ISSUER]
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
-anchor_asset = "private placement"
-anchor_asset_type = "stock"
-authorized = 100000000
-code = "DEMO"
+company_code = "DEMO"
 cik = 0
-class = "A"
-class_type = "common"
 conditions = "Fully paid and non-assessable shares."
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
 ein = 123456789
-image = "https://blocktransfer.io/imgs/demo.png"
-issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
-is_unlimited = true
-is_asset_anchored = true
 name = "Example Security Inc."
 org_jurisdiction = "Delaware, United States"
-par = "$0.001"
 principal_office = "123 Main Street, Atlanta, GA 30000"
 redemption_instructions = "This is book-entry stock. Contact your broker to move public shares to them."
 reporting_company = false
+
+[[ASSETS]]
+authorized = 100000000
+code = "DEMO"
+class = "A"
+class_type = "common stock"
+image = "https://blocktransfer.io/imgs/demo.png"
+par = "$0.001"
 splits = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
 status = "test"
 votes_per_share = 1
 
-[[CURRENCIES]]
-attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
-anchor_asset = "private placement"
-anchor_asset_type = "stock"
+[[ASSETS]]
 authorized = 100000000
 code = "DEMO-B"
-cik = 0
 class = "B"
-class_type = "preffered"
-conditions = "Fully paid and non-assessable shares."
+class_type = "preffered stock"
 display_decimals = 7
-desc = "Example Company is used interally for product demos and development."
-ein = 123456789
 image = "https://blocktransfer.io/imgs/demo.png"
-issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
-is_unlimited = true
-is_asset_anchored = true
-name = "Example Security Inc."
-org_jurisdiction = "Delaware, United States"
 par = "$0.001"
-principal_office = "123 Main Street, Atlanta, GA 30000"
-redemption_instructions = "This is book-entry stock. Contact your broker to move public shares to them."
-reporting_company = false
 splits = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
 status = "test"
 votes_per_share = 10
