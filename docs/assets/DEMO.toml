@@ -25,7 +25,7 @@ status = "test"
 votes_per_share = 1
 
 [[STOCKS]]
-authorized = 100000000
+authorized = 70000
 code = "DEMO-B"
 class = "B"
 class_type = "preffered"
