@@ -13,22 +13,22 @@ principal_office = "123 Main Street, Atlanta, GA 30000"
 redemption_instructions = "This is book-entry stock. Contact your broker to move public shares to them."
 reporting_company = false
 
-[[ASSETS]]
+[[STOCKS]]
 authorized = 100000000
 code = "DEMO"
 class = "A"
-class_type = "common stock"
+class_type = "common"
 image = "https://blocktransfer.io/imgs/demo.png"
 par = "$0.001"
 splits = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
 status = "test"
 votes_per_share = 1
 
-[[ASSETS]]
+[[STOCKS]]
 authorized = 100000000
 code = "DEMO-B"
 class = "B"
-class_type = "preffered stock"
+class_type = "preffered"
 display_decimals = 7
 image = "https://blocktransfer.io/imgs/demo.png"
 par = "$0.001"
