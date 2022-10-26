@@ -69,6 +69,11 @@ REG_D_506_B_NON_ACCREDITED_INVESTOR_LIM = 35
 IPO_NOT_AFFILIATED_RESTRICTION = pandas.DateOffset(days = 90)
 RULE_144_HOLDING_MIN_REPORTING_CO = pandas.DateOffset(months = 6)
 RULE_144_HOLDING_MIN_NOT_REPORTING = pandas.DateOffset(years = 1)
+RULE_144_MIN_REPORTING_QUALIFICATION_TIME = pandas.DateOffset(days = 90)
+RULE_144_MIN_REPORTING_SHARES = Decimal("5000")
+RULE_144_MIN_REPORTING_USD_VAL = Decimal("50000")
+RULE_144_NOT_AFFILIATED_PERIOD = pandas.DateOffset(months = 3)
+RULE_144_SALE_REPORTING_PERIOD = pandas.DateOffset(months = 3)
 
 from globalToolsAssets import *
 from globalToolsSearching import *
