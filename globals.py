@@ -40,30 +40,50 @@ OFFER_MEMO_TOML = f"{BT_WEB}/caching-data/offer-memos.toml"
 WASH_SALE_TOML = f"{BT_WEB}/caching-data/wash-sales.toml"
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
-MAX_SUBMISSION_ATTEMPTS = 15
-WASH_SALE_DAY_RANGE = 30
-MAX_NUM_TXN_OPS = 100
-BASE_FEE_MULT = 2
-MAX_PREC = Decimal("0.0000001")
-INVESTOR_BASE_RESERVE = Decimal("7")
-UNIX = datetime.utcfromtimestamp(0)
 
+BASE_FEE_MULT = 20
+MAX_NUM_TXN_OPS = 100
+WASH_SALE_DAY_RANGE = 30
+MAX_SUBMISSION_ATTEMPTS = 15
+MAX_PREC = Decimal("0.0000001")
+INVESTOR_MIN_EXCESS = Decimal("2.1")
+INVESTOR_STARTING_BAL = Decimal("4.2")
+
+unix_base = datetime.utcfromtimestamp(0)
 server = Server(horizon_url = HORIZON_INST)
+fee = server.fetch_base_fee() * BASE_FEE_MULT
 issuer = server.load_account(account_id = BT_ISSUER)
 distributor = server.load_account(account_id = BT_DISTRIBUTOR)
 treasury = server.load_account(account_id = BT_TREASURY)
-fee = server.fetch_base_fee() * BASE_FEE_MULT
+
+MM = Decimal("1000000")
+REG_CF_ANNUAL_LIM = Decimal("5") * MM
+RULE_701_ANNUAL_LIM = Decimal("1") * MM
+REG_D_504_ANNUAL_LIM = Decimal("10") * MM
+REG_A_TIER_1_ANNUAL_LIM = Decimal("20") * MM
+REG_A_TIER_2_ANNUAL_LIM = Decimal("75") * MM
+PRIVATE_PLACEMENT_ANNUAL_LIM = Decimal("10") * MM
+
+IPO_NOT_AFFILIATED_RESTRICTION = pandas.DateOffset(days = 90)
+RULE_144_HOLDING_MIN_REPORTING_CO = pandas.DateOffset(months = 6)
+RULE_144_HOLDING_MIN_NOT_REPORTING = pandas.DateOffset(years = 1)
 
 from globalToolsAssets import *
 from globalToolsSearching import *
 from globalToolsTransactions import *
 
-def getNumOutstandingShares(queryAsset, numComplexOfflineRestrictedShares):
-  tokens = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
-  numUnrestrictedShares = requests.get(tokens).json()["_embedded"]["records"][0]["amount"] # testing: this should include CBs directly from issuer in the case of modified restricted shares during reverse splits
-  totalOutstandingShares = Decimal(numUnrestrictedShares) + Decimal(numComplexOfflineRestrictedShares)
-  treasuryShares = getNumTreasuryShares(queryAsset)
-  employeeBenefitShares = getNumEmployeeBenefitShares(queryAsset)
-  return totalOutstandingShares - treasuryShares - employeeBenefitShares
+def getNumOutstandingShares(queryAsset):
+  assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
+  assetData = requests.get(assetAddr).json()["_embedded"]["records"][0]
+  numLedgerShares = Decimal(assetData["liquidity_pools_amount"])
+  for balances in assetData["balances"].values():  
+    numLedgerShares += Decimal(balances)
+  numLedgerShares += Decimal(assetData["claimable_balances_amount"])
+  uncountedShares = getNumEmployeeBenefitShares(queryAsset)
+  uncountedShares += getNumTreasuryShares(queryAsset)
+  return numLedgerShares - uncountedShares
 
-# todo: change distributions from payments to CBs so that accounts don't need trustlines with all issuer assets
+def getFloat(queryAsset):
+  assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
+  return requests.get(assetAddr).json()["_embedded"]["records"][0][amount]
+

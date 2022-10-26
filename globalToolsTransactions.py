@@ -77,7 +77,7 @@ def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
   return numShares
 
 def epochFromDay(day):
-  return int((day - UNIX).total_seconds())
+  return int((day - unix_base).total_seconds())
 
 def dayFromEpoch(epoch):
   try:

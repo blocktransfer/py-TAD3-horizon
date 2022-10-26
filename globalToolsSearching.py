@@ -1,11 +1,14 @@
 from globals import *
 
-def getNumRestrictedShares(queryAsset, numComplexOfflineRestrictedShares):
-  claimableBalancesData = getClaimableBalancesData(queryAsset)
-  numRestrictedShares = Decimal("0")
-  for restrictedShares in claimableBalancesData.values():
-    numRestrictedShares += restrictedShares[amount]
-  return numRestrictedShares + Decimal(numComplexOfflineRestrictedShares)
+def getNumRestrictedShares(queryAsset):
+  assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
+  assetData = requests.get(assetAddr).json()["_embedded"]["records"][0]
+  explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
+  implicitRestrictedShares = Decimal("0")
+  for classifiers, balances in assetData["balances"].items():  
+    if(classifiers != "authorized"):
+      implicitRestrictedShares += Decimal(balances)
+  return explicitRestrictedShares + implicitRestrictedShares
 
 def loadTomlData(link):
   return toml.loads(requests.get(link).content.decode())
