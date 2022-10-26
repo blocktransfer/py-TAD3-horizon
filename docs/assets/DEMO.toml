@@ -5,13 +5,13 @@ cik = 0
 conditions = "Fully paid and non-assessable shares."
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
+effective_registration = false
 ein = 123456789
 name = "Example Security Inc."
 org_jurisdiction = "Delaware, United States"
 principal_office = "123 Main Street, Atlanta, GA 30000"
 redemption_instructions = "This is book-entry stock. Contact your broker to move public shares to them."
 reporting_company = false
-registration_statement_effective = false
 
 [[ASSETS]]
 authorized = 100000000
