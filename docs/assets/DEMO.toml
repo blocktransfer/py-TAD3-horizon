@@ -11,6 +11,7 @@ org_jurisdiction = "Delaware, United States"
 principal_office = "123 Main Street, Atlanta, GA 30000"
 redemption_instructions = "This is book-entry stock. Contact your broker to move public shares to them."
 reporting_company = false
+registration_statement_effective = false
 
 [[ASSETS]]
 authorized = 100000000
