@@ -48,21 +48,12 @@ validAccountPublicKeys = getValidAccountPublicKeys()
 #testing: countProxyVotes("DEMO", 15, "annual")
 def countProxyVotes(queryAsset, numVotingItems, meetingType):
   votingFederationAddress = f"{queryAsset}-{meetingType}-{datetime.today().year}*proxyvote.io" # +1 for year-end meeting
-  numUnrestrictedShares = getNumUnrestrictedShares(queryAsset)
+  numUnrestrictedShares = getFloat(queryAsset) # Check if adjustment needed between now and recordDate
   blockchainBalancesOnRecordDate = getBalancesOnRecordDate(queryAsset)
   addrsMappedToMemos = getaddrsMappedToMemos(queryAsset, votingFederationAddress)
   balancesMappedToMemos = replaceAddressesWithRecordDateBalances(addrsMappedToMemos, blockchainBalancesOnRecordDate)
   voteTallies = parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
   displayResults(queryAsset, voteTallies)
-
-# Assume eligibility of all unrestricted outstanding shares on record date
-def getNumUnrestrictedShares(queryAsset):
-  requestAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
-  data = requests.get(requestAddr).json()
-  try: 
-    return Decimal(data["_embedded"]["records"][0]["amount"]) # Assume no voting of restricted shares
-  except Exception:
-    sys.exit("Input parameter error")
 
 def getBalancesOnRecordDate(queryAsset):
   balancesOnRecordDate = {}
@@ -75,7 +66,7 @@ def getBalancesOnRecordDate(queryAsset):
   internalRecordDateHoldings.close()
   return balancesOnRecordDate
 
-def makeFirst28byteMapping():
+def makeFirst28byteMapping(): # change to SHA3
   delegationHashmap = {}
   inFile = open(MICR_TXT)
   MICR = inFile.read().strip().split("\n")
