@@ -7,3 +7,4 @@ accredited_expiration = "" # or "2027-11-23"
 associations = ["DEMO"]
 regAlimit = "10000.11" # generally ""
 regCFlimit = "5000.55"
+state = "GA"
