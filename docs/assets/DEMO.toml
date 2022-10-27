@@ -7,6 +7,7 @@ display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
 effective_registration = false
 ein = 123456789
+min_reg_d_506_c_state_init_usd = "5000"
 name = "Example Security Inc."
 org_jurisdiction = "Delaware, United States"
 principal_office = "123 Main Street, Atlanta, GA 30000"
