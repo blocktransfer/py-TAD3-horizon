@@ -1,10 +1,11 @@
 # Block Transfer <blocktransfer.io>
 
 [GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ]
-status = "bona fide"
 accredited = false
 accredited_expiration = "" # or "2027-11-23"
 associations = ["DEMO"]
-regAlimit = "10000.11" # generally ""
-regCFlimit = "5000.55"
+reg_A_tier_2_custom_limit = "10000.11"
+reg_CF_custom_limit = "5000.44"
 state = "GA"
+status = "bona fide"
+underwriter_or_dealer = false
