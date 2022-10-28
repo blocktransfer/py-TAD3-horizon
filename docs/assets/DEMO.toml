@@ -1,5 +1,6 @@
 [ISSUER]
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
+affiliated_companies = []
 company_code = "DEMO"
 cik = 0
 conditions = "Fully paid and non-assessable shares."
@@ -8,21 +9,39 @@ display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
 effective_registration = false
 ein = 123456789
+issuer_business_desc = ""
+issuer_facilities_desc = "Remote-first business with shared offices in 3 states."
+issuer_products_or_services_desc = ""
+latest_financial_balance_sheet = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/ANNUAL.pdf"
+latest_PNL_and_retained_earnings = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/Q4.pdf"
 min_reg_d_506_c_state_init_usd = "5000"
 name = "Example Security Inc."
+name_previous = "[Alias 1 (DE), Alias 2 (DE), Alias 3 Inc (WY)]"
 org_jurisdiction = "Delaware, United States"
-principal_office = "123 Main Street, Atlanta, GA 30000"
+principal_executive_office = "123 Main Street, Atlanta, GA 30000"
+principal_place_of_business = "123 Main Street, Atlanta, GA 30000"
 redemption_instructions = "($75 fee) Send your shares to cede*blocktransfer.io and initiate a request from your legacy broker."
 reporting_company = false
 shell_company = false
+
+[[INSIDERS]]
+name = "John Doe"
+title = "CEO"
+
+[[INSIDERS]]
+name = "Matt Smith"
+title = "CFO"
 
 [[STOCKS]]
 authorized = 100000000
 code = "DEMO"
 class = "A"
 class_type = "common"
+convertible = false
+dividend = "None planned."
 image = "https://blocktransfer.io/imgs/demo.png"
 par = "$0.001"
+preference = "Lowest"
 splits = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
 status = "test"
 votes_per_share = 1
@@ -32,9 +51,12 @@ authorized = 70000
 code = "DEMO-B"
 class = "B"
 class_type = "preffered"
+convertible = false
 display_decimals = 7
+dividend = "None planned (non-cumulative)."
 image = "https://blocktransfer.io/imgs/demo.png"
 par = "$0.001"
+preference = "Above A, below debt."
 splits = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
 status = "test"
 votes_per_share = 10
