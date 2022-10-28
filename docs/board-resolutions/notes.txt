@@ -5,3 +5,4 @@ include:
  - blanked post-IPO lockup release
  - recognition of fractional shares in any denomination
  - blanke indemnification against accounting standards review
+ - As applicable: all stock certificates previously issued by the Company are voided and cancelled, and all shares are recorded in electronic, book-entry form (i.e., uncertificated shares). If you have in your possession a Company stock certificate, please note that it does not represent any currently outstanding shares of the Company and, consequently, you should not deposit any such certificate with your broker. If you find any outstanding stock certificates in your possession, please return the certificates to the attention of Shredding Facilities, 99 Wall Street #4640, New York, NY 10005.
