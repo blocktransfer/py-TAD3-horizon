@@ -3,6 +3,7 @@ attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
 company_code = "DEMO"
 cik = 0
 conditions = "Fully paid and non-assessable shares."
+cusip = ""
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
 effective_registration = false
@@ -10,7 +11,7 @@ ein = 123456789
 name = "Example Security Inc."
 org_jurisdiction = "Delaware, United States"
 principal_office = "123 Main Street, Atlanta, GA 30000"
-redemption_instructions = "This is book-entry stock. Contact your broker to move public shares to them."
+redemption_instructions = "($75 fee) Send your shares to cede*blocktransfer.io and initiate a request from your legacy broker."
 reporting_company = false
 
 [[STOCKS]]
