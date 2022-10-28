@@ -1,6 +1,7 @@
 include:
  - clause for uncertificated shares + conversion thereof in toto
  - if private, clause recognizing all private sales as undeniable
- - blanked Rule 144 release clause
- - Recognition of fractional shares in any denomination
- - Blanked indemnification against accounting standards review
+ - blanket Rule 144 release clause
+ - blanked post-IPO lockup release
+ - recognition of fractional shares in any denomination
+ - blanke indemnification against accounting standards review
