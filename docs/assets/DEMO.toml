@@ -1,17 +1,17 @@
 [ISSUER]
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
 affiliated_companies = []
-company_code = "DEMO"
+bt_company_code = "DEMO"
 cik = 0
 conditions = "Fully paid and non-assessable shares."
 cusip = ""
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
+desc_issuer_business = "Manufacturing and distribution of widgets."
+desc_issuer_facilities = "Remote-first business with shared offices in 3 states."
+desc_issuer_products_or_services = "Sells widgets."
 effective_registration = false
 ein = 123456789
-issuer_business_desc = ""
-issuer_facilities_desc = "Remote-first business with shared offices in 3 states."
-issuer_products_or_services_desc = ""
 latest_financial_balance_sheet = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/ANNUAL.pdf"
 latest_PNL_and_retained_earnings = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/Q4.pdf"
 min_reg_d_506_c_state_init_usd = "5000"
@@ -37,7 +37,7 @@ authorized = 100000000
 code = "DEMO"
 class = "A"
 class_type = "common"
-convertible = false
+convertible = ""
 dividend = "None planned."
 image = "https://blocktransfer.io/imgs/demo.png"
 par = "$0.001"
@@ -48,15 +48,28 @@ votes_per_share = 1
 
 [[STOCKS]]
 authorized = 70000
-code = "DEMO-B"
+code = "DEMOP"
 class = "B"
 class_type = "preffered"
-convertible = false
+convertible = "Convertable on a 1-10 basis for common shares.""
 display_decimals = 7
-dividend = "None planned (non-cumulative)."
+dividend = "Expected but not obligatory 3% dividend (non-cumulative)."
 image = "https://blocktransfer.io/imgs/demo.png"
 par = "$0.001"
 preference = "Above A, below debt."
-splits = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
+rights = "A share of Class B preffered stock has the rights of 1500 shares of Class A common stock, except that a Class B share has the voting rights of 10 Class A shares."
+splits = { eff_2021-4-20: "1->5", 2021-10-9: "3->2", 2022-1-1: "2->1" }
 status = "test"
 votes_per_share = 10
+
+[[BONDS]]
+code = "MSFT 2.95 06/01/14"
+convertible = false
+coupon = ""
+display_decimals = 7
+image = "https://blocktransfer.io/imgs/demo.png"
+maturity = ""
+par = ""
+preference = ""
+puttable = ""
+status = "test"

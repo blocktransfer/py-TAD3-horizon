@@ -37,8 +37,8 @@ id_photo_hash = "0dce43292a7dd2c6ef021cca9f84330ceeec34e8587172453bc2b05f1bd13ed
 verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44f0b8e62ff48"
 
 [[CURRENCIES]]
-attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
-anchor_asset = "private placement"
+attestation_of_reserve = "https://blocktransfer.io/assets/DEMO.toml"
+anchor_asset = "private"
 anchor_asset_type = "stock"
 code = "DEMO"
 conditions = "Fully paid and non-assessable shares."
@@ -49,5 +49,5 @@ issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
 is_asset_anchored = true
 name = "Example Security"
-redemption_instructions = "This is book-entry stock. Contact your broker to move public shares to them."
+redemption_instructions = "($75 fee) Send your shares to cede*blocktransfer.io and initiate a request from your legacy broker."
 status = "test"

@@ -55,25 +55,26 @@ def getNumEmployeeBenefitShares(queryAsset):
       return balances["balance"]
 
 def getAssetCodeFromTomlLink(link):
-  return link[32:-5]
+  rawCode = link.split("/")[-1]
+  return rawCode[:-5]
 
 def getAccountDataDict(address):
   requestAddr = f"{HORIZON_INST}/accounts/{address}"
   return requests.get(requestAddr).json()["data"]
 
-def getCUSIP(queryAsset):
-  CUSIP = 0
+def getITIN(ticker):
   try:
     data = loadTomlData(BT_STELLAR_TOML)
     for currencies in data["CURRENCIES"]:
       assetCode = getAssetCodeFromTomlLink(currencies["toml"])
-      if(assetCode == queryAsset or 1):
-        data = loadTomlData(currencies["toml"])
-        CUSIP = data["CURRENCIES"][0]["anchor_asset"]
-        break
+      if(assetCode == ticker):
+        return currencies["code"]
   except KeyError:
-    sys.exit(f"CUSIP Toml resolution failed")
-  return CUSIP
+    sys.exit(f"ITIN toml resolution failed")
+  return 0
+
+def getCUSIP(ITIN):
+  return ITIN[1:-1]
 
 def isCUSIP(query):
   allAssets = listAllIssuerAssets()
