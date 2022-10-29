@@ -21,8 +21,8 @@ Feel free to commit your own branched improvements!
 <div align="left">
   <h3>Testing Configuration</h3>
 
-Create a new folder titled ``master-identity-catalog-records`` in the same directory as ``stellar-interface``
+Create a new folder titled `master-identity-catalog-records` in the same directory as `stellar-interface`
 
-In that folder, add `exampleMICR` from ``/issuers``
+In that folder, add `exampleMICR` from `/issuers`
 
-Rename to ``master-identity-account-mapping.txt``
+Rename to `master-identity-account-mapping.txt`
