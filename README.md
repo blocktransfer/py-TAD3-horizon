@@ -23,6 +23,6 @@ Feel free to commit your own branched improvements!
 
 Create a new folder titled ``master-identity-catalog-records`` in the same directory as ``stellar-interface``
 
-In that folder, add the exampleMICR in ``/issuers``
+In that folder, add exampleMICR from ``/issuers``
 
 Rename to ``master-identity-account-mapping.txt``
