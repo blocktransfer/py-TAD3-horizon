@@ -12,7 +12,7 @@ Feel free to commit your own branched improvements!
   
   For investor support, contact support@blocktransfer.io
   
-  To work with us, reach out to cv@blocktransfer.io
+  To work with us, email to cv@blocktransfer.io
   
   
 </div>
