@@ -10,7 +10,7 @@ Feel free to commit your own branched improvements!
   
   You can contact our development team at stellar@blocktransfer.io
   
-  For shareholer support, contact support@blocktransfer.io
+  For investor support, contact support@blocktransfer.io
   
   To work with us, reach out to cv@blocktransfer.io
   
