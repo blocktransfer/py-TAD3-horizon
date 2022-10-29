@@ -8,7 +8,7 @@ Feel free to commit your own branched improvements!
 <div align="left">
   <h3>Contact</h3>
   
-  You can contact our development team at stellar@blocktransfer.io
+  You can reach our development team at stellar@blocktransfer.io
   
   For investor support, contact support@blocktransfer.io
   
