@@ -12,6 +12,7 @@ def stockSplit(queryAsset, numerator, denominator, MSFpreSplitBalancesTXT, recor
   adjustmentTransactionsArray, ledgerRoundingUpDiff = getTransactionsArrayToEffectSplit(queryAsset, ratio, reason)
   exportSplitTransactions(queryAsset, adjustmentTransactionsArray)
   totalRecordDifference = offlineRoundingUpDiff + ledgerRoundingUpDiff
+  # update docs/assets/[[CURRENCIES]]/splits inline tables
   print(f"""\n  Record Differences:\n
   \tOffline: {str(offlineRoundingUpDiff if offlineRoundingUpDiff else 0)} {queryAsset}\n
   \tLedger: {str(ledgerRoundingUpDiff)} {queryAsset}\n
