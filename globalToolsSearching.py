@@ -36,9 +36,9 @@ def getNumAuthorizedSharesNotIssued(companyCode):
   issuerAccounts = [
     "authorized.DSPP",
     "registered.offering",
-    "reg.a.offering",  # Seperating these allows for
-    "reg.cf.offering", # different simultaneous exempt 
-    "reg.d.offering",  # offerings without buyer overlap
+    "reg.a.offering",
+    "reg.cf.offering",
+    "reg.d.offering",
     "reserved.employee",
     "treasury"
   ]
