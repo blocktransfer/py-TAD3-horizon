@@ -33,7 +33,15 @@ def resolveFederationAddress(queryAddr):
     return ""
 
 def getNumAuthorizedSharesNotIssued(companyCode):
-  issuerAccounts = ["authorized.DSPP", "offering", "reserved.employee", "treasury"]
+  issuerAccounts = [
+    "authorized.DSPP",
+    "registered.offering",
+    "reg.a.offering",  # Seperating these allows for
+    "reg.cf.offering", # different simultaneous exempt 
+    "reg.d.offering",  # offerings without buyer overlap
+    "reserved.employee",
+    "treasury"
+  ]
   shares = Decimal("0")
   for accounts in issuerAccounts:
     requestAccount = resolveFederationAddress(f"{companyCode}*{accounts}.holdings")
