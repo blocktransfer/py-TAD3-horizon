@@ -36,8 +36,8 @@ BT_DOLLAR = Asset("BTD", BT_ISSUER)
 
 BT_WEB = "https://blocktransfer.io"
 BT_STELLAR_TOML = f"{BT_WEB}/.well-known/stellar.toml"
-OFFER_MEMO_TOML = f"{BT_WEB}/caching-data/offer-memos.toml"
-WASH_SALE_TOML = f"{BT_WEB}/caching-data/wash-sales.toml"
+OFFER_MEMO_TOML = f"{BT_WEB}/caching-data/offer-memos.toml" #
+WASH_SALE_TOML = f"{BT_WEB}/caching-data/wash-sales.toml" # localize these 
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
 
@@ -64,8 +64,10 @@ SECTION_4_A_5_ANNUAL_LIM = 5 * MM
 REG_A_TIER_1_ANNUAL_LIM = 20 * MM
 REG_A_TIER_2_ANNUAL_LIM = 75 * MM
 
+# localize these?
 REG_CF_STD_LIM = Decimal("2500")
 REG_D_506_B_NON_ACCREDITED_INVESTOR_LIM = 35
+FIRM_AFFILIATE_LOOKBACK = pandas.DateOffset(days = 90)
 IPO_LOCKUP_MAX_OVERRIDE = pandas.DateOffset(days = 90)
 IPO_NOT_AFFILIATED_RESTRICTION = pandas.DateOffset(days = 90)
 RULE_144_HOLDING_MIN_REPORTING_CO = pandas.DateOffset(months = 6)
@@ -83,13 +85,12 @@ from globalToolsTransactions import *
 def getNumOutstandingShares(queryAsset):
   assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
   assetData = requests.get(assetAddr).json()["_embedded"]["records"][0]
-  numLedgerShares = Decimal(assetData["liquidity_pools_amount"])
+  shares = Decimal(assetData["liquidity_pools_amount"])
   for balances in assetData["balances"].values():  
-    numLedgerShares += Decimal(balances)
-  numLedgerShares += Decimal(assetData["claimable_balances_amount"])
-  uncountedShares = getNumEmployeeBenefitShares(queryAsset)
-  uncountedShares += getNumTreasuryShares(queryAsset)
-  return numLedgerShares - uncountedShares
+    shares += Decimal(balances)
+  shares += Decimal(assetData["claimable_balances_amount"])
+  companyCode = getCompanyCodeFromAssetCode(queryAsset)
+  return shares - getNumAuthorizedSharesNotIssued(companyCode)
 
 def getFloat(queryAsset):
   assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"

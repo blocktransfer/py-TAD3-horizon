@@ -32,6 +32,28 @@ def resolveFederationAddress(queryAddr):
   except requests.exceptions.MissingSchema:
     return ""
 
+def getNumAuthorizedSharesNotIssued(companyCode):
+  issuerAccounts = ["authorized.DSPP", "offering", "reserved.employee", "treasury"]
+  shares = Decimal("0")
+  for accounts in issuerAccounts:
+    requestAccount = resolveFederationAddress(f"{companyCode}*{accounts}.holdings")
+    if(not requestAccount): continue
+    requestAddr = f"{HORIZON_INST}/accounts/{requestAccount}"
+    accountBalances = requests.get(requestAddr).json()["balances"]
+    asset = getAssetObjFromCode(queryAsset)
+    for balances in accountBalances:
+      searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
+      if(balances["asset_type"] != "native" and searchAsset == asset):
+        shares += balances["balance"]
+  return shares
+
+def getCompanyCodeFromAssetCode(queryAsset):
+  for assets in loadTomlData(BT_STELLAR_TOML)["currencies"]:
+    if(assets["code"] == queryAsset):
+      issuerInfo = assets["attestation_of_reserve"]
+      return loadTomlData(issuerInfo["bt_company_code"])
+  return 0
+
 def getNumTreasuryShares(queryAsset):
   treasuryAddr = resolveFederationAddress(f"{queryAsset}*treasury.holdings")
   if(not treasuryAddr): return 0
