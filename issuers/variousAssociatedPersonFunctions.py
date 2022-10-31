@@ -27,7 +27,7 @@ def getAssociatedPersonBalances(queryAsset):
   return 1 
 
 def getAllHashedAffiliateAccounts(affiliates):
-  return SHA3(aff) for aff in affiliates
+  return map(SHA3, affiliates) # list(*)
 
 def distributeExistingShares(asset, amount):
   # make txn from distributor src
@@ -45,7 +45,7 @@ def distributeExistingShares(asset, amount):
 def grantNewRestrictedShares(asset, amount):
   return 1
 
-def distributeVestingShares(asset, ammount, release date):
+def distributeVestingShares(asset, ammount, releaseDate):
   return 1
 
 

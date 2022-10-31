@@ -71,14 +71,15 @@ def getAffiliateShares(queryAsset):
     affiliateBalances = Decimal("0")
     # fetch list of affiliates from accounts.toml
     # get their balances
-    
+    accounts = loadTomlData(BT_ACCOUNTS_TOML)
+    pprint(accounts)
     return affiliateBalances
 
 def getCompanyCodeFromAssetCode(queryAsset):
-  for assets in loadTomlData(BT_STELLAR_TOML)["currencies"]:
+  for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
     if(assets["code"] == queryAsset):
       issuerInfo = assets["attestation_of_reserve"]
-      return loadTomlData(issuerInfo["bt_company_code"])
+      return loadTomlData(issuerInfo)["bt_company_code"]
   return 0
 
 def getNumTreasuryShares(queryAsset):

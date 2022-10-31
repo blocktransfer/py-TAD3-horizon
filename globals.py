@@ -39,6 +39,7 @@ BT_DOLLAR = Asset("BTD", BT_ISSUER)
 
 BT_WEB = "https://blocktransfer.io"
 BT_STELLAR_TOML = f"{BT_WEB}/.well-known/stellar.toml"
+BT_ACCOUNTS_TOML = f"{BT_WEB}/.well-known/accounts.toml"
 OFFER_MEMO_TOML = f"{BT_WEB}/caching-data/offer-memos.toml" #
 WASH_SALE_TOML = f"{BT_WEB}/caching-data/wash-sales.toml" # localize these 
 HORIZON_INST = "https://horizon.stellar.org"
@@ -101,3 +102,4 @@ def getFloat(queryAsset):
   unrestricted = requests.get(assetAddr).json()["_embedded"]["records"][0][amount]
   return unrestricted - getAffiliateShares(queryAsset)
 
+getAffiliateShares("DEMO")
