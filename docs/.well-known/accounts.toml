@@ -3,9 +3,12 @@
 [GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ]
 accredited = false
 accredited_expiration = "" # or "2027-11-23"
-associations = ["DEMO"]
-reg_A_tier_2_custom_limit = "10000.11"
-reg_CF_custom_limit = "5000.44"
+active = true
+affiliations = { DEMO = "current" }
+bad_actor = false
+dealer = false
+qib = false
+raw_underwriter = false
 state = "GA"
-status = "bona fide"
-underwriter_or_dealer = false
+user_max_reg_A2 = "10000.11"
+user_max_reg_CF = "5000.44"

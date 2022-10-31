@@ -10,6 +10,9 @@ def getNumRestrictedShares(queryAsset):
       implicitRestrictedShares += Decimal(balances)
   return explicitRestrictedShares + implicitRestrictedShares
 
+def SHA3(input):
+  return sha3_256(input.encode()).hexdigest()
+
 def loadTomlData(link):
   return toml.loads(requests.get(link).content.decode())
 

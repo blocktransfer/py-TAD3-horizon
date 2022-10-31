@@ -7,3 +7,21 @@ include:
  - blanke indemnification against accounting standards review
  - As applicable: all stock certificates previously issued by the Company are voided and cancelled, and all shares are recorded in electronic, book-entry form (i.e., uncertificated shares). If you have in your possession a Company stock certificate, please note that it does not represent any currently outstanding shares of the Company and, consequently, you should not deposit any such certificate with your broker. If you find any outstanding stock certificates in your possession, please return the certificates to the attention of Shredding Facilities, 99 Wall Street #4640, New York, NY 10005.
  - operating clause: The Company does not currently and has never previously at the issuance of offered securities: had no or nominal operations and either (i) no or nominal assets, (ii) assets consisting solely of cash and cash equivalents, or (iii) assets consisting of any amount of cash and cash equivalents and nominal other assets.
+
+
+
+
+holding account federation descriptions:
+  private.affiliate.holdings
+    Control securities for private issuers which require special resale provisions.
+  reserved.employee.holdings
+    Undistributed stock allocated under an employee benefit plan.
+  offering.holdings
+    reg.a
+	  Undistributed stock allocated for a Regulation A offering.
+    reg.cf
+	  Undistributed stock allocated for a Regulation CF offering.
+    reg.d
+	  Undistributed stock allocated for a Regulation D offering.
+  treasury.holdings
+    Treasury stock held by an issuer.

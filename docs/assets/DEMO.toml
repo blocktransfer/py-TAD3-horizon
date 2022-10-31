@@ -17,12 +17,13 @@ latest_PNL_and_retained_earnings = "https://stocks.blocktransfer.io/DEMO/financi
 min_reg_d_506_c_state_init_usd = "5000"
 name = "Example Security Inc."
 name_previous = "[Alias 1 (DE), Alias 2 (DE), Alias 3 Inc (WY)]"
-org_jurisdiction = "Delaware, United States"
+jurisdiction = "Delaware, United States"
 principal_executive_office = "123 Main Street, Atlanta, GA 30000"
 principal_place_of_business = "123 Main Street, Atlanta, GA 30000"
 redemption_instructions = "($75 fee) Send your shares to cede*blocktransfer.io and initiate a request from your legacy broker."
 reporting_company = false
 shell_company = false
+sic = 7374
 
 [[INSIDERS]]
 name = "John Doe"
