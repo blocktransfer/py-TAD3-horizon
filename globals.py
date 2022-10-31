@@ -80,7 +80,7 @@ RULE_144_MIN_REPORTING_SHARES = Decimal("5000")
 RULE_144_MIN_REPORTING_USD_VAL = Decimal("50000")
 RULE_144_NOT_AFFILIATED_PERIOD = pandas.DateOffset(months = 3)
 RULE_144_SALE_REPORTING_PERIOD = pandas.DateOffset(months = 3)
-THRESHOLD_FOR_AFFILIATE_VIA_OUTSTANDING_OWNERSHIP = Decimal("0.1")
+THRESHOLD_FOR_AFFILIATE_VIA_PERCENT_FLOAT_OWNED = Decimal("0.1")
 
 from globalToolsAssets import *
 from globalToolsSearching import *
@@ -98,5 +98,6 @@ def getNumOutstandingShares(queryAsset):
 
 def getFloat(queryAsset):
   assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
-  return requests.get(assetAddr).json()["_embedded"]["records"][0][amount]
+  unrestricted = requests.get(assetAddr).json()["_embedded"]["records"][0][amount]
+  return unrestricted - getAffiliateShares(queryAsset)
 
