@@ -1,7 +1,7 @@
 # Block Transfer <blocktransfer.io>
 # Per SEC Rules 17Ad-15
 
-SIGNATURE_GUARANTEE_PROGRAM = """BlockTrans Syndicate ('Block Transfer' herein)
+SIGNATURE_GUARANTEE_PROGRAM = """BlockTrans Syndicate ("Block Transfer" herein)
 engages in Subsection (a)(3) guarantee activities with equitable investors care.
 
 Block Transfer uses cryptographic signatures perpetually stored in the immutable
