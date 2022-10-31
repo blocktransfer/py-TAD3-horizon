@@ -76,4 +76,11 @@ Block Transfer does not make a market for any of the issuers it services. Block
 Transfer will not directly accept or make payment with securities in exchange
 for value, except as a tender agent at its sole discresion pursuant to 17Ad-14.
 Rather, all good-standing market participants can directly trade assets through
-Stellar's decentralized exchange by signing order messages in their wallet."""
+Stellar's decentralized exchange by signing order messages in their wallet.
+
+In the event we receive a transfer request by mail, such request is a non-
+routine transfer request. In response to such an inquiry, we will advise such
+investor to download our app and onboard an account. Our app is built on cross- 
+platform technology that runs on devices as old as the iPhone 5S. Subsequently,
+we assume that all our investors either have access to a phone which can run
+our app or can attain using reasonable effort, time, and expense such device"""
