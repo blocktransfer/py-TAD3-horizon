@@ -49,3 +49,7 @@ def distributeVestingShares(asset, ammount, release date):
   return 1
 
 
+
+
+def markSubstantialHoldersAsAffiliates(queryAsset):
+  return 1
