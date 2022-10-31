@@ -48,15 +48,31 @@ def getNumAuthorizedSharesNotIssued(companyCode):
   shares = Decimal("0")
   for accounts in issuerAccounts:
     requestAccount = resolveFederationAddress(f"{companyCode}*{accounts}.holdings")
-    if(not requestAccount): continue
-    requestAddr = f"{HORIZON_INST}/accounts/{requestAccount}"
-    accountBalances = requests.get(requestAddr).json()["balances"]
-    asset = getAssetObjFromCode(queryAsset)
-    for balances in accountBalances:
-      searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
-      if(balances["asset_type"] != "native" and searchAsset == asset):
-        shares += balances["balance"]
+    shares += getCustodiedShares(queryAsset, requestAccount)
   return shares
+
+def getCustodiedShares(queryAsset, account):
+  if(not account): return 0
+  requestAddr = f"{HORIZON_INST}/accounts/{account}"
+  accountBalances = requests.get(requestAddr).json()["balances"]
+  asset = getAssetObjFromCode(queryAsset)
+  for balances in accountBalances:
+    searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
+    if(balances["asset_type"] != "native" and searchAsset == asset):
+      return balances["balance"]
+
+def getAffiliateShares(queryAsset):
+  companyCode = getCompanyCodeFromAssetCode(queryAsset)
+  type = getCompanyType(companyCode)
+  if(type == "private"):
+    affiliateAccount = requestAccount = resolveFederationAddress(f"{companyCode}*private.affiliate.holdings")
+    return getCustodiedShares(queryAsset, affiliateAccount)
+  else:
+    affiliateBalances = Decimal("0")
+    # fetch list of affiliates from accounts.toml
+    # get their balances
+    
+    return affiliateBalances
 
 def getCompanyCodeFromAssetCode(queryAsset):
   for assets in loadTomlData(BT_STELLAR_TOML)["currencies"]:
