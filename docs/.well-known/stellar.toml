@@ -41,6 +41,7 @@ attestation_of_reserve = "https://blocktransfer.io/assets/DEMO.toml"
 anchor_asset = "Private stock last issued under Regulation D"
 anchor_asset_type = "stock"
 code = "DEMO"
+code_template = "DEMO????????"
 conditions = "Fully paid and non-assessable shares."
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development." # General solicitation disclaimer for 506B here
