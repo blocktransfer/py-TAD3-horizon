@@ -69,8 +69,6 @@ REG_A_TIER_1_ANNUAL_LIM = 20 * MM
 REG_A_TIER_2_ANNUAL_LIM = 75 * MM
 
 # localize these?
-REG_CF_STD_LIM = Decimal("2500")
-REG_D_506_B_NON_ACCREDITED_INVESTOR_LIM = 35
 FIRM_AFFILIATE_LOOKBACK = pandas.DateOffset(days = 90)
 IPO_LOCKUP_MAX_OVERRIDE = pandas.DateOffset(days = 90)
 IPO_NOT_AFFILIATED_RESTRICTION = pandas.DateOffset(days = 90)
@@ -81,7 +79,13 @@ RULE_144_MIN_REPORTING_SHARES = Decimal("5000")
 RULE_144_MIN_REPORTING_USD_VAL = Decimal("50000")
 RULE_144_NOT_AFFILIATED_PERIOD = pandas.DateOffset(months = 3)
 RULE_144_SALE_REPORTING_PERIOD = pandas.DateOffset(months = 3)
-THRESHOLD_FOR_AFFILIATE_VIA_PERCENT_FLOAT_OWNED = Decimal("0.1")
+
+REG_CF_STD_LIM = Decimal("2500")
+REG_D_506B_NON_ACCREDITED_INVESTOR_LIM = 35
+NON_REPORTING_CO_TOTAL_ASSETS_MAX = 10 * MM
+NON_REPORTING_CO_TOTAL_INVESTORS_MAX = 2000
+NON_REPORTING_CO_NON_ACCREDITED_INVESTOR_MAX = 500
+AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 
 from globalToolsAssets import *
 from globalToolsSearching import *
@@ -99,7 +103,9 @@ def getNumOutstandingShares(queryAsset):
 
 def getFloat(queryAsset):
   assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
-  unrestricted = requests.get(assetAddr).json()["_embedded"]["records"][0][amount]
-  return unrestricted - getAffiliateShares(queryAsset)
+  assetData = requests.get(assetAddr).json()["_embedded"]["records"][0]
+  shares = Decimal(assetData["liquidity_pools_amount"])
+  shares += Decimal(assetData["amount"])
+  return shares - getAffiliateShares(queryAsset)
 
 getAffiliateShares("DEMO")
