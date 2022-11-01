@@ -1,10 +1,11 @@
 [ISSUER]
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
-affiliated_companies = []
 bt_company_code = "DEMO"
 cik = 0
 conditions = "Fully paid and non-assessable shares."
+corporate_affiliations = []
 cusip = ""
+current_506b_disclosure = ""
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development."
 desc.business = "Manufacturing and distribution of widgets."
