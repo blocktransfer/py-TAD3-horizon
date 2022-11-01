@@ -124,7 +124,7 @@ def getITIN(ticker):
   return 0
 
 def getCUSIP(ITIN):
-  return ITIN[1:-1]
+  return ITIN[2:-1]
 
 def isCUSIP(query):
   allAssets = listAllIssuerAssets()
