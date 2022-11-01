@@ -43,11 +43,12 @@ anchor_asset_type = "stock"
 code = "DEMO"
 conditions = "Fully paid and non-assessable shares."
 display_decimals = 7
-desc = "Example Company is used interally for product demos and development."
+desc = "Example Company is used interally for product demos and development." # General solicitation disclaimer for 506B here
 image = "https://blocktransfer.io/imgs/demo.png"
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
 is_asset_anchored = true
 name = "Example Security"
-redemption_instructions = "($75 fee) Send your shares to cede*blocktransfer.io and initiate a request from your legacy broker."
+redemption_instructions = ("This company is not public, so you can only hold shares here on its books")
+# "($75 fee) Send your shares to cede*blocktransfer.io and initiate a request from your legacy broker."
 status = "test"

@@ -42,7 +42,7 @@ def getNumAuthorizedSharesNotIssued(companyCode):
     "reg.a.offering",
     "reg.cf.offering",
     "reg.d.offering",
-    "reserved.employee",
+    "reserved.employee", # todo: stock options via Soroban
     "treasury"
   ]
   shares = Decimal("0")
