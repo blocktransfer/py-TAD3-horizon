@@ -8,6 +8,7 @@ affiliations = { DEMO = "current" }
 bad_actor = false
 dealer = false
 qib = false
+show_506b = ["TEST"]
 raw_underwriter = false
 state = "GA"
 user_max_reg_A2 = "10000.11"
