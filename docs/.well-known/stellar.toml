@@ -38,7 +38,7 @@ verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44
 
 [[CURRENCIES]]
 attestation_of_reserve = "https://blocktransfer.io/assets/DEMO.toml"
-anchor_asset = "Private stock last issued under Regulation D"
+anchor_asset = "Reg D"
 anchor_asset_type = "stock"
 code = "DEMO"
 code_template = "DEMO????????"

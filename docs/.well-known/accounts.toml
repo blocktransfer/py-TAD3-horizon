@@ -7,6 +7,7 @@ active = true
 affiliations = { DEMO = "current" }
 bad_actor = false
 dealer = false
+employed_at = ["DEMO"]
 qib = false
 show_506b = ["TEST"]
 raw_underwriter = false
