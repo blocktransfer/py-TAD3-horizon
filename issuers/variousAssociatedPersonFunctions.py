@@ -53,3 +53,7 @@ def distributeVestingShares(asset, ammount, releaseDate):
 
 def markSubstantialHoldersAsAffiliates(queryAsset):
   return 1
+
+
+def getNumNonAccreditedIn506b(queryAsset):
+  return 1

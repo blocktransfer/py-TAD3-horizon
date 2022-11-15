@@ -1,16 +1,19 @@
 # Block Transfer <blocktransfer.io>
 
 [GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ]
-accredited = false
+accredited_soft = false
+accredited_verified = false
 accredited_expiration = "" # or "2027-11-23"
 active = true
 affiliations = { DEMO = "current" }
+backup_witholding = false
 bad_actor = false
 dealer = false
 employed_at = ["DEMO"]
 qib = false
 show_506b = ["TEST"]
-raw_underwriter = false
+reg_A2_max = "10000.11"
+reg_CF_max = "5000.44"
 state = "GA"
-user_max_reg_A2 = "10000.11"
-user_max_reg_CF = "5000.44"
+type = "individual"
+underwriter = false

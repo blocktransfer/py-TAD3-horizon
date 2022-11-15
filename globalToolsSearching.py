@@ -38,10 +38,11 @@ def resolveFederationAddress(queryAddr):
 def getNumAuthorizedSharesNotIssued(companyCode):
   issuerAccounts = [
     "authorized.DSPP",
-    "registered.offering",
+    "initial.offering",
     "reg.a.offering",
     "reg.cf.offering",
     "reg.d.offering",
+    "shelf.offering",
     "reserved.employee", # todo: stock options via Soroban
     "treasury"
   ]

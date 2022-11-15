@@ -1,5 +1,6 @@
 [ISSUER]
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
+affiliate_selling = false
 bt_company_code = "DEMO"
 cik = 0
 conditions = "Fully paid and non-assessable shares."
@@ -18,8 +19,10 @@ jurisdiction = "Delaware, United States"
 latest_financial_balance_sheet = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/ANNUAL.pdf"
 latest_PNL_and_retained_earnings = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/Q4.pdf"
 min_reg_d_506_c_state_init_usd = "5000"
+meetings = { 2023 = "2023-4-29" , 2024 = "endCountProxyVotesDate", 2024a = "2024-7-8" }
 name = "Example Security Inc."
 name_previous = "[Alias 1 (DE), Alias 2 (DE), Alias 3 Inc (WY)]"
+over_10M_assets = false
 principal_executive_office = "123 Main Street, Atlanta, GA 30000"
 principal_place_of_business = "123 Main Street, Atlanta, GA 30000"
 redemption_instructions = "($75 fee) Send your shares to cede*blocktransfer.io and initiate a request from your legacy broker."
@@ -47,7 +50,7 @@ image = "https://blocktransfer.io/imgs/demo.png"
 only_some_states = false
 par = "$0.001"
 preference = "Lowest"
-splits = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
+splits_effective = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
 status = "test"
 votes_per_share = 1
 
@@ -64,7 +67,7 @@ only_some_states = false
 par = "$0.001"
 preference = "Above A, below debt."
 rights = "Same rights as 42 shares of Class A common stock, except for the voting rights of 10 Class A shares."
-splits = { eff_2021-4-20: "1->5", 2021-10-9: "3->2", 2022-1-1: "2->1" }
+splits_effective = { eff_2021-4-20: "1->5", 2021-10-9: "3->2", 2022-1-1: "2->1" }
 status = "test"
 votes_per_share = 10
 
@@ -81,8 +84,8 @@ only_some_states = ["NC", "GA", "NY", "DE", "FL"]
 par = "$0.001"
 preference = "Above A, below debt."
 rights = "A share of Class B preffered stock has the rights of 1500 shares of Class A common stock, except that a Class B share has the voting rights of 10 Class A shares."
-reg_A_tier_2_yr_1_affiliated_sales_max_usd = ""
-splits = { eff_2021-4-20: "1->5", 2021-10-9: "3->2", 2022-1-1: "2->1" }
+# reg_A_tier_2_yr_1_affiliated_sales_max_usd = "" -- todo: simplify reg a resales
+splits_effective = { 2021-4-20: "1->5", 2021-10-9: "3->2", 2022-1-1: "2->1" }
 status = "test"
 votes_per_share = 1
 
