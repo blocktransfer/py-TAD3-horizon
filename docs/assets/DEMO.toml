@@ -13,6 +13,7 @@ desc.business = "Manufacturing and distribution of widgets."
 desc.facilities = "Remote-first business with shared offices in Atlanta, GA."
 desc.products = "Sells widgets."
 ein = 123456789
+intra_state = false
 ir.email = ""
 ir.phone = ""
 jurisdiction = "Delaware, United States"
