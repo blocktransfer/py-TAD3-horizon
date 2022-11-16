@@ -30,7 +30,7 @@ ORG_LICENSE_TYPE = "CIK"
 ORG_LICENSE_NUMBER = "0001846058"
 
 [[PRINCIPALS]]
-name = "John F. Wooten, IV"
+name = "John Wooten"
 email = "john@blocktransfer.io"
 github = "JFWooten4"
 id_photo_hash = "0dce43292a7dd2c6ef021cca9f84330ceeec34e8587172453bc2b05f1bd13edd"
