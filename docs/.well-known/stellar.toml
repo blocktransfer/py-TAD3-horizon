@@ -41,15 +41,15 @@ attestation_of_reserve = "https://blocktransfer.io/assets/bt-dollar/latest.pdf"
 anchor_asset = "USD"
 anchor_asset_type = "fiat"
 code = "BTD"
-conditions = "NOT A BANK. NOT FDIC INSURED."
+conditions = "Block Transfer is not a bank and does not itself take deposits. You will not receive any interest, credit, or other earnings on the funds in your Block Transfer account."
 display_decimals = 7
-desc = "We let investors deposit US dollars through Circle via USDC, a partner ACH processing platform, a partner ACH processing bank, a partner wire processing bank, or a partner direct payment/payout settling bank. Investor funds are held in a segregated Circle account, segregated Circle Yield account, at least one segregated checking or savings account at one of our partner banks, at least one segregated treasury or money market account at one of our partner banks, or short-term US Treasuries (currently <10% outside of separate demand deposit accounts). Our current partner banks or financial technology service providers are Mercury and South State Bank. No dollars are lent directly by Block Transfer or invested in crypto yield tokens. We keep any interest. Withdrawls are available on demand into your linked bank account or via USDC. These deposits and withdrawls are essentially payments to/from our company. Once we have 12M in deposits, we plan to open an SPDI so that you will have an actual bank account. At such point, we will automatically convert your BTD to USD."
+desc = "You can deposit dollars as an unsecured claim against Block Transfer, a Deleware corporation regulated by the SEC. We hold deposits in fungible bulk, matched 1:1 on and off Stellar. Your funds are not insured by the FDIC or SIPC, but we do maintain various error and ommission policies with a Berkshire Hathaway company."
 image = "https://blocktransfer.io/imgs/btd.png"
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
 is_asset_anchored = true
 name = "BT Dollars"
-redemption_instructions = "Use our app."
+redemption_instructions = "Use our app to link your bank."
 status = "test"
 
 [[CURRENCIES]]
