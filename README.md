@@ -26,3 +26,8 @@ Create a new folder titled `master-identity-catalog-records` in the same directo
 In that folder, add `exampleMICR` from `/issuers`
 
 Rename to `master-identity-account-mapping.txt`
+
+# Things we will never do
+- Charge fees for standard activities
+- Sell investor data to third parties
+- Set unrequired trading restrictions
