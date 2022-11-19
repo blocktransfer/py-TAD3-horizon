@@ -31,6 +31,11 @@ invalid transactions on the Stellar blockchain, Block Transfer will, in a vast
 bulk of instances, not be made aware of rejected transfers given only a narrow
 range of transfers are invalid by false cryptographic attestation, while valid
 transfer signatures are instantaneously accepted by honest validating peers.
+Should a transfer instruction be rejected due to unavoidable market conditions
+such as SEC trading freezes or our servers effecting a stock split, all eligible
+guarantor institutions requesting transfers will be notified immediately via our
+app, the use of which requires securityholders to accept our eDelivery terms and
+conditions decreeing digital notice equivalent to such notice made by snail mail.
 
 Most Stellar transactions clear in the next proposed block or one substantially
 close to it, with blocks created every five seconds on average. In a worst-case
