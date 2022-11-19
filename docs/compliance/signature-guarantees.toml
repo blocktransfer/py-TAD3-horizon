@@ -37,8 +37,9 @@ guarantor institutions requesting transfers will be notified immediately via our
 app, the use of which requires securityholders to accept our eDelivery terms and
 conditions decreeing digital notice equivalent to such notice made by snail mail.
 Record of transactions failing for unavoidable reasons will not propagate to the
-blockchain or reach Block Transfer because such transactions will be rejected
-by Stellar validator peers. Because it is impossible for Block Transfer to access
+blockchain or reach Block Transfer because such transactions will be dropped by
+Stellar validator peers in accordance with the Stellar Consensus Protocol and 
+standard BFT optimization. Because it is impossible for Block Transfer to access
 all potential validator peers' rejected transaction histories, we can only rely
 on public transfer records archived in the prevailing Stellar distributed ledger.
 
