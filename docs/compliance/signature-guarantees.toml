@@ -36,6 +36,11 @@ such as SEC trading freezes or our servers effecting a stock split, all eligible
 guarantor institutions requesting transfers will be notified immediately via our
 app, the use of which requires securityholders to accept our eDelivery terms and
 conditions decreeing digital notice equivalent to such notice made by snail mail.
+Record of transactions failing for unavoidable reasons will not propagate to the
+blockchain or reach Block Transfer because such transactions will be rejected
+by Stellar validator peers. Because it is impossible for Block Transfer to access
+all potential validator peers' rejected transaction histories, we can only rely
+on public transfer records archived in the prevailing Stellar distributed ledger.
 
 Most Stellar transactions clear in the next proposed block or one substantially
 close to it, with blocks created every five seconds on average. In a worst-case
@@ -86,4 +91,6 @@ routine transfer request. In response to such an inquiry, we will advise such
 investor to download our app and onboard an account. Our app is built on cross- 
 platform technology that runs on devices as old as the iPhone 5S. Subsequently,
 we assume that all our investors either have access to a phone which can run
-our app or can attain using reasonable effort, time, and expense such device"""
+our app or can attain using reasonable effort, time, and expense such device."""
+
+MEDALLIONS = "Block Transfer does not use medallion signature guarantee stamps."
