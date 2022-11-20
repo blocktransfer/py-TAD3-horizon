@@ -9,7 +9,6 @@ affiliations = { DEMO = "current" }
 backup_witholding = false
 bad_actor = false
 dealer = false
-employed_at = ["DEMO"]
 qib = false
 show_506b = ["TEST"]
 reg_A2_max = "10000.11"
