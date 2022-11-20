@@ -1,9 +1,9 @@
 # Block Transfer <blocktransfer.io>
 
 [GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ]
-accredited_soft = false
-accredited_verified = false
-accredited_expiration = "" # or "2027-11-23"
+accredited_soft = true
+accredited_verified = true
+accredited_expiration = "2027-11-23"
 active = true
 affiliations = { DEMO = "current" }
 backup_witholding = false

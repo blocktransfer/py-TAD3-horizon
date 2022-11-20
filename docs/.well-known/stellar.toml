@@ -49,7 +49,7 @@ issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
 is_asset_anchored = true
 name = "BT Dollars"
-redemption_instructions = "Use our app to link your bank."
+redemption_instructions = "Use our app to link your bank or USDC wallet."
 status = "test"
 
 [[CURRENCIES]]

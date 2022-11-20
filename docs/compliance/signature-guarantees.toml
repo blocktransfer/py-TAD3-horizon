@@ -31,6 +31,17 @@ invalid transactions on the Stellar blockchain, Block Transfer will, in a vast
 bulk of instances, not be made aware of rejected transfers given only a narrow
 range of transfers are invalid by false cryptographic attestation, while valid
 transfer signatures are instantaneously accepted by honest validating peers.
+Should a transfer instruction be rejected due to unavoidable market conditions
+such as SEC trading freezes or our servers effecting a stock split, all eligible
+guarantor institutions requesting transfers will be notified immediately via our
+app, the use of which requires securityholders to accept our eDelivery terms and
+conditions decreeing digital notice equivalent to such notice made by snail mail.
+Record of transactions failing for unavoidable reasons will not propagate to the
+blockchain or reach Block Transfer because such transactions will be dropped by
+Stellar validator peers in accordance with the Stellar Consensus Protocol and 
+standard BFT optimization. Because it is impossible for Block Transfer to access
+all potential validator peers' rejected transaction histories, we can only rely
+on public transfer records archived in the prevailing Stellar distributed ledger.
 
 Most Stellar transactions clear in the next proposed block or one substantially
 close to it, with blocks created every five seconds on average. In a worst-case
@@ -81,4 +92,14 @@ routine transfer request. In response to such an inquiry, we will advise such
 investor to download our app and onboard an account. Our app is built on cross- 
 platform technology that runs on devices as old as the iPhone 5S. Subsequently,
 we assume that all our investors either have access to a phone which can run
-our app or can attain using reasonable effort, time, and expense such device"""
+our app or can attain using reasonable effort, time, and expense such device.
+
+In summary, Block Transfer uses its own signature guarantee program detailed 
+herewith. We resonably believe these terms and conditions facilitate the
+equitable treatment of eligible guarantor institutions; and (ii) promote the
+prompt, accurate and safe transfer of securities by providing: (A) Adequate
+protection to the transfer agent against risk of financial loss in the event
+persons have no recourse against the eligible guarantor institution; and (B)
+Adequate protection to us against the issuance of unauthorized guarantees."""
+
+MEDALLIONS = "Block Transfer does not use medallion signature guarantee stamps."
