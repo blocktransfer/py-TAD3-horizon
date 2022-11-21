@@ -12,7 +12,7 @@ ACCOUNTS = [
 "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6",
 "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY",
 "GDTCN6C4BUWRQMB7IAPXZKSBQKA22LY4I6YVBHHYCOKZCIBRRTUWCEDE"
-] # Issuer, distributor, treasury, DWAC
+] # Issuer, distributor, treasury, omnibus broker holdings
 
 [DOCUMENTATION]
 ORG_NAME = "BlockTrans Syndicate"
@@ -44,7 +44,7 @@ code = "BTD"
 conditions = "Block Transfer is not a bank and does not itself take deposits. You will not receive any interest, credit, or other earnings on the funds in your Block Transfer account."
 display_decimals = 7
 desc = "You can deposit funds as unsecured claims against Block Transfer, a Delaware corporation regulated by the SEC. We hold deposits in fungible bulk, matched 1:1 on and off Stellar. Your funds are not insured by the FDIC or SIPC, but we do maintain various error and omission policies with a Berkshire Hathaway company."
-image = "https://blocktransfer.io/logo.png"
+image = "https://blocktransfer.io/icon.png"
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
 is_asset_anchored = true
@@ -54,7 +54,7 @@ status = "test"
 
 [[CURRENCIES]]
 attestation_of_reserve = "https://blocktransfer.io/assets/DEMO.toml"
-anchor_asset = "Reg D"
+anchor_asset = "private"
 anchor_asset_type = "stock"
 code = "DEMO"
 code_template = "DEMO????????"
@@ -66,6 +66,21 @@ issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
 is_asset_anchored = true
 name = "Example Security"
-redemption_instructions = "This company is not public, so you can only hold shares here on its books"
-# "($75 fee) Send your shares to cede*blocktransfer.io and initiate a request from your legacy broker."
+redemption_instructions = "($75 fee) Send your shares to cede*blocktransfer.io and initiate a request from your legacy broker."
+status = "test"
+
+[[CURRENCIES]]
+attestation_of_reserve = "https://blocktransfer.io/assets/TEST.toml"
+anchor_asset = "private"
+anchor_asset_type = "stock"
+code = "TEST"
+conditions = "Fully paid and non-assessable shares."
+display_decimals = 7
+desc = "Testing Company is used interally for product demos and development."
+image = "https://blocktransfer.io/imgs/demo.png"
+issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
+is_unlimited = true
+is_asset_anchored = true
+name = "Testing Setup Env"
+redemption_instructions = "This company is not public, so you can only hold shares here on its books."
 status = "test"
