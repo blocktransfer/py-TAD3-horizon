@@ -13,6 +13,7 @@ desc.business = "Manufacturing and distribution of widgets."
 desc.facilities = "Remote-first business with shared offices in Atlanta, GA."
 desc.products = "Sells widgets."
 ein = 123456789
+highest_curr_solicitation = "Reg D"
 intra_state = false
 ir.email = ""
 ir.phone = ""
@@ -89,12 +90,12 @@ status = "test"
 votes_per_share = 1
 
 [[BONDS]]
-code = "MSFT 2.95 06/01/14"
+code = "DEMOX1"
 convertible = false
-coupon = ""
+coupon = "2.95"
 display_decimals = 7
 image = "https://blocktransfer.io/imgs/demo.png"
-maturity = ""
+maturity = "2023-10-4"
 par = ""
 preference = ""
 puttable = ""
