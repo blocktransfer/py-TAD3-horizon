@@ -1,10 +1,5 @@
 # Block Transfer <blocktransfer.io>
 
-# We do not respond to any requests by writing or phone.
-# Scans of physical mail stored for at least two years.
-# Transfer items and related data stored perpetually.
-# Onboarding KYC/AML/KYB records stored perpetually.
-
 # (a) Every registered transfer agent shall make and keep current the following:
 # 
 # (1) A receipt, ticket, schedule, log or other record showing the business day each routine item and each non-routine item is (i) received from the presentor and, if applicable, from the outside registrar and (ii) made available to the presentor and, if applicable, to the outside registrar;
