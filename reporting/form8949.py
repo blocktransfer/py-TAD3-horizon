@@ -264,3 +264,10 @@ def placeFields(adjustedTrades):
 #                     (as interest income or cap gains? many aquisitions/dispositions?)
 #                  support for sending path payments (incl. to self)
 
+# DEF Separate PRINT FUNCT
+# https://medium.com/@zwinny/filling-pdf-forms-in-python-the-right-way-eb9592e03dba
+# https://www.blog.pythonlibrary.org/2018/05/22/filling-pdf-forms-with-python/
+# https://akdux.com/python/2020/10/31/python-fill-pdf-files/
+# https://pypdf2.readthedocs.io/en/latest/user/forms.html#filling-out-forms
+# https://pypi.org/project/fillpdf/
+# https://www.securexfilings.com/wp-content/uploads/2013/04/sched13d.pdf
