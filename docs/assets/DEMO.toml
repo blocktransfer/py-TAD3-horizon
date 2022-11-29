@@ -20,6 +20,7 @@ ir.phone = ""
 jurisdiction = "Delaware, United States"
 latest_financial_balance_sheet = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/ANNUAL.pdf"
 latest_PNL_and_retained_earnings = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/Q4.pdf"
+lockout_period = ["12-31 to 4-15"]
 min_reg_d_506_c_state_init_usd = "5000"
 meetings = { 2023 = "2023-4-29" , 2024 = "endCountProxyVotesDate", 2024a = "2024-7-8" }
 name = "Example Security Inc."
