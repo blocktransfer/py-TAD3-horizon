@@ -79,7 +79,7 @@ def getAffiliateShares(queryAsset):
 def getCompanyCodeFromAssetCode(queryAsset):
   for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
     if(assets["code"] == queryAsset):
-      print(issuerInfo)
+      issuerInfo = assets["attestation_of_reserve"]
       return loadTomlData(issuerInfo)["ISSUER"]["bt_company_code"]
   return 0
 
