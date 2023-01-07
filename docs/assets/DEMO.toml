@@ -13,16 +13,18 @@ desc.business = "Manufacturing and distribution of widgets."
 desc.facilities = "Remote-first business with shared offices in Atlanta, GA."
 desc.products = "Sells widgets."
 ein = 123456789
+highest_curr_solicitation = "Reg D"
 intra_state = false
 ir.email = ""
 ir.phone = ""
 jurisdiction = "Delaware, United States"
 latest_financial_balance_sheet = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/ANNUAL.pdf"
 latest_PNL_and_retained_earnings = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/Q4.pdf"
+lockout_period = ["12-31 to 4-15"]
 min_reg_d_506_c_state_init_usd = "5000"
 meetings = { 2023 = "2023-4-29" , 2024 = "endCountProxyVotesDate", 2024a = "2024-7-8" }
 name = "Example Security Inc."
-name_previous = "[Alias 1 (DE), Alias 2 (DE), Alias 3 Inc (WY)]"
+name_previous = ["Alias 1 (DE)", "Alias 2 (DE)", "Alias 3 Inc (WY)"]
 over_10M_assets = false
 principal_executive_office = "123 Main Street, Atlanta, GA 30000"
 principal_place_of_business = "123 Main Street, Atlanta, GA 30000"
@@ -89,12 +91,12 @@ status = "test"
 votes_per_share = 1
 
 [[BONDS]]
-code = "MSFT 2.95 06/01/14"
+code = "DEMOX1"
 convertible = false
-coupon = ""
+coupon = "2.95"
 display_decimals = 7
 image = "https://blocktransfer.io/imgs/demo.png"
-maturity = ""
+maturity = "2023-10-4"
 par = ""
 preference = ""
 puttable = ""

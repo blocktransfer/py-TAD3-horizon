@@ -13,9 +13,13 @@ MARKETING_THUMBNAIL = "We use a chart showing the growth of $1,000 invested per
 month for 40 years at 9% and 9.5% returns to showcase the impact of this
 'small' difference, inter alia. The base return in question is an average
 return before inflation for investments in equally-weighted all-cap American
-index funds. Past performance does not guarantee future results. We make no
+index funds. Past performance is not indicative of future results. We make no
 claim that your investments will attain average market returns, appreciate in
-value whatsoever, or grow at a rate faster than comperable investments at a
+value whatsoever, or grow at a rate faster than comparable investments at a
 traditional broker. Investing involves risk including complete loss of capital.
 These figures are meant to show the affect hidden spreads can have on a
 theoretical portfolio. They are used for informational purposes only."
+
+CUSTODY_DISCLAIMER = "Book-entry stock always remains in your name. We do not
+own or custody your shares. For fiat deposits, you can audit our segregated
+demand deposit accounts at [todo]."

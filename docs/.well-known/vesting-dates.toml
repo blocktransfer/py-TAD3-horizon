@@ -1,4 +1,7 @@
 # Block Transfer <blocktransfer.io>
-# Server cache for claimable balance IDs mapped to vesting/144 unrestriction date for distribution bases
+# Server cache for claimable balance IDs mapped to vesting release date for tax bases
 
+# Todo: current code redundantly captures 144 releases, check tnx memo first
+
+last_updated = "2022-10-2"
 00000000582e8b98edbbce06fb5f991b39b16864e751f4384c33325d33db2bcc72dd3433 = "1724368215" # example

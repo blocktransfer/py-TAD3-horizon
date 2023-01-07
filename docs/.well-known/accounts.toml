@@ -1,5 +1,8 @@
 # Block Transfer <blocktransfer.io>
 
+# todo: merge this with micr & banking data -> DynamoDB 
+# todo: impliment federation with secondary global index
+
 [GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ]
 accredited_soft = true
 accredited_verified = true

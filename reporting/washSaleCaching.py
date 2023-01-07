@@ -16,6 +16,6 @@ def updateAllOfferIDs():
 
 def getNewWashSalesFromStellar(queryAccount, cache):
   washSaleOfferIDsMappedToAdjustments = {}
-  
+  # this does not properly check via dynamo query yet (cache?)
   return washSaleOfferIDsMappedToAdjustments
 
