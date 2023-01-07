@@ -8,7 +8,7 @@ conditions = "Fully paid and non-assessable shares."
 corporate_affiliations = []
 cusip = ""
 display_decimals = 7
-# desc = "Example Company is used interally for product demos and development."
+desc.primary = "Example Company is used interally for product demos and development."
 desc.business = "Manufacturing and distribution of widgets."
 desc.facilities = "Remote-first business with shared offices in Atlanta, GA."
 desc.products = "Sells widgets."
@@ -22,7 +22,7 @@ latest_financial_balance_sheet = "https://stocks.blocktransfer.io/DEMO/financial
 latest_PNL_and_retained_earnings = "https://stocks.blocktransfer.io/DEMO/financial-reports/2022/Q4.pdf"
 lockout_period = ["12-31 to 4-15"]
 min_reg_d_506_c_state_init_usd = "5000"
-meetings = { 2023 = "2023-4-29" , 2024 = "endCountProxyVotesDate", 2024a = "2024-7-8" }
+meetings = { 2023 = "2023-4-29", 2024 = "endCountProxyVotesDate", 2024a = "2024-7-8" }
 name = "Example Security Inc."
 name_previous = ["Alias 1 (DE)", "Alias 2 (DE)", "Alias 3 Inc (WY)"]
 over_10M_assets = false
