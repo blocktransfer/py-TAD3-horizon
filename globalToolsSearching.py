@@ -64,8 +64,8 @@ def getCustodiedShares(queryAsset, account):
 
 def getAffiliateShares(queryAsset):
   companyCode = getCompanyCodeFromAssetCode(queryAsset)
-  type = getCompanyType(companyCode)
-  if(type == "private"):
+  public = isPublic(companyCode)
+  if(not public):
     affiliateAccount = requestAccount = resolveFederationAddress(f"{companyCode}*private.affiliate.holdings")
     return getCustodiedShares(queryAsset, affiliateAccount)
   else:
@@ -82,6 +82,10 @@ def getCompanyCodeFromAssetCode(queryAsset):
       issuerInfo = assets["attestation_of_reserve"]
       return loadTomlData(issuerInfo)["ISSUER"]["bt_company_code"]
   return 0
+
+def isPublic(companyCode):
+  issuerInfo = f"https://blocktransfer.io/assets/{companyCode}.toml"
+  return loadTomlData(issuerInfo)["ISSUER"]["reporting_company"]
 
 def getNumTreasuryShares(queryAsset):
   treasuryAddr = resolveFederationAddress(f"{queryAsset}*treasury.holdings")
