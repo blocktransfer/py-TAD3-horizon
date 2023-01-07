@@ -145,7 +145,7 @@ def getOfferIDsMappedToChiefMemosFromCache():
     try:
       offerID = int(offerIDs)
     except ValueError:
-      sys.exit("Critical data validity error")
+      sys.exit("Bad validity: Searching/offer-memos")
     offerIDsMappedToChiefMemos[offerID] = memos
   return offerIDsMappedToChiefMemos
 
