@@ -37,11 +37,11 @@ BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
 BT_DOLLAR = Asset("BTD", BT_ISSUER)
 
-BT_WEB = "https://blocktransfer.io"
-BT_STELLAR_TOML = f"{BT_WEB}/.well-known/stellar.toml"
-BT_ACCOUNTS_TOML = f"{BT_WEB}/.well-known/accounts.toml"
-OFFER_MEMO_TOML = f"{BT_WEB}/caching-data/offer-memos.toml" #
-WASH_SALE_TOML = f"{BT_WEB}/caching-data/wash-sales.toml" # localize these 
+BT_WELL_KNOWN = "https://blocktransfer.io/.well-known"
+BT_STELLAR_TOML = f"{BT_WELL_KNOWN}/stellar.toml"
+BT_ACCOUNTS_TOML = f"{BT_WELL_KNOWN}/accounts.toml"
+OFFER_MEMO_TOML = f"{BT_WELL_KNOWN}/offer-memos.toml" #
+WASH_SALE_TOML = f"{BT_WELL_KNOWN}/wash-sales.toml" # localize these 
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
 
