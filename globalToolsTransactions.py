@@ -1,7 +1,7 @@
 from globals import *
 
 def isFiat(queryAsset):
-  return queryAsset == BT_DOLLARS or queryAsset == USDC_ASSET
+  return queryAsset == BT_DOLLAR or queryAsset == USDC_ASSET
 
 # todo: pulling info twice here
 def getValidAccountPublicKeys():
