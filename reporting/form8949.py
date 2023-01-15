@@ -12,7 +12,7 @@ taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd
 # washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
 def bulkOutput():
-  MICR = open(MICR_TXT)
+  MICR = open(MICR_TXT) # fix all these txt ref.s -> Dynamo
   next(MICR)
   numAccounts = len(open(MICR_TXT).readlines()) - 1
   i = 0
@@ -44,7 +44,6 @@ def form8949(queryAccount):
   offerIDsMappedToChiefMemos = getOfferIDsMappedToChiefMemosFromCache()
   for offerIDs, memos in offerIDsMappedToChiefMemos.items():
     requestAddr = f"{HORIZON_INST}/offers/{offerIDs}/trades"
-    # memo format: {refOfferID/pagingToken}|cachedAddr
     memo = memos.split("|")
     instructions = memo[0]
     address = memo[1]
@@ -60,25 +59,6 @@ def form8949(queryAccount):
   pprint(allTrades)
   # finalFormData = placeFieldsplaceFields(adjustedTrades)
   # exportForm8949(finalFormData) # mergeForVarious
-
-# a = [{'PNL': Decimal('105.2399095'),
-#  'asset': Asset("DEMO", BT_ISSUER),
-#  'badOriginData': True,
-#  'exitOfferID': 862213103,
-#  'exitTradeDate': pandas.to_datetime("2021-12-03 14:12:53"),
-#  'exitTradeShares': Decimal('297.6174592'),
-#  'exitTradeValue': Decimal('106.2399095'),
-#  'originOfferID': 0,
-#  'originTradeDate': 0,
-#  'originTradeShares': 0,
-#  'originTradeValue': 0}]
-# pprint(a.items())
-# print("\n")
-# pprint(Asset("DEMO", BT_ISSUER) in a.values())
-# print("\n")
-# for v in a.values():
-#   print(v)
-# sys.exit()
 
 # b = len("1234567890123456")
 # if(b < 16):
@@ -152,16 +132,16 @@ def getAssetGivenType(trade, type):
 # assert(tradeData["asset"] == originTradeData["asset"])
 # assert(originTradeData["fillDate"] < tradeData["fillDate"])
 def combineTradeData(tradeData, originTradeData):
-  combined = {}
-  combined["asset"] = tradeData["asset"]
-  combined["originOfferID"] = originTradeData["offerID"] if originTradeData["type"] else 0
-  combined["originTradeDate"] = originTradeData["fillDate"] if originTradeData["type"] else 0
+  combined = { "asset": tradeData["asset"] }
+  validOrigin = originTradeData["type"]
+  combined["originOfferID"] = originTradeData["offerID"] if validOrigin else 0
+  combined["originTradeDate"] = originTradeData["fillDate"] if validOrigin else 0
   combined["originTradeShares"] = adjustNumSharesForStockSplits(
     originTradeData["shares"],
     originTradeData["fillDate"],
     originTradeData["asset"].code
-  ) if originTradeData["type"] else 0
-  combined["originTradeValue"] = originTradeData["value"] if originTradeData["type"] else 0
+  ) if validOrigin else 0
+  combined["originTradeValue"] = originTradeData["value"] if validOrigin else 0
   combined["exitOfferID"] = tradeData["offerID"]
   combined["exitTradeDate"] = tradeData["fillDate"]
   combined["exitTradeShares"] = tradeData["shares"]
@@ -185,8 +165,15 @@ def getTradePNL(fill, instructions, address):
   else:
     fill["PNL"] = fill["exitTradeValue"]
   
-  # todo: identify and use succeedingOfferID -> lossDissallowedFromPriorTrade
-  fill["washSaleAdjustment"] = getWashSaleOfferIDsMappedToAdjustments()[fill["originOfferID"]] if fill["originOfferID"] else 0
+  washSaleAdjustment = Decimal("0")
+  
+  if fill["originOfferID"]
+    washSaleOfferIDsMappedToAdjustments = getWashSaleOfferIDsMappedToAdjustments()
+    washSaleAdjustment = [fill["originOfferID"]]
+  
+  scaleDissalowedLossByPositionSize(washSaleAdjustment)
+  
+  fill["washSaleAdjustment"] = washSaleAdjustment
   fill["PNL"] -= fill["washSaleAdjustment"]
 
   return fill
@@ -249,7 +236,7 @@ def adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMa
     (basis, proceeds) = getCoveredBasisAndProceeds(combined)
     combined += (basis, proceeds, proceeds - basis)
 def filterTradesToTaxablePeriod(finalTrades):
-  return washSaleAdjStart <= sale[2]["fillDate"] <= washSaleAdjCutoff
+  return washSaleAdjStart <= sale[2]["fillDate"] <= washSaleAdjCutoff # fix
 
 def placeFields(adjustedTrades):
   return 1
