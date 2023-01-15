@@ -186,11 +186,10 @@ def getTradePNL(fill, instructions, address):
     fill["PNL"] = fill["exitTradeValue"]
   
   # todo: identify and use succeedingOfferID -> lossDissallowedFromPriorTrade
-  fill["wahSaleAdjustment"] = getWashSaleOfferIDsMappedToAdjustments()[fill["originOfferID"]] if fill["originOfferID"] else 0
-  fill["PNL"] -= fill["wahSaleAdjustment"]
-  
-  pprint(fill)
-  
+  fill["washSaleAdjustment"] = getWashSaleOfferIDsMappedToAdjustments()[fill["originOfferID"]] if fill["originOfferID"] else 0
+  fill["PNL"] -= fill["washSaleAdjustment"]
+  if(fill["PNL"] > 100):
+    print(fill)
   return fill
 
 def getOriginDataFromPagingToken(opPagingToken, address):
