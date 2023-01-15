@@ -40,8 +40,9 @@ BT_DOLLAR = Asset("BTD", BT_ISSUER)
 BT_WELL_KNOWN = "https://blocktransfer.io/.well-known"
 BT_STELLAR_TOML = f"{BT_WELL_KNOWN}/stellar.toml"
 BT_ACCOUNTS_TOML = f"{BT_WELL_KNOWN}/accounts.toml"
-OFFER_MEMO_TOML = f"{BT_WELL_KNOWN}/offer-memos.toml" #
-WASH_SALE_TOML = f"{BT_WELL_KNOWN}/wash-sales.toml" # localize these 
+OFFER_MEMO_TOML = f"{BT_WELL_KNOWN}/xlm-cache/offer-memos.toml"
+WASH_SALE_TOML = f"{BT_WELL_KNOWN}/xlm-cache/wash-sales.toml"
+DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
 
