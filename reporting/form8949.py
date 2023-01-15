@@ -3,7 +3,7 @@ sys.path.append("../")
 from globals import *
 
 # testing: 
-USDC_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C")
+# USDC_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C")
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
@@ -186,6 +186,7 @@ def getTradePNL(fill, instructions, address):
     fill["PNL"] = fill["exitTradeValue"]
   fill["wahSaleAdjustment"] = getWashSaleOfferIDsMappedToAdjustments(fill["originOfferID"]) 
   # todo: identify and use succeedingOfferID -> lossDissallowedFromPriorTrade
+  pprint(fill)
   fill["PNL"] -= fill["wahSaleAdjustment"]
   return fill
 
@@ -194,9 +195,9 @@ def getOriginDataFromPagingToken(opPagingToken, address):
   requestAddr = f"{HORIZON_INST}/operations/{opPagingToken}"
   try:
     opData = requests.get(requestAddr).json()
+    transactionAddr = opData["_links"]["transaction"]["href"]
   except KeyError:
     return {"badOriginData": True}
-  transactionAddr = opData["_links"]["transaction"]["href"]
   try:
     memo = requests.get(transactionAddr).json()["memo"]
   except KeyError:
@@ -271,3 +272,4 @@ def placeFields(adjustedTrades):
 # https://pypdf2.readthedocs.io/en/latest/user/forms.html#filling-out-forms
 # https://pypi.org/project/fillpdf/
 # https://www.securexfilings.com/wp-content/uploads/2013/04/sched13d.pdf
+form8949("GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ")

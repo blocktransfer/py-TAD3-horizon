@@ -151,8 +151,8 @@ def getOfferIDsMappedToChiefMemosFromCache():
 
 def getWashSaleOfferIDsMappedToAdjustments(combinedTradeData):
   washSaleOfferIDsMappedToAdjustments = {}
-  cache = loadTomlData(WASH_SALES_TOML)
+  cache = loadTomlData(WASH_SALE_TOML)
   for offerIDs, adjustments in cache.items():
-    offerIDsMappedToChiefMemos[offerIDs] = adjustments
+    washSaleOfferIDsMappedToAdjustments[offerIDs] = adjustments
   return washSaleOfferIDsMappedToAdjustments
 
