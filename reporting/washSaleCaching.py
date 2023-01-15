@@ -16,6 +16,8 @@ def updateAllOfferIDs():
 
 def getNewWashSalesFromStellar(queryAccount, cache):
   washSaleOfferIDsMappedToAdjustments = {}
-  # this does not properly check via dynamo query yet (cache?)
+  
+  
   return washSaleOfferIDsMappedToAdjustments
 
+# When updating an offerID mappign, check the origin trade for a wash sale dissalowance. If exists, add the wash sale amount as a defferment to the new offerID
