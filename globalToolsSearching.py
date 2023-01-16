@@ -156,3 +156,10 @@ def getWashSaleOfferIDsMappedToAdjustments():
     washSaleOfferIDsMappedToAdjustments[offerIDs] = adjustments
   return washSaleOfferIDsMappedToAdjustments
 
+def getCBmemo(ID): # todo: Test record index for bulk distributions
+  requestAddr = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
+  try:
+    return requests.get(requestAddr).json()["_embedded"]["records"][0]["memo"]
+  except KeyError:
+    return ""
+ 
