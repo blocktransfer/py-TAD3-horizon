@@ -261,3 +261,13 @@ def placeFields(adjustedTrades):
 # https://pypi.org/project/fillpdf/
 # https://www.securexfilings.com/wp-content/uploads/2013/04/sched13d.pdf
 form8949("GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ")
+
+
+
+# Method for CBs:
+# Scan account for claim CB txn
+#   in general, user wallet automatically claims avaliable CBs which can be restircted stock, stock grants, or potentially options or something more complex from a smart contract in the future
+# If the transfer comes from the BT_DISTRIBUTOR account, then you know it was pre-existing shares, no tax impact
+# If the transfer was from one of the issuer offering.holding accounts, then you know it was from newly-issued shares, no tax impact
+# If it was from the issuer employee.holdings account (or anywhere else?) then you know that it was taxable income
+# You can still use the CB memos to retrive share compensation data before claiming avaliable stock, removing the CB ID from the network (perpetual centralized caching is bad)
