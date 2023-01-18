@@ -1,5 +1,5 @@
 import asyncio, functools, json, os.path, pandas, requests, sys, toml
-from stellar_sdk.xdr import TransactionResult
+from stellar_sdk.xdr import TransactionEnvelope, TransactionResult
 from datetime import datetime
 from hashlib import sha3_256
 from decimal import Decimal
