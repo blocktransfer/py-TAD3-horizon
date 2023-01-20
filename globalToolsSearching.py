@@ -156,10 +156,23 @@ def getWashSaleOfferIDsMappedToAdjustments():
     washSaleOfferIDsMappedToAdjustments[offerIDs] = adjustments
   return washSaleOfferIDsMappedToAdjustments
 
-def getCBmemo(ID): # todo: Test record index for bulk distributions
-  requestAddr = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
+def getMemoFromTransaction(txn):
   try:
-    return requests.get(requestAddr).json()["_embedded"]["records"][0]["memo"]
+    return txn["memo"]
   except KeyError:
     return ""
- 
+
+def getCBmemoFromClaimableID(ID):
+  requestAddr = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
+  CBcreationTxn = requests.get(requestAddr).json()["_embedded"]["records"][0]
+  return getMemoFromTransaction(CBcreationTxn)
+
+def getCBmemoFromClaimingTransactionID(ID):
+  requestAddr = f"{HORIZON_INST}/transactions/{ID}"
+  transactionEnvXDR = requests.get(requestAddr).json()["envelope_xdr"]
+  userClaimOp = TransactionEnvelope.from_xdr(transactionEnvXDR).v1.tx.operations[0] 
+  # Assume user claims only one asset at a time, 
+  # as reverse lookup from txn hash otherwise can mix up assets
+  originalClaimableID = userClaimOp.body.claim_claimable_balance_op.balance_id.v0.hash.hex()
+  return getCBmemoFromClaimableID(f"{'0' * 8}{originalClaimableID}")
+
