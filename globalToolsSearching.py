@@ -1,8 +1,27 @@
 from globals import *
 
+def getAssetIssuer(queryAsset):
+  requestAddr = getAssetAddress(queryAsset)
+  for addresses in BT_ISSUERS:
+    if(requests.get(requestAddr + addresses).json()["_embedded"]["records"]
+      return addresses
+  sys.exit(f"Could not find asset {queryAsset}"
+
+def getAssetAddress(queryAsset):
+  issuer = getAssetIssuer(queryAsset)
+  return f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={issuer}"
+
+def getAssetAccountsAddress(queryAsset):
+  issuer = getAssetIssuer(queryAsset)
+  return f"{HORIZON_INST}/accounts?asset={queryAsset}:{issuer}&{MAX_SEARCH}"
+
+def getIssuerAccObj(queryAsset):
+  issuer = getAssetIssuer(queryAsset)
+  return server.load_account(account_id = issuer)
+
 def getNumRestrictedShares(queryAsset):
-  assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
-  assetData = requests.get(assetAddr).json()["_embedded"]["records"][0]
+  requestAddr = getAssetAddress(queryAsset)
+  assetData = requests.get(requestAddr).json()["_embedded"]["records"][0]
   explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
   implicitRestrictedShares = Decimal("0")
   for classifiers, balances in assetData["balances"].items():  

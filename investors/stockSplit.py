@@ -48,7 +48,7 @@ def getTransactionsArrayToEffectSplit(queryAsset, ratio, reason):
 def getBalanceAdjustments(queryAsset, ratio, reason):
   transactions = []
   numTxnOps = i = 0
-  source = getSource(ratio)
+  source = getSource(ratio, queryAsset)
   roundingUpDifference = Decimal("0")
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, source)
   for addresses, balances in getLedgerBalances(queryAsset).items():
@@ -81,7 +81,7 @@ def getBalAdjAmount(balances, ratio):
 def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
   transactions = []
   numTxnOps = i = 0
-  source = getSource(ratio)
+  source = getSource(ratio, queryAsset)
   roundingUpDifference = Decimal("0")
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, source)
   for balanceIDs, data in getClaimableBalancesData(queryAsset).items():
@@ -108,11 +108,11 @@ def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
       i, numTxnOps = renew(transactions, source, i)
   return prepAndSignForOutput(transactions, reason), roundingUpDifference
 
-def getSource(ratio):
+def getSource(ratio, queryAsset):
   if(ratio > 1):
     return distributor
   else:
-    return issuer
+    return getIssuerAccObj(queryAsset)
 
 def checkLimit(numTxnOps):
   return numTxnOps >= MAX_NUM_TXN_OPS
@@ -134,7 +134,8 @@ def prepAndSignForOutput(transactionsArray, reason):
 
 def getClaimableBalancesData(queryAsset):
   claimableBalanceIDsMappedToData = {}
-  requestAddr = f"{HORIZON_INST}/claimable_balances?asset={queryAsset}:{BT_ISSUER}&{MAX_SEARCH}"
+  issuer = getAssetIssuer(queryAsset)
+  requestAddr = f"{HORIZON_INST}/claimable_balances?asset={queryAsset}:{issuer}&{MAX_SEARCH}"
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for claimableBalances in ledger["_embedded"]["records"]:

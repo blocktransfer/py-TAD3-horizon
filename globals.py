@@ -31,11 +31,11 @@ except ModuleNotFoundError:
 # Issuing memos:
 # {New/IPO} stock: {S-{formType}||A-1} ({regFile#wDash})
 # or New private stock ({CIKwithoutLeadingZeros})
-BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
+BT_ISSUERS = ["GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"]
 BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
-BT_DOLLAR = Asset("BTD", BT_ISSUER)
+BT_DOLLAR = Asset("BTD", BT_ISSUERS[0])
 
 BT_WELL_KNOWN = "https://blocktransfer.io/.well-known"
 BT_STELLAR_TOML = f"{BT_WELL_KNOWN}/stellar.toml"
@@ -57,7 +57,6 @@ INVESTOR_STARTING_BAL = Decimal("4.2")
 unix_base = datetime.utcfromtimestamp(0)
 server = Server(horizon_url = HORIZON_INST)
 fee = server.fetch_base_fee() * BASE_FEE_MULT
-issuer = server.load_account(account_id = BT_ISSUER)
 distributor = server.load_account(account_id = BT_DISTRIBUTOR)
 treasury = server.load_account(account_id = BT_TREASURY)
 
@@ -93,7 +92,7 @@ from globalToolsSearching import *
 from globalToolsTransactions import *
 
 def getNumOutstandingShares(queryAsset):
-  assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
+  assetAddr = getAssetAddress(queryAsset)
   assetData = requests.get(assetAddr).json()["_embedded"]["records"][0]
   shares = Decimal(assetData["liquidity_pools_amount"])
   for balances in assetData["balances"].values():  

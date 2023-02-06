@@ -44,7 +44,7 @@ can set washmemo when buy wash
  
  for payments in incomingPaymentsStream:
    try:
-     BTasset = payments["asset_issuer"] == BT_ISSUER
+     BTasset = payments["asset_issuer"] in BT_ISSUERS
    except KeyError:
      continue
    if(BTasset and payments["from"] == BT_DISTRIBUTOR):
