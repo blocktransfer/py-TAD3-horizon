@@ -1,7 +1,7 @@
 from globals import *
 
 def getAssetIssuer(queryAsset):
-  requestAddr = getAssetAddress(queryAsset)
+  requestAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
   for addresses in BT_ISSUERS:
     if(requests.get(requestAddr + addresses).json()["_embedded"]["records"]):
       return addresses
@@ -29,8 +29,6 @@ def getNumRestrictedShares(queryAsset):
     if(classifiers != "authorized"):
       implicitRestrictedShares += Decimal(balances)
   return explicitRestrictedShares + implicitRestrictedShares
-
-getNumRestrictedShares("DEMO")
 
 def SHA3(input):
   return sha3_256(input.encode()).hexdigest()
