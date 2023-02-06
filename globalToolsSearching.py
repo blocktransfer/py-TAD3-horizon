@@ -24,10 +24,11 @@ def getNumRestrictedShares(queryAsset):
   assetData = requests.get(requestAddr).json()["_embedded"]["records"][0]
   explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
   implicitRestrictedShares = Decimal("0")
-  pprint(assetData)
-  for classifiers, balances in assetData["balances"].items():  
-    if(classifiers != "authorized"):
-      implicitRestrictedShares += Decimal(balances)
+  # This is outdated. We need to impliment stock options with Soroban 
+  # OR use claimable balances and change the way they're identified..
+  #for classifiers, balances in assetData["balances"].items():  
+  #  if(classifiers != "authorized"):
+  #    implicitRestrictedShares += Decimal(balances)
   return explicitRestrictedShares + implicitRestrictedShares
 
 def SHA3(input):
