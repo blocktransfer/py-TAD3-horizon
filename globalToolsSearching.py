@@ -3,9 +3,9 @@ from globals import *
 def getAssetIssuer(queryAsset):
   requestAddr = getAssetAddress(queryAsset)
   for addresses in BT_ISSUERS:
-    if(requests.get(requestAddr + addresses).json()["_embedded"]["records"]
+    if(requests.get(requestAddr + addresses).json()["_embedded"]["records"]):
       return addresses
-  sys.exit(f"Could not find asset {queryAsset}"
+  sys.exit(f"Could not find asset {queryAsset}")
 
 def getAssetAddress(queryAsset):
   issuer = getAssetIssuer(queryAsset)
@@ -24,10 +24,13 @@ def getNumRestrictedShares(queryAsset):
   assetData = requests.get(requestAddr).json()["_embedded"]["records"][0]
   explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
   implicitRestrictedShares = Decimal("0")
+  pprint(assetData)
   for classifiers, balances in assetData["balances"].items():  
     if(classifiers != "authorized"):
       implicitRestrictedShares += Decimal(balances)
   return explicitRestrictedShares + implicitRestrictedShares
+
+getNumRestrictedShares("DEMO")
 
 def SHA3(input):
   return sha3_256(input.encode()).hexdigest()
