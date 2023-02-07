@@ -184,16 +184,37 @@ def getMemoFromTransaction(txn):
     return ""
 
 def getCBmemoFromClaimableID(ID):
-  requestAddr = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
-  CBcreationTxn = requests.get(requestAddr).json()["_embedded"]["records"][0]
+  CBcreationTxn = getCBcreationTxnFromClaimableID(ID)
   return getMemoFromTransaction(CBcreationTxn)
 
-def getCBmemoFromClaimingTransactionID(ID):
+def getCBcreationTxnFromClaimableID(ID):
+  requestAddr = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
+  return requests.get(requestAddr).json()["_embedded"]["records"][0]
+
+def getCBfromClaimingTransactionIDforAsset(ID, queryAsset):
   requestAddr = f"{HORIZON_INST}/transactions/{ID}"
   transactionEnvXDR = requests.get(requestAddr).json()["envelope_xdr"]
-  userClaimOp = TransactionEnvelope.from_xdr(transactionEnvXDR).v1.tx.operations[0] 
+  userClaimTxnOps = TransactionEnvelope.from_xdr(transactionEnvXDR).v1.tx.operations
+  for ops in userClaimTxnOps:
+    try:
+      originClaimableID = ops.body.claim_claimable_balance_op.balance_id.v0.hash.hex()
+      originClaimableID = f"{'0' * 8}{originalClaimableID}"
+    except AttributeError:
+      # This is where you would code future prefixes under v1, v2, ...
+      continue
+
+    print(originClaimableID)
+    
+    #CBcreationTxn = getCBcreationTxnFromClaimableID(originClaimableID)
+    #creationTxnOps = CBcreationTxn["envelope_xdr"]
+    #originAsset = 1
+    # if(originAsset == queryAsset):
+    if(originClaimableID == "058f194a568dc329500dc03190f11979f2cf59be43014902858f12f6f0c2f45d"):
+      print(userClaimTxnOps[0].operation_id)
+      return 1
   # Assume user claims only one asset at a time, 
   # as reverse lookup from txn hash otherwise can mix up assets
-  originalClaimableID = userClaimOp.body.claim_claimable_balance_op.balance_id.v0.hash.hex()
-  return getCBmemoFromClaimableID(f"{'0' * 8}{originalClaimableID}")
+  
+  #return "
 
+getCBfromClaimingTransactionIDforAsset("43486d93480272e71def6f52f7637c512f3fa47a7cb963f5a88f4247f3d31c12", "ARMY")
