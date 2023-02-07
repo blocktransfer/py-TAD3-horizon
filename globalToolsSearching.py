@@ -45,12 +45,10 @@ def getFederationServerFromDomain(federationDomain):
   except requests.exceptions.ConnectionError:
     return ""
 
-def resolveFederationAddress(queryAddr):
-  splitAddr = queryAddr.split("*")
-  federationName = splitAddr[0]
-  federationDomain = splitAddr[1]
+def resolveFederationAddress(federationAddress):
+  federationDomain = federationAddress.split("*")[1]
   homeDomainFederationServer = getFederationServerFromDomain(federationDomain)
-  requestAddr = f"{homeDomainFederationServer}?q={queryAddr}&type=name"
+  requestAddr = f"{homeDomainFederationServer}?q={federationAddress}&type=name"
   try:
     return requests.get(requestAddr).json()["account_id"]
   except requests.exceptions.MissingSchema:
@@ -191,30 +189,20 @@ def getCBcreationTxnFromClaimableID(ID):
   requestAddr = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
   return requests.get(requestAddr).json()["_embedded"]["records"][0]
 
-def getCBfromClaimingTransactionIDforAsset(ID, queryAsset):
-  requestAddr = f"{HORIZON_INST}/transactions/{ID}"
-  transactionEnvXDR = requests.get(requestAddr).json()["envelope_xdr"]
-  userClaimTxnOps = TransactionEnvelope.from_xdr(transactionEnvXDR).v1.tx.operations
+def getClaimedIDfromClaimingTxnForAsset(transaction, queryAsset):
+  requestAddr = f"{HORIZON_INST}/transactions/{transaction}/operations?limit={MAX_NUM_TXN_OPS}"
+  userClaimTxnOps = requests.get(requestAddr).json()["_embedded"]["records"]
   for ops in userClaimTxnOps:
     try:
-      originClaimableID = ops.body.claim_claimable_balance_op.balance_id.v0.hash.hex()
-      originClaimableID = f"{'0' * 8}{originalClaimableID}"
-    except AttributeError:
-      # This is where you would code future prefixes under v1, v2, ...
+      originClaimableID = ops["balance_id"]
+    except KeyError:
       continue
+    claimingOpEffects = requests.get(ops["_links"]["effects"]["href"])
+    for effects in claimingOpEffects.json()["_embedded"]["records"]:
+      try:
+        if(effects["asset"].split(":")[0] == queryAsset):
+          return originClaimableID
+      except KeyError:
+        continue
 
-    print(originClaimableID)
-    
-    #CBcreationTxn = getCBcreationTxnFromClaimableID(originClaimableID)
-    #creationTxnOps = CBcreationTxn["envelope_xdr"]
-    #originAsset = 1
-    # if(originAsset == queryAsset):
-    if(originClaimableID == "058f194a568dc329500dc03190f11979f2cf59be43014902858f12f6f0c2f45d"):
-      print(userClaimTxnOps[0].operation_id)
-      return 1
-  # Assume user claims only one asset at a time, 
-  # as reverse lookup from txn hash otherwise can mix up assets
-  
-  #return "
-
-getCBfromClaimingTransactionIDforAsset("43486d93480272e71def6f52f7637c512f3fa47a7cb963f5a88f4247f3d31c12", "ARMY")
+print(getClaimedIDfromClaimingTxnForAsset("43486d93480272e71def6f52f7637c512f3fa47a7cb963f5a88f4247f3d31c12", "ARMY"))
