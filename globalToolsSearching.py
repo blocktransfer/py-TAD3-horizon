@@ -205,4 +205,3 @@ def getClaimedIDfromClaimingTxnForAsset(transaction, queryAsset):
       except KeyError:
         continue
 
-print(getClaimedIDfromClaimingTxnForAsset("43486d93480272e71def6f52f7637c512f3fa47a7cb963f5a88f4247f3d31c12", "ARMY"))
