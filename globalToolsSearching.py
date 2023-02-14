@@ -189,7 +189,7 @@ def getCBcreationTxnFromClaimableID(ID):
   requestAddr = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
   return requests.get(requestAddr).json()["_embedded"]["records"][0]
 
-def getClaimedIDfromClaimingTxnForAsset(transaction, queryAsset):
+def getClaimedIDfromClaimingTxnHashForAsset(transaction, queryAsset):
   requestAddr = f"{HORIZON_INST}/transactions/{transaction}/operations?limit={MAX_NUM_TXN_OPS}"
   userClaimTxnOps = requests.get(requestAddr).json()["_embedded"]["records"]
   for ops in userClaimTxnOps:
