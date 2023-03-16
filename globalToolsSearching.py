@@ -24,11 +24,9 @@ def getNumRestrictedShares(queryAsset):
   assetData = requests.get(requestAddr).json()["_embedded"]["records"][0]
   explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
   implicitRestrictedShares = Decimal("0")
-  # This is outdated. We need to impliment stock options with Soroban 
-  # OR use claimable balances and change the way they're identified..
-  #for classifiers, balances in assetData["balances"].items():  
-  #  if(classifiers != "authorized"):
-  #    implicitRestrictedShares += Decimal(balances)
+  for classifiers, balances in assetData["balances"].items():  
+    if(classifiers != "authorized"):
+      implicitRestrictedShares += Decimal(balances)
   return explicitRestrictedShares + implicitRestrictedShares
 
 def SHA3(input):
@@ -54,15 +52,16 @@ def resolveFederationAddress(federationAddress):
   except requests.exceptions.MissingSchema:
     return ""
 
-def getNumAuthorizedSharesNotIssued(companyCode):
-  issuerAccounts = [
+# todo: Change diction to reflect use of Soroban for options compensation data
+def getNumAuthorizedSharesNotIssued(companyCode): # todo: Change this diction to reserved shares?
+  issuerAccounts = [ # todo: Change this diction to companyAccounts?
     "authorized.DSPP",
     "initial.offering",
     "reg.a.offering",
     "reg.cf.offering",
     "reg.d.offering",
     "shelf.offering",
-    "reserved.employee", # todo: stock options via Soroban
+    "reserved.employee", # todo: stock options via Soroban -> these held in contract
     "treasury"
   ]
   shares = Decimal("0")
@@ -76,12 +75,14 @@ def getCustodiedShares(queryAsset, account):
   requestAddr = f"{HORIZON_INST}/accounts/{account}"
   accountBalances = requests.get(requestAddr).json()["balances"]
   asset = getAssetObjFromCode(queryAsset)
+  ### todo: Globalize this? ###
   for balances in accountBalances:
     searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
     if(balances["asset_type"] != "native" and searchAsset == asset):
       return balances["balance"]
+  ######
 
-def getAffiliateShares(queryAsset):
+def getAffiliateShares(queryAsset): # TODO: rm, outdated
   companyCode = getCompanyCodeFromAssetCode(queryAsset)
   public = isPublic(companyCode)
   if(not public):
