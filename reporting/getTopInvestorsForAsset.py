@@ -4,6 +4,9 @@ from globals import *
 
 def getTopInvestorsForAsset(queryAsset):
   ledgerBalances = getLedgerBalances(queryAsset)
-  return sorted(ledgerBalances.items(), key=lambda x:x[1])
+  return sorted(
+    ledgerBalances.items(),
+    key = lambda x:x[1],
+    reverse = True
+  )
 
-print(getTopInvestorsForAsset("DEMO"))
