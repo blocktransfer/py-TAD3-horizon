@@ -84,9 +84,9 @@ NON_REPORTING_CO_TOTAL_INVESTORS_MAX = 2000
 NON_REPORTING_CO_NON_ACCREDITED_INVESTOR_MAX = 500
 AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 
-from globalToolsAssets import *
-from globalToolsSearching import *
 from globalToolsTransactions import *
+from globalToolsSearching import *
+from globalToolsAssets import *
 
 def getNumOutstandingShares(queryAsset):
   assetAddr = getAssetAddress(queryAsset)
@@ -105,4 +105,3 @@ def getFloat(queryAsset):
   shares += Decimal(assetData["amount"])
   return shares - getAffiliateShares(queryAsset)
 
-getAffiliateShares("DEMO")
