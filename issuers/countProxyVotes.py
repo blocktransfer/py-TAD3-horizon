@@ -80,7 +80,7 @@ def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
   addrsMappedToMemos = {}
   numInvestors = numInvestorsVoted = 0
   votingAddr = resolveFederationAddress(votingFederationAddress)
-  requestAddr = getAssetAccountsAddress(queryAsset)
+  requestAddr = getAssetAccountsRequestAddr(queryAsset)
   ledger = requests.get(requestAddr).json()
   while(ledger["_embedded"]["records"]):
     for everyInvestorData in ledger["_embedded"]["records"]:

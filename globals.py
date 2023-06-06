@@ -1,5 +1,5 @@
 import asyncio, functools, json, os.path, pandas, requests, sys, toml
-from stellar_sdk.xdr import TransactionEnvelope, TransactionResult
+from stellar_sdk.xdr import TransactionResult
 from datetime import datetime
 from hashlib import sha3_256
 from decimal import Decimal
@@ -28,18 +28,20 @@ except ModuleNotFoundError:
 # Debug issuers:
 # accounts - GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM
 # trustlines - GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS
-BT_ISSUERS = ["GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"]
+# Issuing memos:
+# {New/IPO} stock: {S-{formType}||A-1} ({regFile#wDash})
+# or New private stock ({CIKwithoutLeadingZeros})
+BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
-BT_DOLLAR = Asset("BTD", BT_ISSUERS[0])
+BT_DOLLAR = Asset("BTD", BT_ISSUER)
 
-BT_WELL_KNOWN = "https://blocktransfer.io/.well-known"
-BT_STELLAR_TOML = f"{BT_WELL_KNOWN}/stellar.toml"
-BT_ACCOUNTS_TOML = f"{BT_WELL_KNOWN}/accounts.toml"
-OFFER_MEMO_TOML = f"{BT_WELL_KNOWN}/xlm-cache/offer-memos.toml"
-WASH_SALE_TOML = f"{BT_WELL_KNOWN}/xlm-cache/wash-sales.toml"
-DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
+BT_WEB = "https://blocktransfer.io"
+BT_STELLAR_TOML = f"{BT_WEB}/.well-known/stellar.toml"
+BT_ACCOUNTS_TOML = f"{BT_WEB}/.well-known/accounts.toml"
+OFFER_MEMO_TOML = f"{BT_WEB}/caching-data/offer-memos.toml" #
+WASH_SALE_TOML = f"{BT_WEB}/caching-data/wash-sales.toml" # localize these 
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
 
@@ -54,6 +56,7 @@ INVESTOR_STARTING_BAL = Decimal("4.2")
 unix_base = datetime.utcfromtimestamp(0)
 server = Server(horizon_url = HORIZON_INST)
 fee = server.fetch_base_fee() * BASE_FEE_MULT
+issuer = server.load_account(account_id = BT_ISSUER)
 distributor = server.load_account(account_id = BT_DISTRIBUTOR)
 treasury = server.load_account(account_id = BT_TREASURY)
 
@@ -84,15 +87,15 @@ NON_REPORTING_CO_TOTAL_INVESTORS_MAX = 2000
 NON_REPORTING_CO_NON_ACCREDITED_INVESTOR_MAX = 500
 AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 
-from globalToolsTransactions import *
-from globalToolsSearching import *
 from globalToolsAssets import *
+from globalToolsSearching import *
+from globalToolsTransactions import *
 
 def getNumOutstandingShares(queryAsset):
-  assetAddr = getAssetAddress(queryAsset)
+  assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
   assetData = requests.get(assetAddr).json()["_embedded"]["records"][0]
   shares = Decimal(assetData["liquidity_pools_amount"])
-  for balances in assetData["balances"].values():
+  for balances in assetData["balances"].values():  
     shares += Decimal(balances)
   shares += Decimal(assetData["claimable_balances_amount"])
   companyCode = getCompanyCodeFromAssetCode(queryAsset)

@@ -1,8 +1,11 @@
 from globals import *
 
+def getAssetAccountsRequestAddr(queryAsset):
+  return f"{HORIZON_INST}/accounts?asset={queryAsset}:{BT_ISSUER}&{MAX_SEARCH}"
+
 def getLedgerBalances(queryAsset):
   ledgerBalances = {}
-  requestAddr = getAssetAccountsAddress(queryAsset)
+  requestAddr = getAssetAccountsRequestAddr(queryAsset)
   ledger = requests.get(requestAddr).json()
   queryAsset = getAssetObjFromCode(queryAsset)
   while(ledger["_embedded"]["records"]):
@@ -31,15 +34,14 @@ def getNextLedgerData(ledger):
 
 def listAllIssuerAssets():
   allAssets = []
-  for addresses in BT_ISSUERS:
-    requestAddress = f"{HORIZON_INST}/assets?asset_issuer={addresses}&{MAX_SEARCH}"
-    ledger = requests.get(requestAddress).json()
-    while(ledger["_embedded"]["records"]):
-      for entries in ledger["_embedded"]["records"]:
-        allAssets.append(entries["asset_code"])
-      ledger = getNextLedgerData(ledger)
+  requestAddress = f"{HORIZON_INST}/assets?asset_issuer={BT_ISSUER}&{MAX_SEARCH}"
+  ledger = requests.get(requestAddress).json()
+  while(ledger["_embedded"]["records"]):
+    for entries in ledger["_embedded"]["records"]:
+      allAssets.append(entries["asset_code"])
+    ledger = getNextLedgerData(ledger)
   return allAssets
 
 def getAssetObjFromCode(code):
-  return Asset(code, getAssetIssuer(code))
+  return Asset(code, BT_ISSUER)
 

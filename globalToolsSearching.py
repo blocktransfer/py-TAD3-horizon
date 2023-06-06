@@ -1,27 +1,8 @@
 from globals import *
 
-def getAssetIssuer(queryAsset):
-  requestAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
-  for addresses in BT_ISSUERS:
-    if(requests.get(requestAddr + addresses).json()["_embedded"]["records"]):
-      return addresses
-  sys.exit(f"Could not find asset {queryAsset}")
-
-def getAssetAddress(queryAsset):
-  issuer = getAssetIssuer(queryAsset)
-  return f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={issuer}"
-
-def getAssetAccountsAddress(queryAsset):
-  issuer = getAssetIssuer(queryAsset)
-  return f"{HORIZON_INST}/accounts?asset={queryAsset}:{issuer}&{MAX_SEARCH}"
-
-def getIssuerAccObj(queryAsset):
-  issuer = getAssetIssuer(queryAsset)
-  return server.load_account(account_id = issuer)
-
 def getNumRestrictedShares(queryAsset):
-  requestAddr = getAssetAddress(queryAsset)
-  assetData = requests.get(requestAddr).json()["_embedded"]["records"][0]
+  assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
+  assetData = requests.get(assetAddr).json()["_embedded"]["records"][0]
   explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
   implicitRestrictedShares = Decimal("0")
   for classifiers, balances in assetData["balances"].items():  
@@ -43,25 +24,26 @@ def getFederationServerFromDomain(federationDomain):
   except requests.exceptions.ConnectionError:
     return ""
 
-def resolveFederationAddress(federationAddress):
-  federationDomain = federationAddress.split("*")[1]
+def resolveFederationAddress(queryAddr):
+  splitAddr = queryAddr.split("*")
+  federationName = splitAddr[0]
+  federationDomain = splitAddr[1]
   homeDomainFederationServer = getFederationServerFromDomain(federationDomain)
-  requestAddr = f"{homeDomainFederationServer}?q={federationAddress}&type=name"
+  requestAddr = f"{homeDomainFederationServer}?q={queryAddr}&type=name"
   try:
     return requests.get(requestAddr).json()["account_id"]
   except requests.exceptions.MissingSchema:
     return ""
 
-# todo: Change diction to reflect use of Soroban for options compensation data
-def getNumAuthorizedSharesNotIssued(companyCode): # todo: Change this diction to reserved shares?
-  issuerAccounts = [ # todo: Change this diction to companyAccounts?
+def getNumAuthorizedSharesNotIssued(companyCode):
+  issuerAccounts = [
     "authorized.DSPP",
     "initial.offering",
     "reg.a.offering",
     "reg.cf.offering",
     "reg.d.offering",
     "shelf.offering",
-    "reserved.employee", # todo: stock options via Soroban -> these held in contract
+    "reserved.employee", # todo: stock options via Soroban
     "treasury"
   ]
   shares = Decimal("0")
@@ -75,17 +57,15 @@ def getCustodiedShares(queryAsset, account):
   requestAddr = f"{HORIZON_INST}/accounts/{account}"
   accountBalances = requests.get(requestAddr).json()["balances"]
   asset = getAssetObjFromCode(queryAsset)
-  ### todo: Globalize this? ###
   for balances in accountBalances:
     searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
     if(balances["asset_type"] != "native" and searchAsset == asset):
       return balances["balance"]
-  ######
 
-def getAffiliateShares(queryAsset): # TODO: rm, outdated
+def getAffiliateShares(queryAsset):
   companyCode = getCompanyCodeFromAssetCode(queryAsset)
-  public = isPublic(companyCode)
-  if(not public):
+  type = getCompanyType(companyCode)
+  if(type == "private"):
     affiliateAccount = requestAccount = resolveFederationAddress(f"{companyCode}*private.affiliate.holdings")
     return getCustodiedShares(queryAsset, affiliateAccount)
   else:
@@ -100,12 +80,8 @@ def getCompanyCodeFromAssetCode(queryAsset):
   for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
     if(assets["code"] == queryAsset):
       issuerInfo = assets["attestation_of_reserve"]
-      return loadTomlData(issuerInfo)["ISSUER"]["bt_company_code"]
+      return loadTomlData(issuerInfo)["bt_company_code"]
   return 0
-
-def isPublic(companyCode):
-  issuerInfo = f"https://blocktransfer.io/assets/{companyCode}.toml"
-  return loadTomlData(issuerInfo)["ISSUER"]["reporting_company"]
 
 def getNumTreasuryShares(queryAsset):
   treasuryAddr = resolveFederationAddress(f"{queryAsset}*treasury.holdings")
@@ -165,44 +141,14 @@ def getOfferIDsMappedToChiefMemosFromCache():
     try:
       offerID = int(offerIDs)
     except ValueError:
-      sys.exit("Bad validity: Searching/offer-memos")
+      sys.exit("Critical data validity error")
     offerIDsMappedToChiefMemos[offerID] = memos
   return offerIDsMappedToChiefMemos
 
-def getWashSaleOfferIDsMappedToAdjustments():
+def getWashSaleOfferIDsMappedToAdjustments(combinedTradeData):
   washSaleOfferIDsMappedToAdjustments = {}
-  cache = loadTomlData(WASH_SALE_TOML)
+  cache = loadTomlData(WASH_SALES_TOML)
   for offerIDs, adjustments in cache.items():
-    washSaleOfferIDsMappedToAdjustments[offerIDs] = adjustments
+    offerIDsMappedToChiefMemos[offerIDs] = adjustments
   return washSaleOfferIDsMappedToAdjustments
-
-def getMemoFromTransaction(txn):
-  try:
-    return txn["memo"]
-  except KeyError:
-    return ""
-
-def getCBmemoFromClaimableID(ID):
-  CBcreationTxn = getCBcreationTxnFromClaimableID(ID)
-  return getMemoFromTransaction(CBcreationTxn)
-
-def getCBcreationTxnFromClaimableID(ID):
-  requestAddr = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
-  return requests.get(requestAddr).json()["_embedded"]["records"][0]
-
-def getClaimedIDfromClaimingTxnHashForAsset(transaction, queryAsset):
-  requestAddr = f"{HORIZON_INST}/transactions/{transaction}/operations?limit={MAX_NUM_TXN_OPS}"
-  userClaimTxnOps = requests.get(requestAddr).json()["_embedded"]["records"]
-  for ops in userClaimTxnOps:
-    try:
-      originClaimableID = ops["balance_id"]
-    except KeyError:
-      continue
-    claimingOpEffects = requests.get(ops["_links"]["effects"]["href"])
-    for effects in claimingOpEffects.json()["_embedded"]["records"]:
-      try:
-        if(effects["asset"].split(":")[0] == queryAsset):
-          return originClaimableID
-      except KeyError:
-        continue
 

@@ -14,7 +14,7 @@ def getPendingTrustlinesWithAsset():
   allAssets = listAllIssuerAssets()
   pendingTrustlinesMappedToAssets = {}
   for assets in allAssets:
-    requestAddress = getAssetAccountsAddress(assets)
+    requestAddress = f"{HORIZON_INST}/accounts?asset={assets}:{BT_ISSUER}&{MAX_SEARCH}"
     ledger = requests.get(requestAddress).json()
     while(ledger["_embedded"]["records"]):
       for accounts in ledger["_embedded"]["records"]:
