@@ -31,10 +31,7 @@ def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
               localNew = offerIDs not in accountOfferIDsMappedToChiefMemos.keys()
               cacheNew = offerIDs not in cache.keys()
               if(offerIDs and localNew and cacheNew):
-                try:
-                  instructions = txns["memo"]
-                except KeyError:
-                  instructions = ""
+                instructions = getMemoFromTransaction(txns)
                 except TypeError:
                   pprint(txns)
                 memo = "|".join([instructions, queryAccount])

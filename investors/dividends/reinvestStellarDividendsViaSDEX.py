@@ -21,7 +21,7 @@ def reinvestStellarUSDCdividendsToEquityViaDEX(stock, shareholdersReinvestingFil
     bulkTransferMax100preSegmentedXDR.append_payment_op(
       destination = lines[0],
       asset_code = stock,
-      asset_issuer = BT_ISSUER,
+      asset_issuer = getAssetIssuer(stock),
       amount = ("{:." + MAX_NUM_DECIMALS + "f}").format(shareholderReinvestedShares),
     )
     print(f"*** Transaction added: {lines[2]} reinvested ${shareholderDividend:.2f} from dividend of ${perShareDividend} per share into {shareholderReinvestedShares:.7f} new shares of stock ***\n")

@@ -3,7 +3,7 @@ sys.path.append("../")
 from globals import *
 
 # testing: 
-USD_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C")
+# USDC_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C")
 
 lastYear = datetime.today().year - 1
 taxYearStart = pandas.to_datetime(f"{lastYear}-01-01T00:00:00Z") # modify here for fiscal years
@@ -12,7 +12,7 @@ taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd
 # washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
 def bulkOutput():
-  MICR = open(MICR_TXT)
+  MICR = open(MICR_TXT) # fix all these txt ref.s -> Dynamo
   next(MICR)
   numAccounts = len(open(MICR_TXT).readlines()) - 1
   i = 0
@@ -44,7 +44,6 @@ def form8949(queryAccount):
   offerIDsMappedToChiefMemos = getOfferIDsMappedToChiefMemosFromCache()
   for offerIDs, memos in offerIDsMappedToChiefMemos.items():
     requestAddr = f"{HORIZON_INST}/offers/{offerIDs}/trades"
-    # memo format: {refOfferID/pagingToken}|cachedAddr
     memo = memos.split("|")
     instructions = memo[0]
     address = memo[1]
@@ -60,25 +59,6 @@ def form8949(queryAccount):
   pprint(allTrades)
   # finalFormData = placeFieldsplaceFields(adjustedTrades)
   # exportForm8949(finalFormData) # mergeForVarious
-
-# a = [{'PNL': Decimal('105.2399095'),
-#  'asset': Asset("DEMO", BT_ISSUER),
-#  'badOriginData': True,
-#  'exitOfferID': 862213103,
-#  'exitTradeDate': pandas.to_datetime("2021-12-03 14:12:53"),
-#  'exitTradeShares': Decimal('297.6174592'),
-#  'exitTradeValue': Decimal('106.2399095'),
-#  'originOfferID': 0,
-#  'originTradeDate': 0,
-#  'originTradeShares': 0,
-#  'originTradeValue': 0}]
-# pprint(a.items())
-# print("\n")
-# pprint(Asset("DEMO", BT_ISSUER) in a.values())
-# print("\n")
-# for v in a.values():
-#   print(v)
-# sys.exit()
 
 # b = len("1234567890123456")
 # if(b < 16):
@@ -152,16 +132,16 @@ def getAssetGivenType(trade, type):
 # assert(tradeData["asset"] == originTradeData["asset"])
 # assert(originTradeData["fillDate"] < tradeData["fillDate"])
 def combineTradeData(tradeData, originTradeData):
-  combined = {}
-  combined["asset"] = tradeData["asset"]
-  combined["originOfferID"] = originTradeData["offerID"] if originTradeData["type"] else 0
-  combined["originTradeDate"] = originTradeData["fillDate"] if originTradeData["type"] else 0
+  combined = { "asset": tradeData["asset"] }
+  validOrigin = originTradeData["type"]
+  combined["originOfferID"] = originTradeData["offerID"] if validOrigin else 0
+  combined["originTradeDate"] = originTradeData["fillDate"] if validOrigin else 0
   combined["originTradeShares"] = adjustNumSharesForStockSplits(
     originTradeData["shares"],
     originTradeData["fillDate"],
     originTradeData["asset"].code
-  ) if originTradeData["type"] else 0
-  combined["originTradeValue"] = originTradeData["value"] if originTradeData["type"] else 0
+  ) if validOrigin else 0
+  combined["originTradeValue"] = originTradeData["value"] if validOrigin else 0
   combined["exitOfferID"] = tradeData["offerID"]
   combined["exitTradeDate"] = tradeData["fillDate"]
   combined["exitTradeShares"] = tradeData["shares"]
@@ -184,9 +164,18 @@ def getTradePNL(fill, instructions, address):
     fill["PNL"] = fill["exitTradeValue"] - originBasisAdj
   else:
     fill["PNL"] = fill["exitTradeValue"]
-  fill["wahSaleAdjustment"] = getWashSaleOfferIDsMappedToAdjustments(fill["originOfferID"]) 
-  # todo: identify and use succeedingOfferID -> lossDissallowedFromPriorTrade
-  fill["PNL"] -= fill["wahSaleAdjustment"]
+  
+  washSaleAdjustment = Decimal("0")
+  
+  if fill["originOfferID"]
+    washSaleOfferIDsMappedToAdjustments = getWashSaleOfferIDsMappedToAdjustments()
+    washSaleAdjustment = [fill["originOfferID"]]
+  
+  scaleDissalowedLossByPositionSize(washSaleAdjustment)
+  
+  fill["washSaleAdjustment"] = washSaleAdjustment
+  fill["PNL"] -= fill["washSaleAdjustment"]
+
   return fill
 
 def getOriginDataFromPagingToken(opPagingToken, address):
@@ -194,9 +183,9 @@ def getOriginDataFromPagingToken(opPagingToken, address):
   requestAddr = f"{HORIZON_INST}/operations/{opPagingToken}"
   try:
     opData = requests.get(requestAddr).json()
+    transactionAddr = opData["_links"]["transaction"]["href"]
   except KeyError:
     return {"badOriginData": True}
-  transactionAddr = opData["_links"]["transaction"]["href"]
   try:
     memo = requests.get(transactionAddr).json()["memo"]
   except KeyError:
@@ -247,7 +236,7 @@ def adjustForModifiedBasisFromTwoYearsPrior(purchaseOfferID, address, offerIDsMa
     (basis, proceeds) = getCoveredBasisAndProceeds(combined)
     combined += (basis, proceeds, proceeds - basis)
 def filterTradesToTaxablePeriod(finalTrades):
-  return washSaleAdjStart <= sale[2]["fillDate"] <= washSaleAdjCutoff
+  return washSaleAdjStart <= sale[2]["fillDate"] <= washSaleAdjCutoff # fix
 
 def placeFields(adjustedTrades):
   return 1
@@ -271,3 +260,14 @@ def placeFields(adjustedTrades):
 # https://pypdf2.readthedocs.io/en/latest/user/forms.html#filling-out-forms
 # https://pypi.org/project/fillpdf/
 # https://www.securexfilings.com/wp-content/uploads/2013/04/sched13d.pdf
+form8949("GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ")
+
+
+
+# Method for CBs:
+# Scan account for claim CB txn
+#   in general, user wallet automatically claims avaliable CBs which can be restircted stock, stock grants, or potentially options or something more complex from a smart contract in the future
+# If the transfer comes from the BT_DISTRIBUTOR account, then you know it was pre-existing shares, no tax impact
+# If the transfer was from one of the issuer offering.holding accounts, then you know it was from newly-issued shares, no tax impact
+# If it was from the issuer employee.holdings account (or anywhere else?) then you know that it was taxable income
+# You can still use the CB memos to retrive share compensation data before claiming avaliable stock, removing the CB ID from the network (perpetual centralized caching is bad)

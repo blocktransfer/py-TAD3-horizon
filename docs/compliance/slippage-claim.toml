@@ -19,3 +19,7 @@ value whatsoever, or grow at a rate faster than comparable investments at a
 traditional broker. Investing involves risk including complete loss of capital.
 These figures are meant to show the affect hidden spreads can have on a
 theoretical portfolio. They are used for informational purposes only."
+
+CUSTODY_DISCLAIMER = "Book-entry stock always remains in your name. We do not
+own or custody your shares. For fiat deposits, you can audit our segregated
+demand deposit accounts at [todo]."
