@@ -107,5 +107,3 @@ def getFloat(queryAsset):
   shares = Decimal(assetData["liquidity_pools_amount"])
   shares += Decimal(assetData["amount"])
   return shares - getAffiliateShares(queryAsset)
-
-getAffiliateShares("DEMO")
