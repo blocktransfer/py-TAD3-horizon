@@ -1,4 +1,0 @@
-# Block Transfer <blocktransfer.io>
-# Server cache for SHA3(claimable balance IDs, including leading zeros) mapped to legacy cost bases
-
-7f6c1ed31668bba5ed3278c348ca18908418fd9b4a63d395819d9098471c9cfd = "{price/'uncovered'/'DWAC'}|{buyDate/''}"
