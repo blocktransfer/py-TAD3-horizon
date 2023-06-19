@@ -51,6 +51,7 @@ class_type = "common"
 convertible = ""
 dividend = "None planned."
 image = "https://blocktransfer.io/imgs/demo.png"
+outstanding_EOY = { 2023-12-31 = "3248903" }
 par = "$0.001"
 preference = "Lowest"
 splits_effective = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
@@ -63,9 +64,9 @@ code = "DEMOP"
 class = "B"
 class_type = "preffered"
 convertible = "1->42 convertable to Class A."
-display_decimals = 7
 dividend = "Expected but not obligatory 3% dividend (non-cumulative)."
 image = "https://blocktransfer.io/imgs/demo.png"
+outstanding_EOY = { 2023-12-31 = "3248903" }
 par = "$0.001"
 preference = "Above A, below debt."
 rights = "Same rights as 42 shares of Class A common stock, except for the voting rights of 10 Class A shares."
@@ -79,9 +80,9 @@ code = "DEMOA1"
 class = "C"
 class_type = "common"
 convertible = "1->1 convertable to class A upon exchange listing."
-display_decimals = 7
 dividend = "Expected but not obligatory 3% dividend (non-cumulative)."
 image = "https://blocktransfer.io/imgs/demo.png"
+outstanding_EOY = { 2023-12-31 = "3248903" }
 par = "$0.001"
 preference = "Above A, below debt."
 rights = "A share of Class B preffered stock has the rights of 1500 shares of Class A common stock, except that a Class B share has the voting rights of 10 Class A shares."
@@ -94,9 +95,9 @@ votes_per_share = 1
 code = "DEMOX1"
 convertible = false
 coupon = "2.95"
-display_decimals = 7
 image = "https://blocktransfer.io/imgs/demo.png"
 maturity = "2023-10-4"
+outstanding_EOY = { 2023-12-31 = "3248903" }
 par = ""
 preference = ""
 puttable = ""
