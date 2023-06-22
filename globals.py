@@ -25,10 +25,11 @@ except ModuleNotFoundError:
   TRIAL_KEY = "SBTPLXTXJDMJOXFPYU2ANLZI2ARDPHFKPKK4MJFYVZVBLXYM5AIP3LPK"
   ISSUER_KEY = DISTRIBUTOR_KEY = TREASURY_KEY = CEDE_KEY = TRIAL_KEY
 
-# Debug issuers:
-# accounts - GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM
-# trustlines - GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS
-BT_ISSUERS = ["GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"]
+BT_ISSUERS = [
+"GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7",
+"GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM", # debug: accounts
+"GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS" # debug: trustlines
+]
 BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
@@ -84,25 +85,28 @@ NON_REPORTING_CO_TOTAL_INVESTORS_MAX = 2000
 NON_REPORTING_CO_NON_ACCREDITED_INVESTOR_MAX = 500
 AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 
+def requestRecords(url):
+  return requests.get(url).json()["_embedded"]["records"]
+
 from globalToolsTransactions import *
 from globalToolsSearching import *
 from globalToolsAssets import *
 
 def getNumOutstandingShares(queryAsset):
-  assetAddr = getAssetAddress(queryAsset)
-  assetData = requests.get(assetAddr).json()["_embedded"]["records"][0]
+  url = getAssetAddress(queryAsset)
+  assetData = requestRecords(url)[0]
   shares = Decimal(assetData["liquidity_pools_amount"])
   for balances in assetData["balances"].values():
     shares += Decimal(balances)
   shares += Decimal(assetData["claimable_balances_amount"])
   companyCode = getCompanyCodeFromAssetCode(queryAsset)
-  return shares - getNumAuthorizedSharesNotIssued(companyCode)
+  return shares - getNumAuthorizedSharesNotIssued(companyCode, queryAsset)
 
 def getFloat(queryAsset):
-  assetAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
-  assetData = requests.get(assetAddr).json()["_embedded"]["records"][0]
+  url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
+  assetData = requestRecords(url)[0]
   shares = Decimal(assetData["liquidity_pools_amount"])
   shares += Decimal(assetData["amount"])
   return shares - getAffiliateShares(queryAsset)
 
-print(getNumOutstandingShares("DEMO"))
+# print(getNumOutstandingShares("DEMO"))

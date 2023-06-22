@@ -21,9 +21,13 @@ def getLedgerBalances(queryAsset):
   return ledgerBalances
 
 def getNextLedgerData(ledger):
-  nextAddr = ledger["_links"]["next"]["href"].replace("%3A", ":").replace("\u0026", "&")
-  response = requests.get(nextAddr).json()
-  try:
+  nextURL = (
+    ledger["_links"]["next"]["href"]
+    .replace("\u0026", "&")
+    .replace("%3A", ":")
+  )
+  response = requests.get(nextURL).json()
+  try: # Overcome rate limits
     if(response and not response["status"]):
       return getNextLedgerData(ledger)
   except KeyError:

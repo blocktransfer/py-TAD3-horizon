@@ -3,7 +3,7 @@ from globals import *
 def getAssetIssuer(queryAsset):
   requestAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
   for addresses in BT_ISSUERS:
-    if(requests.get(requestAddr + addresses).json()["_embedded"]["records"]):
+    if(requestRecords((requestAddr + addresses))):
       return addresses
   sys.exit(f"Could not find asset {queryAsset}")
 
@@ -20,8 +20,8 @@ def getIssuerAccObj(queryAsset):
   return server.load_account(account_id = issuer)
 
 def getNumRestrictedShares(queryAsset):
-  requestAddr = getAssetAddress(queryAsset)
-  assetData = requests.get(requestAddr).json()["_embedded"]["records"][0]
+  url = getAssetAddress(queryAsset)
+  assetData =  requestRecords(url)
   explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
   implicitRestrictedShares = Decimal("0")
   for classifiers, balances in assetData["balances"].items():  
@@ -53,7 +53,7 @@ def resolveFederationAddress(federationAddress):
     return ""
 
 # todo: Change diction to reflect use of Soroban for options compensation data
-def getNumAuthorizedSharesNotIssued(companyCode): # todo: Change this diction to reserved shares?
+def getNumAuthorizedSharesNotIssued(companyCode, queryAsset): # todo: Change this diction to reserved shares?
   issuerAccounts = [ # todo: Change this diction to companyAccounts?
     "authorized.DSPP",
     "initial.offering",
@@ -187,19 +187,19 @@ def getCBmemoFromClaimableID(ID):
   return getMemoFromTransaction(CBcreationTxn)
 
 def getCBcreationTxnFromClaimableID(ID):
-  requestAddr = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
-  return requests.get(requestAddr).json()["_embedded"]["records"][0]
+  url = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
+  return requestRecords(url)[0]
 
 def getClaimedIDfromClaimingTxnHashForAsset(transaction, queryAsset):
-  requestAddr = f"{HORIZON_INST}/transactions/{transaction}/operations?limit={MAX_NUM_TXN_OPS}"
-  userClaimTxnOps = requests.get(requestAddr).json()["_embedded"]["records"]
+  url = f"{HORIZON_INST}/transactions/{transaction}/operations?limit={MAX_NUM_TXN_OPS}"
+  userClaimTxnOps = requestRecords(url)
   for ops in userClaimTxnOps:
     try:
       originClaimableID = ops["balance_id"]
     except KeyError:
       continue
-    claimingOpEffects = requests.get(ops["_links"]["effects"]["href"])
-    for effects in claimingOpEffects.json()["_embedded"]["records"]:
+    claimingOpEffectsURL = ops["_links"]["effects"]["href"]
+    for effects in requestRecords(claimingOpEffectsURL):
       try:
         if(effects["asset"].split(":")[0] == queryAsset):
           return originClaimableID
