@@ -76,31 +76,35 @@ def makeFirst28byteMapping(): # change to SHA3
     delegationHashmap[lines[0][:28]] = lines[0]
   return delegationHashmap
 
-def getaddrsMappedToMemos(queryAsset, votingFederationAddress):
-  addrsMappedToMemos = {}
+def getPublicKeysMappedToMemos(queryAsset, votingFederationAddress):
+  publicKeysMappedToMemos = {}
   numInvestors = numInvestorsVoted = 0
   votingAddr = resolveFederationAddress(votingFederationAddress)
-  requestAddr = getAssetAccountsAddress(queryAsset)
-  ledger = requests.get(requestAddr).json()
-  while(ledger["_embedded"]["records"]):
-    for everyInvestorData in ledger["_embedded"]["records"]:
+  ledger = requestAssetAccounts(queryAsset)
+  links, records = getLinksAndRecordsFromParsedLedger(ledger)
+  while(records):
+    for accounts in records:
       numInvestors += 1
-      if(everyInvestorData["account_id"] in validAccountPublicKeys):
-        paymentsAddrs = everyInvestorData["_links"]["payments"]["href"].replace("{?cursor,limit,order}", f"?{MAX_SEARCH}")
-        paymentData = requests.get(paymentsAddrs).json()
-        accountPaymentRecords = paymentData["_embedded"]["records"]
-        while(accountPaymentRecords != []):
-          for payments in accountPaymentRecords:
+      if(accounts["account_id"] in validAccountPublicKeys):
+        paymentsLedger = requestRecords(
+          accounts["_links"]["payments"]["href"]
+          .replace("{?cursor,limit,order}", f"?{MAX_SEARCH}")
+        )
+        paymentLinks, paymentRecords = getLinksAndRecordsFromParsedLedger(paymentsLedger)
+        while(paymentRecords):
+          for payments in paymentRecords:
             try:
-              if(payments["asset_type"] == "native" and payments["to"] == votingAddr and pandas.to_datetime(payments["created_at"]) < VOTE_CUTOFF_TIME_UTC):
-                transactionEnvelopeAddr = payments["_links"]["transaction"]["href"]
-                vote = requests.get(transactionEnvelopeAddr).json()["memo"]
-                addrsMappedToMemos[payments["from"]] = vote
+              validForm = payments["asset_type"] == "native" and payments["to"] == votingAddr
+              onTime = pandas.to_datetime(payments["created_at"]) < VOTE_CUTOFF_TIME_UTC
+              if(validForm and onTime):
+                transactionEnvelopeURL = payments["_links"]["transaction"]["href"]
+                vote = requestURL(transactionEnvelopeURL)["memo"]
+                publicKeysMappedToMemos[payments["from"]] = vote
             except KeyError:
               continue
-          accountPaymentRecords, paymentData = getNextCursorRecords(paymentData)
-    ledger = getNextLedgerData(ledger)
-  return addrsMappedToMemos
+          paymentLinks, paymentRecords = getNextLedgerData(paymentLinks)
+    links, records = getNextLedgerData(links)
+  return publicKeysMappedToMemos
 
 def replaceAddressesWithRecordDateBalances(addrsMappedToMemos, blockchainBalancesOnRecordDate):
   balancesMappedToMemos = {}

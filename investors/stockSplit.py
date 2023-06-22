@@ -134,11 +134,10 @@ def prepAndSignForOutput(transactionsArray, reason):
 
 def getClaimableBalancesData(queryAsset):
   claimableBalanceIDsMappedToData = {}
-  issuer = getAssetIssuer(queryAsset)
-  requestAddr = f"{HORIZON_INST}/claimable_balances?asset={queryAsset}:{issuer}&{MAX_SEARCH}"
-  ledger = requests.get(requestAddr).json()
-  while(ledger["_embedded"]["records"]):
-    for claimableBalances in ledger["_embedded"]["records"]:
+  ledger = requestURL(f"{HORIZON_INST}/claimable_balances?{getURLendAsset(queryAsset)}")
+  links, records = getLinksAndRecordsFromParsedLedger(ledger)
+  while(records):
+    for claimableBalances in records:
       data = {"release": 0}
       for claimants in claimableBalances["claimants"]:
         try:
@@ -150,7 +149,7 @@ def getClaimableBalancesData(queryAsset):
         data["recipient"] = claimants["destination"]
         data["amount"] = Decimal(claimableBalances["amount"])
         claimableBalanceIDsMappedToData[claimableBalances["id"]] = data
-    ledger = getNextLedgerData(ledger)
+    links, records = getNextLedgerData(links)
   return claimableBalanceIDsMappedToData
 
 def exportSplitTransactions(queryAsset, transactionsArray):

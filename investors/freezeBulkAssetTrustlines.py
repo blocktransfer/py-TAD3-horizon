@@ -1,26 +1,27 @@
 import sys
 sys.path.append("../")
 from globals import *
+from trustlineHelper import *
 
-# testing: freezeBulkAssetTrustlines("StellarMart", "FREEZING: Stock split inbound")
 def freezeBulkAssetTrustlines(asset, reason):
   outstandingTrustlines = getOutstandingTrustlines(asset)
   revocationTxnXDRarr = signBulkTrustlineRevocationTxn(outstandingTrustlines, asset, reason)
-  exportTrustlineRevocationTransaction(revocationTxnXDRarr)
+  exportBulkTrustlineTransactionsXDR(revocationTxnXDRarr)
 
 def getOutstandingTrustlines(queryAsset):
-  allOutstandingTrustlines = []
-  requestAddr = getAssetAccountsAddress(queryAsset)
-  ledger = requests.get(requestAddr).json()
-  while(ledger["_embedded"]["records"]):
-    for accounts in ledger["_embedded"]["records"]:
-      allOutstandingTrustlines.append(accounts["id"])
-    ledger = getNextLedgerData(ledger)
-  return allOutstandingTrustlines
+  allOutstandingTrustlinesForAsset = []
+  ledger = requestAssetAccounts(queryAsset)
+  links, records = getLinksAndRecordsFromParsedLedger(ledger)
+  while(records):
+    for accounts in records:
+      allOutstandingTrustlinesForAsset.append(accounts["id"])
+    links, records = getNextLedgerData(links)
+  return allOutstandingTrustlinesForAsset
 
 def signBulkTrustlineRevocationTxn(outstandingTrustlines, queryAsset, reason):
   transactions = []
-  issuer = getAssetIssuer(queryAsset)
+  issuer = getIssuerAccObj(queryAsset)
+  issuerSigner = Keypair.from_secret(ISSUER_KEY)
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
   numTxnOps = idx = 0
   for addresses in outstandingTrustlines:
@@ -31,18 +32,13 @@ def signBulkTrustlineRevocationTxn(outstandingTrustlines, queryAsset, reason):
     )
     numTxnOps += 1
     if(numTxnOps >= MAX_NUM_TXN_OPS):
-      transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-      transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
+      transactions[idx] = prepTxn(transactions[idx], reason, issuerSigner)
       numTxnOps = 0
       idx += 1
       appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
-  transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-  transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
+  transactions[idx] = prepTxn(transactions[idx], reason, issuerSigner)
   return transactions
 
-def exportTrustlineRevocationTransaction(txnArr):
-  for txns in txnArr:
-    with open(f"{datetime.now()} signedFreezeAssetTrustlinesXDR.txt", "w") as output:
-      output.write(txns.to_xdr())
 
+# testing: freezeBulkAssetTrustlines("StellarMart", "FREEZING: Stock split inbound")
 freezeBulkAssetTrustlines("DEMO", "Temporary freeze for split")

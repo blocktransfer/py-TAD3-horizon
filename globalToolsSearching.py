@@ -1,19 +1,27 @@
 from globals import *
 
+def getAssetObjFromCode(code):
+  return Asset(code, getAssetIssuer(code))
+
 def getAssetIssuer(queryAsset):
-  requestAddr = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
+  url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
   for addresses in BT_ISSUERS:
-    if(requestRecords((requestAddr + addresses))):
+    # print(addresses)
+    if(requestRecords(url + addresses)):
       return addresses
   sys.exit(f"Could not find asset {queryAsset}")
 
-def getAssetAddress(queryAsset):
+def getAssetAddress(queryAsset): #def requestAsset(queryAsset):
   issuer = getAssetIssuer(queryAsset)
   return f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={issuer}"
 
-def getAssetAccountsAddress(queryAsset):
+def requestAssetAccounts(queryAsset):
+  url = f"{HORIZON_INST}/accounts?{getURLendAsset(queryAsset)}"
+  return requestURL(url)
+
+def getURLendAsset(queryAsset):
   issuer = getAssetIssuer(queryAsset)
-  return f"{HORIZON_INST}/accounts?asset={queryAsset}:{issuer}&{MAX_SEARCH}"
+  return f"asset={queryAsset}:{issuer}&{MAX_SEARCH}"
 
 def getIssuerAccObj(queryAsset):
   issuer = getAssetIssuer(queryAsset)
@@ -46,9 +54,9 @@ def getFederationServerFromDomain(federationDomain):
 def resolveFederationAddress(federationAddress):
   federationDomain = federationAddress.split("*")[1]
   homeDomainFederationServer = getFederationServerFromDomain(federationDomain)
-  requestAddr = f"{homeDomainFederationServer}?q={federationAddress}&type=name"
+  url = f"{homeDomainFederationServer}?q={federationAddress}&type=name"
   try:
-    return requests.get(requestAddr).json()["account_id"]
+    return requestURL(url)["account_id"]
   except requests.exceptions.MissingSchema:
     return ""
 
@@ -72,8 +80,8 @@ def getNumAuthorizedSharesNotIssued(companyCode, queryAsset): # todo: Change thi
 
 def getCustodiedShares(queryAsset, account):
   if(not account): return 0
-  requestAddr = f"{HORIZON_INST}/accounts/{account}"
-  accountBalances = requests.get(requestAddr).json()["balances"]
+  url = f"{HORIZON_INST}/accounts/{account}"
+  accountBalances = requestURL(url)["balances"]
   asset = getAssetObjFromCode(queryAsset)
   ### todo: Globalize this? ###
   for balances in accountBalances:
@@ -110,8 +118,8 @@ def isPublic(companyCode):
 def getNumTreasuryShares(queryAsset):
   treasuryAddr = resolveFederationAddress(f"{queryAsset}*treasury.holdings")
   if(not treasuryAddr): return 0
-  requestAddr = f"{HORIZON_INST}/accounts/{treasuryAddr}"
-  accountBalances = requests.get(requestAddr).json()["balances"]
+  url = f"{HORIZON_INST}/accounts/{treasuryAddr}"
+  accountBalances = requestURL(url)["balances"]
   asset = getAssetObjFromCode(queryAsset)
   for balances in accountBalances:
     searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
@@ -121,8 +129,8 @@ def getNumTreasuryShares(queryAsset):
 def getNumEmployeeBenefitShares(queryAsset):
   employeeBenefitAddr = resolveFederationAddress(f"{queryAsset}*reserved.employee.holdings")
   if(not employeeBenefitAddr): return 0
-  requestAddr = f"{HORIZON_INST}/accounts/{employeeBenefitAddr}"
-  accountBalances = requests.get(requestAddr).json()["balances"]
+  url = f"{HORIZON_INST}/accounts/{employeeBenefitAddr}"
+  accountBalances = requestURL(url)["balances"]
   asset = getAssetObjFromCode(queryAsset)
   for balances in accountBalances:
     searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
@@ -134,8 +142,8 @@ def getAssetCodeFromTomlLink(link):
   return rawCode[:-5]
 
 def getAccountDataDict(address):
-  requestAddr = f"{HORIZON_INST}/accounts/{address}"
-  return requests.get(requestAddr).json()["data"]
+  url = f"{HORIZON_INST}/accounts/{address}"
+  return requestURL(url)["data"]
 
 def getITIN(ticker):
   try:

@@ -49,7 +49,7 @@ can set washmemo when buy wash
      continue
    if(BTasset and payments["from"] == BT_DISTRIBUTOR):
      txnAddr = payments["_links"]["transaction"]["href"]
-     txnData = requests.get(txnAddr).json()
+     txnData = requestURL(txnAddr)
      try:
        memo = txnData["memo"]
      except KeyError:

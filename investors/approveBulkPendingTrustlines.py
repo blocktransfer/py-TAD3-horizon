@@ -1,72 +1,80 @@
 import sys
 sys.path.append("../")
 from globals import *
+from trustlineHelper import *
 
 validAccountPublicKeys = getValidAccountPublicKeys()
 
 def approveBulkPendingTrustlines():
   accountsRequestingAccess = getPendingTrustlinesWithAsset()
-  verifiedAddrsMappedToAssets = filterAuthorizedAccountsOnly(accountsRequestingAccess)
-  signedTrustlineApprovalXDRarr = signBulkTrustlineApprovals(verifiedAddrsMappedToAssets)
-  exportTrustlineApprovalTransactions(signedTrustlineApprovalXDRarr)
+  verifiedAccountsMappedToAssets = filterAuthorizedAccountsOnly(accountsRequestingAccess)
+  signedTrustlineApprovalXDRarr = signBulkTrustlineApprovals(verifiedAccountsMappedToAssets)
+  exportBulkTrustlineTransactionsXDR(signedTrustlineApprovalXDRarr)
 
 def getPendingTrustlinesWithAsset():
   allAssets = listAllIssuerAssets()
-  pendingTrustlinesMappedToAssets = {}
+  publicKeysMappedToRequestedAssetObjArr = {}
   for assets in allAssets:
-    requestAddress = getAssetAccountsAddress(assets)
-    ledger = requests.get(requestAddress).json()
-    while(ledger["_embedded"]["records"]):
-      for accounts in ledger["_embedded"]["records"]:
+    ledger = requestAssetAccounts(assets)
+    links, records = getLinksAndRecordsFromParsedLedger(ledger)
+    while(records):
+      for accounts in records:
         address = accounts["id"]
-        if address in pendingTrustlinesMappedToAssets:
-          continue
-        requestedAssets = []
-        for assets in accounts["balances"]:
-          try:
-            if(not assets["is_authorized"] and assets["asset_issuer"] == BT_ISSUER):
-              requestedAssets.append(assets["asset_code"])
-          except:
-            continue
-        if(requestedAssets):
-          pendingTrustlinesMappedToAssets[address] = requestedAssets
-      ledger = getNextLedgerData(ledger)
-  return pendingTrustlinesMappedToAssets
+        requestorAddedAlready = address in publicKeysMappedToRequestedAssetObjArr
+        if(not requestorAddedAlready):
+          requestedAssets = []
+          for assets in accounts["balances"]:
+            try:
+              issuer = assets["asset_issuer"]
+              if(not assets["is_authorized"] and issuer in BT_ISSUERS):
+                asset = Asset(assets["asset_code"], issuer)
+                requestedAssets.append(asset)
+            except KeyError:
+              continue
+          if(requestedAssets):
+            publicKeysMappedToRequestedAssetObjArr[address] = requestedAssets
+      links, records = getNextLedgerData(links)
+  return publicKeysMappedToRequestedAssetObjArr
 
-def filterAuthorizedAccountsOnly(addressesMappedToAssets):
-  verifiedAddressesMappedToAssetArr = {}
-  for requesteeAddrs, requestedAssets in addressesMappedToAssets.items():
-    if(requesteeAddrs in validAccountPublicKeys):
-      verifiedAddressesMappedToAssetArr[requesteeAddrs] = requestedAssets
-  return verifiedAddressesMappedToAssetArr
+def filterAuthorizedAccountsOnly(publicKeysMappedToRequestedAssetObjArr):
+  verifiedPublicKeysMappedToRequestedAssetObjArr = {}
+  for requestorPublicKeys, requestedAssets in publicKeysMappedToRequestedAssetObjArr.items():
+    if(requestorPublicKeys in validAccountPublicKeys):
+      verifiedPublicKeysMappedToRequestedAssetObjArr[requestorPublicKeys] = requestedAssets
+  return verifiedPublicKeysMappedToRequestedAssetObjArr
 
-def signBulkTrustlineApprovals(addressesMappedToAssets):
-  transactions = []
-  appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
+def signBulkTrustlineApprovals(verifiedPublicKeysMappedToRequestedAssetObjArr):
+  print(5)
   reason = "Known investor"
+  transactions = []
+  print(4)
+  firstAsset = next(iter(verifiedPublicKeysMappedToRequestedAssetObjArr.values()))[0]
+  print(firstAsset)
+  print(type(firstAsset))
+  print(3)
+  issuer = getIssuerAccObj(firstAsset)
+  print(2)
+  issuerSigner = Keypair.from_secret(ISSUER_KEY)
+  ### assume all BT_ISSUERS share a signer ###
+  print(1)
+  appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
+  print(0)
   numTxnOps = idx = 0
-  for addresses, assetArrs in addressesMappedToAssets.items():
-    for assets in assetArrs:
-      numTxnOps += 1
+  for publicKeys, assetObjArrs in verifiedPublicKeysMappedToRequestedAssetObjArr.items():
+    for assetObjs in assetObjArrs:
       transactions[idx].append_set_trust_line_flags_op(
-        trustor = addresses,
-        asset = Asset(assets, BT_ISSUER),
+        trustor = publicKeys,
+        asset = assetObjs,
         set_flags = TrustLineFlags(1),
       )
+      numTxnOps += 1
       if(numTxnOps >= MAX_NUM_TXN_OPS):
-        transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-        transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
+        transactions[idx] = prepTxn(transactions[idx], reason, issuerSigner)
         numTxnOps = 0
         idx += 1
         appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
-  transactions[idx] = transactions[idx].add_text_memo(reason).set_timeout(3600).build()
-  transactions[idx].sign(Keypair.from_secret(ISSUER_KEY))
+  transactions[idx] = prepTxn(transactions[idx], reason, issuerSigner)
   return transactions
 
-# todo: replace with submit to network func in global assets
-def exportTrustlineApprovalTransactions(txnXDRarr):
-  for txn in txnXDRarr:
-    with open(f"{datetime.now()} signedFreezeAssetTrustlinesXDR.txt", "w") as output:
-      output.write(txn.to_xdr())
 
 approveBulkPendingTrustlines()

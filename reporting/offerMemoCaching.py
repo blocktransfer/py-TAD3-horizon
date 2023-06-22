@@ -16,10 +16,11 @@ def updateAllOfferIDs():
 
 def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
   accountOfferIDsMappedToChiefMemos = {}
-  requestAddr = f"{HORIZON_INST}/accounts/{queryAccount}/transactions?{MAX_SEARCH}"
-  ledger = requests.get(requestAddr).json()
-  while(ledger["_embedded"]["records"]):
-    for txns in ledger["_embedded"]["records"]:
+  url = f"{HORIZON_INST}/accounts/{queryAccount}/transactions?{MAX_SEARCH}"
+  ledger = requestURL(url)
+  links, records = getLinksAndRecordsFromParsedLedger(ledger)
+  while(records):
+    for txns in records:
       if(txns["source_account"] == queryAccount):
         resultXDR = TransactionResult.from_xdr(txns["result_xdr"])
         for ops in resultXDR.result.results:
@@ -36,7 +37,7 @@ def getNewOfferIDsMappedToChiefMemosFromStellar(queryAccount, cache):
                   pprint(txns)
                 memo = "|".join([instructions, queryAccount])
                 accountOfferIDsMappedToChiefMemos[offerIDs] = memo
-    ledger = getNextLedgerData(ledger)
+    links, records = getNextLedgerData(links)
   return accountOfferIDsMappedToChiefMemos
 
 def getAttr(obj, attr):
@@ -74,13 +75,13 @@ def resolveTakerOffer(offersClaimed, offerIDarr, address):
   return offerID
 
 def getOfferIDfromContraID(offerID, address):
-  requestAddr = f"{HORIZON_INST}/offers/{offerID}/trades?{MAX_SEARCH}"
-  ledger = requests.get(requestAddr).json()
-  while(ledger["_embedded"]["records"]):
-    for trades in ledger["_embedded"]["records"]:
+  ledger = requestURL(f"{HORIZON_INST}/offers/{offerID}/trades?{MAX_SEARCH}")
+  links, records = getLinksAndRecordsFromParsedLedger(ledger)
+  while(records):
+    for trades in records:
       if(trades["counter_account"] == address):
         return int(trades["counter_offer_id"])
       elif(trades["base_account"] == address):
         return int(trades["base_offer_id"])
-    ledger = getNextLedgerData(ledger)
+    links, records = getNextLedgerData(links)
 

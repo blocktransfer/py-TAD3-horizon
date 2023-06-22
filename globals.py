@@ -46,6 +46,7 @@ MAX_SEARCH = "limit=200"
 
 BASE_FEE_MULT = 20
 MAX_NUM_TXN_OPS = 100
+DEF_TXN_TIMEOUT = 3600
 WASH_SALE_DAY_RANGE = 30
 MAX_SUBMISSION_ATTEMPTS = 15
 MAX_PREC = Decimal("0.0000001")
@@ -85,8 +86,22 @@ NON_REPORTING_CO_TOTAL_INVESTORS_MAX = 2000
 NON_REPORTING_CO_NON_ACCREDITED_INVESTOR_MAX = 500
 AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 
+class RateLimited(Exception):
+  pass
+
+def requestURL(url):
+  return requests.get(url).json()
+
 def requestRecords(url):
-  return requests.get(url).json()["_embedded"]["records"]
+  try:
+    return requestURL(url)["_embedded"]["records"]
+  except KeyError:
+    print(requestURL(url))
+    print("\n\n\n")
+    print(url)
+
+def getLinksAndRecordsFromParsedLedger(data):
+  return data["_links"], data["_embedded"]["records"]
 
 from globalToolsTransactions import *
 from globalToolsSearching import *
@@ -109,4 +124,3 @@ def getFloat(queryAsset):
   shares += Decimal(assetData["amount"])
   return shares - getAffiliateShares(queryAsset)
 
-# print(getNumOutstandingShares("DEMO"))

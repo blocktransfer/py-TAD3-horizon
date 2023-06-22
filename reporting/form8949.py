@@ -2,7 +2,7 @@ import sys
 sys.path.append("../")
 from globals import *
 
-# testing: 
+# debug: 
 # USDC_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C")
 
 lastYear = datetime.today().year - 1
@@ -76,12 +76,13 @@ def getTradeData(offerID, address):
   type = ""
   value = shares = Decimal("0")
   try:
-    requestAddr = f"{HORIZON_INST}/offers/{int(offerID)}/trades?{MAX_SEARCH}"
+    url = f"{HORIZON_INST}/offers/{int(offerID)}/trades?{MAX_SEARCH}"
   except ValueError:
     return tradeData
-  ledger = requests.get(requestAddr).json()
-  while(ledger["_embedded"]["records"]):
-    for trades in ledger["_embedded"]["records"]:
+  ledger = requests.get(url).json()
+  links, records = getLinksAndRecordsFromParsedLedger(ledger)
+  while(records):
+    for trades in records:
       baseAsset = getAssetGivenType(trades, "base")
       counterAsset = getAssetGivenType(trades, "counter")
       baseAssetFiat = isFiat(baseAsset)
@@ -115,7 +116,7 @@ def getTradeData(offerID, address):
           tradeData["asset"] = counterAsset
           type = "out"
     tradeData["fillDate"] = pandas.to_datetime(trades["ledger_close_time"])
-    ledger = getNextLedgerData(ledger)
+    links, records = getNextLedgerData(links)
   tradeData["offerID"] = offerID
   tradeData["shares"] = shares
   tradeData["value"] = value
