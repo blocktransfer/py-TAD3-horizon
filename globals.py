@@ -15,9 +15,9 @@ from stellar_sdk import (
   TransactionBuilder,
   TrustLineFlags
 )
-sys.path.append("../")
-G_DIR = os.path.dirname(__file__)
-MICR_DIR = f"{G_DIR}/../master-identity-catalog-records"
+TOP_DIR = os.path.dirname(__file__)
+sys.path.append(f"{TOP_DIR}/../")
+MICR_DIR = f"{TOP_DIR}/../master-identity-catalog-records"
 MICR_TXT = f"{MICR_DIR}/master-identity-account-mapping.txt"
 try:
   from local_secrets import *
@@ -104,3 +104,5 @@ def getFloat(queryAsset):
   shares = Decimal(assetData["liquidity_pools_amount"])
   shares += Decimal(assetData["amount"])
   return shares - getAffiliateShares(queryAsset)
+
+print(getNumOutstandingShares("DEMO"))
