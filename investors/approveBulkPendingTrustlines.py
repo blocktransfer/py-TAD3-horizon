@@ -44,21 +44,13 @@ def filterAuthorizedAccountsOnly(publicKeysMappedToRequestedAssetObjArr):
   return verifiedPublicKeysMappedToRequestedAssetObjArr
 
 def signBulkTrustlineApprovals(verifiedPublicKeysMappedToRequestedAssetObjArr):
-  print(5)
   reason = "Known investor"
   transactions = []
-  print(4)
   firstAsset = next(iter(verifiedPublicKeysMappedToRequestedAssetObjArr.values()))[0]
-  print(firstAsset)
-  print(type(firstAsset))
-  print(3)
-  issuer = getIssuerAccObj(firstAsset)
-  print(2)
+  issuer = getIssuerAccObj(firstAsset.issuer)
   issuerSigner = Keypair.from_secret(ISSUER_KEY)
   ### assume all BT_ISSUERS share a signer ###
-  print(1)
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
-  print(0)
   numTxnOps = idx = 0
   for publicKeys, assetObjArrs in verifiedPublicKeysMappedToRequestedAssetObjArr.items():
     for assetObjs in assetObjArrs:
