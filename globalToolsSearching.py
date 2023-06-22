@@ -11,9 +11,10 @@ def getAssetIssuer(queryAsset):
       return addresses
   sys.exit(f"Could not find asset {queryAsset}")
 
-def getAssetAddress(queryAsset): #def requestAsset(queryAsset):
+def requestAssetRecords(queryAsset):
   issuer = getAssetIssuer(queryAsset)
-  return f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={issuer}"
+  url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={issuer}"
+  return requestRecords(url)[0]
 
 def requestAssetAccounts(queryAsset):
   url = f"{HORIZON_INST}/accounts?{getURLendAsset(queryAsset)}"
@@ -28,8 +29,7 @@ def getIssuerAccObj(queryAsset):
   return server.load_account(account_id = issuer)
 
 def getNumRestrictedShares(queryAsset):
-  url = getAssetAddress(queryAsset)
-  assetData =  requestRecords(url)
+  assetData = requestAssetRecords(queryAsset)
   explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
   implicitRestrictedShares = Decimal("0")
   for classifiers, balances in assetData["balances"].items():  

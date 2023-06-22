@@ -93,12 +93,7 @@ def requestURL(url):
   return requests.get(url).json()
 
 def requestRecords(url):
-  try:
-    return requestURL(url)["_embedded"]["records"]
-  except KeyError:
-    print(requestURL(url))
-    print("\n\n\n")
-    print(url)
+  return requestURL(url)["_embedded"]["records"]
 
 def getLinksAndRecordsFromParsedLedger(data):
   return data["_links"], data["_embedded"]["records"]
@@ -108,8 +103,7 @@ from globalToolsSearching import *
 from globalToolsAssets import *
 
 def getNumOutstandingShares(queryAsset):
-  url = getAssetAddress(queryAsset)
-  assetData = requestRecords(url)[0]
+  assetData = requestAssetRecords(queryAsset)
   shares = Decimal(assetData["liquidity_pools_amount"])
   for balances in assetData["balances"].values():
     shares += Decimal(balances)
