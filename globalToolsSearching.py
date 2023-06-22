@@ -6,7 +6,6 @@ def getAssetObjFromCode(code):
 def getAssetIssuer(queryAsset):
   url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
   for addresses in BT_ISSUERS:
-    # print(addresses)
     if(requestRecords(url + addresses)):
       return addresses
   sys.exit(f"Could not find asset {queryAsset}")

@@ -47,7 +47,7 @@ def signBulkTrustlineApprovals(verifiedPublicKeysMappedToRequestedAssetObjArr):
   reason = "Known investor"
   transactions = []
   firstAsset = next(iter(verifiedPublicKeysMappedToRequestedAssetObjArr.values()))[0]
-  issuer = firstAsset.issuer
+  issuer = server.load_account(account_id = firstAsset.issuer)
   issuerSigner = Keypair.from_secret(ISSUER_KEY)
   ### assume all BT_ISSUERS share a signer ###
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, issuer)
