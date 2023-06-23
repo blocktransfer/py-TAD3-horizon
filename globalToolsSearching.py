@@ -1,5 +1,14 @@
 from globals import *
 
+def getValidAccountPublicKeys():
+  validAccountPublicKeys = []
+  with open(MICR_TXT) as MICR:
+    next(MICR)
+    for accounts in MICR:
+      account = accounts.split("|")
+      validAccountPublicKeys.append(account[0])
+  return validAccountPublicKeys
+
 def getAssetObjFromCode(code):
   return Asset(code, getAssetIssuer(code))
 
@@ -35,9 +44,6 @@ def getNumRestrictedShares(queryAsset):
     if(classifiers != "authorized"):
       implicitRestrictedShares += Decimal(balances)
   return explicitRestrictedShares + implicitRestrictedShares
-
-def SHA3(input):
-  return sha3_256(input.encode()).hexdigest()
 
 def loadTomlData(link):
   return toml.loads(requests.get(link).content.decode())
@@ -144,7 +150,7 @@ def getAccountDataDict(address):
   url = f"{HORIZON_INST}/accounts/{address}"
   return requestURL(url)["data"]
 
-def getITIN(ticker):
+def getISIN(ticker):
   try:
     data = loadTomlData(BT_STELLAR_TOML)
     for currencies in data["CURRENCIES"]:
@@ -155,8 +161,8 @@ def getITIN(ticker):
     sys.exit(f"ITIN toml resolution failed")
   return 0
 
-def getCUSIP(ITIN):
-  return ITIN[2:-1]
+def getCUSIP(ISIN):
+  return ISIN[2:-1]
 
 def isCUSIP(query):
   allAssets = listAllIssuerAssets()

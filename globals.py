@@ -98,6 +98,9 @@ def requestRecords(url):
 def getLinksAndRecordsFromParsedLedger(data):
   return data["_links"], data["_embedded"]["records"]
 
+def SHA3(input):
+  return sha3_256(input.encode()).hexdigest()
+
 from globalToolsTransactions import *
 from globalToolsSearching import *
 from globalToolsAssets import *

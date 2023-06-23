@@ -12,16 +12,15 @@ taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd
 # washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
 def bulkOutput():
-  MICR = open(MICR_TXT) # fix all these txt ref.s -> Dynamo
-  next(MICR)
-  numAccounts = len(open(MICR_TXT).readlines()) - 1
-  i = 0
-  for lines in MICR:
-    account = lines.split("|")[0]
-    i += 1
-    print(f"Executing export for {account} ({i}/{numAccounts})")
-    form8949(account)
-  MICR.close()
+  numAccounts = i = 0
+  with open(MICR_TXT) as MICR:
+    next(MICR)
+    for lines in MICR:
+      account = lines.strip().split("|")[0]
+      numAccounts += 1
+      i += 1
+      print(f"Executing export for {account} ({i}/{numAccounts})")
+      form8949(account)
   return 1
 
 ## Testing needed at scale

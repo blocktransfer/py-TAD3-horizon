@@ -2,16 +2,6 @@ import sys
 sys.path.append("../")
 from globals import *
 
-def prepTxn(transaction, memo, signer):
-  transaction = (
-    transaction
-    .add_text_memo(memo)
-    .set_timeout(DEF_TXN_TIMEOUT)
-    .build()
-  )
-  transaction.sign(signer)
-  return transaction
-
 # todo: replace with submit to network func in global assets
 def exportBulkTrustlineTransactionsXDR(txnXDRarr):
   type = ""

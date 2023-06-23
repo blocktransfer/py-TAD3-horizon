@@ -3,16 +3,6 @@ from globals import *
 def isFiat(queryAsset):
   return queryAsset == BT_DOLLAR or queryAsset == USDC_ASSET
 
-def getValidAccountPublicKeys():
-  validAccountPublicKeys = []
-  MICR = open(MICR_TXT)
-  next(MICR)
-  for accounts in MICR:
-    account = accounts.split("|")
-    validAccountPublicKeys.append(account[0])
-  MICR.close
-  return validAccountPublicKeys
-
 def appendTransactionEnvelopeToArrayWithSourceAccount(transactionsArray, sourceAccount):
   transactionsArray.append(
     TransactionBuilder(
@@ -21,6 +11,16 @@ def appendTransactionEnvelopeToArrayWithSourceAccount(transactionsArray, sourceA
       base_fee = fee,
     )
   )
+
+def prepTxn(transaction, memo, signer):
+  transaction = (
+    transaction
+    .add_text_memo(memo)
+    .set_timeout(DEF_TXN_TIMEOUT)
+    .build()
+  )
+  transaction.sign(signer)
+  return transaction
 
 def toFullAddress(street, streetExtra, city, state, postal, country):
   uncheckedArr = [street, streetExtra, city, state, postal, country]

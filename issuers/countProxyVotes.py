@@ -44,10 +44,11 @@ from globals import *
 
 VOTE_CUTOFF_TIME_UTC = pandas.to_datetime("2031-04-29T12:30:00Z") # set to meeting time for audits
 validAccountPublicKeys = getValidAccountPublicKeys()
+year = datetime.today().year
 
 #testing: countProxyVotes("DEMO", 15, "annual")
 def countProxyVotes(queryAsset, numVotingItems, meetingType):
-  votingFederationAddress = f"{queryAsset}-{meetingType}-{datetime.today().year}*proxyvote.io" # +1 for year-end meeting
+  votingFederationAddress = f"{queryAsset}-{meetingType}-{year}*proxyvote.io" # +1 for year-end meeting
   numUnrestrictedShares = getFloat(queryAsset) # Check if adjustment needed between now and recordDate
   blockchainBalancesOnRecordDate = getBalancesOnRecordDate(queryAsset)
   addrsMappedToMemos = getaddrsMappedToMemos(queryAsset, votingFederationAddress)
@@ -57,24 +58,23 @@ def countProxyVotes(queryAsset, numVotingItems, meetingType):
 
 def getBalancesOnRecordDate(queryAsset):
   balancesOnRecordDate = {}
-  internalRecordDateTXT = f"{G_DIR}/../pii/internal-record-date-snapshots/{str(datetime.today().year)}/{queryAsset}.txt"
-  internalRecordDateHoldings = open(internalRecordDateTXT)
-  next(internalRecordDateHoldings)
-  for lines in internalRecordDateHoldings:
-    lines = lines.split("|")
-    balancesOnRecordDate[lines[0]] = Decimal(lines[1])
-  internalRecordDateHoldings.close()
+  companyCode = getCompanyCodeFromAssetCode(queryAsset)
+  internalRecordDateTXT = f"{TOP_DIR}/../record-date-ledger-snapshots/{companyCode}/{year}/{queryAsset}.txt"
+  with open(internalRecordDateTXT) as internalRecordDateHoldings:
+    next(internalRecordDateHoldings)
+    for lines in internalRecordDateHoldings:
+      lines = lines.split("|")
+      balancesOnRecordDate[lines[0]] = Decimal(lines[1])
   return balancesOnRecordDate
 
-def makeFirst28byteMapping(): # change to SHA3
-  delegationHashmap = {}
-  inFile = open(MICR_TXT)
-  MICR = inFile.read().strip().split("\n")
-  inFile.close()
-  for lines in MICR[1:]:
-    lines = lines.split("|")
-    delegationHashmap[lines[0][:28]] = lines[0]
-  return delegationHashmap
+def makeSHA3hashmap():
+  SHA3hashmap = {}
+  with open(MICR_TXT) as MICR:
+    next(MICR) 
+    for lines in MICR:
+      account = lines.strip().split("|")
+      SHA3hashmap[SHA3(account[0])] = account[0]
+  return SHA3hashmap
 
 def getPublicKeysMappedToMemos(queryAsset, votingFederationAddress):
   publicKeysMappedToMemos = {}
@@ -119,7 +119,7 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
   #pprint(addrsMappedToMemos)
   #print(balancesMappedToMemos) 
   delegeeAddrsMappedToSharesAllocated = {}
-  delegationHashmap = makeFirst28byteMapping()
+  SHA3hashmap = makeSHA3hashmap()
   propositionYays = [0] * numVotingItems
   propositionNays = [0] * numVotingItems
   propositionAbstains = [0] * numVotingItems
@@ -127,8 +127,8 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
   sharesVoted = Decimal("0")
   for numShares, memos in balancesMappedToMemos.items():
     if(len(memos) > numVotingItems):
-      if(memos in delegationHashmap.keys()):
-        expandedAddr = delegationHashmap[memos]
+      if(memos in SHA3hashmap.keys()):
+        expandedAddr = SHA3hashmap[memos]
         try:
           currSharesAllocated = delegeeAddrsMappedToSharesAllocated[expandedAddr]
         except KeyError:
@@ -204,12 +204,11 @@ def displayResults(queryAsset, voteTallies):
     ratioTotal = Decimal("100") / sharesOutstanding
     print("In the matter of proposition {}:".format(i))
     print("For:\t\t{}%\t({} shares)".format(
-        f"{Y * ratioVoted}:.2f",
-        f"{Y * ratioTotal}:.2f",
-        Y
-      )
-    ) # todo: test, finalize export functionality as master tab.
-    print("Against:\t{}%\t({} shares)".format(format(N * ratioVoted, ".2f"), N))
-    print("Abstain:\t{}%\t({} shares)\n".format(format(A * ratioVoted, ".2f"), A))
-    print("Withold:\t{}%\t({} shares)\n".format(format(W * ratioVoted, ".2f"), W))
+      f"{Y * ratioVoted}:.2f",
+      f"{Y * ratioTotal}:.2f",
+      Y
+    )) # todo: test, finalize export functionality as master tab.
+    print(f"Against:\t{format(N * ratioVoted, '.2f')}%\t({N} shares)")
+    print(f"Abstain:\t{format(A * ratioVoted, '.2f')}%\t({A} shares)\n")
+    print(f"Withold:\t{format(W * ratioVoted, '.2f')}%\t({W} shares)\n")
 
