@@ -6,6 +6,7 @@ def getLedgerBalances(queryAsset):
   links, records = getLinksAndRecordsFromParsedLedger(ledger)
   queryAsset = getAssetObjFromCode(queryAsset)
   ### unrestricted shares only ###
+  i = 0
   while(records):
     for accounts in records:
       for balances in accounts["balances"]:
@@ -21,7 +22,7 @@ def getLedgerBalances(queryAsset):
     links, records = getNextLedgerData(links)
   return ledgerBalances
 
-def getNextLedgerData(links):
+def getNextLedgerData(links): # depricated for async
   nextData = requests.get(
     links["next"]["href"]
     .replace("\u0026", "&")
@@ -32,6 +33,18 @@ def getNextLedgerData(links):
     return getLinksAndRecordsFromParsedLedger(nextData)
   except RateLimited:
     return getNextLedgerData(links)
+
+
+import aiohttp
+
+async def asyncGetNextLedgerData(links):
+  nextURL = links["next"]["href"]
+  async with asyncServer:
+    async with aiohttp.ClientSession() as session:
+      async with session.get(nextURL) as nextData:
+        ledger = await nextData.json() 
+# asyncServer.horizon().follow(next_url).limit(MAX_LIMIT).call()
+        return getLinksAndRecordsFromParsedLedger(ledger)
 
 def checkForRateLimitFromLedgerData(ledger):
   try:

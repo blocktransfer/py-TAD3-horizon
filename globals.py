@@ -12,6 +12,7 @@ from stellar_sdk import (
   Keypair,
   Network,
   Server,
+  ServerAsync,
   TransactionBuilder,
   TrustLineFlags
 )
@@ -28,7 +29,8 @@ except ModuleNotFoundError:
 BT_ISSUERS = [
 "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7",
 "GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM", # debug: accounts
-"GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS" # debug: trustlines
+"GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS", # debug: trustlines
+"GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA" # debug: large sets
 ]
 BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
@@ -43,6 +45,7 @@ WASH_SALE_TOML = f"{BT_WELL_KNOWN}/xlm-cache/wash-sales.toml"
 DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
+MAX_LIMIT = "200"
 
 BASE_FEE_MULT = 20
 MAX_NUM_TXN_OPS = 100
@@ -54,7 +57,8 @@ INVESTOR_MIN_EXCESS = Decimal("2.1")
 INVESTOR_STARTING_BAL = Decimal("4.2")
 
 unix_base = datetime.utcfromtimestamp(0)
-server = Server(horizon_url = HORIZON_INST)
+server = Server(HORIZON_INST)
+asyncServer = ServerAsync(HORIZON_INST)
 fee = server.fetch_base_fee() * BASE_FEE_MULT
 distributor = server.load_account(account_id = BT_DISTRIBUTOR)
 treasury = server.load_account(account_id = BT_TREASURY)
