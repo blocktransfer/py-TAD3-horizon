@@ -45,7 +45,6 @@ WASH_SALE_TOML = f"{BT_WELL_KNOWN}/xlm-cache/wash-sales.toml"
 DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
-MAX_LIMIT = "200"
 
 BASE_FEE_MULT = 20
 MAX_NUM_TXN_OPS = 100
