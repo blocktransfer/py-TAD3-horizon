@@ -43,6 +43,15 @@ def filterAuthorizedAccountsOnly(publicKeysMappedToRequestedAssetObjArr):
       verifiedPublicKeysMappedToRequestedAssetObjArr[requestorPublicKeys] = requestedAssets
   return verifiedPublicKeysMappedToRequestedAssetObjArr
 
+# modify everything here to interface with Dynamo and read the full PII records
+# do not approve trustline if user is an insider at the company for queryAsset
+
+def temp(queryAsset):
+  investor = {}
+  company = getCompanyCodeFromAssetCode(queryAsset)
+  if(company not in investor["affiliated"]):
+    addToVerifiedPubKeys = 1
+
 def signBulkTrustlineApprovals(verifiedPublicKeysMappedToRequestedAssetObjArr):
   reason = "Known investor"
   transactions = []

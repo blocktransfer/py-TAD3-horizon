@@ -13,6 +13,17 @@ def getAssetObjFromCode(code):
   return Asset(code, getAssetIssuer(code))
 
 def getAssetIssuer(queryAsset):
+  for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
+    if(assets["code"] == queryAsset):
+      i=0
+    
+    
+    
+    if(requestRecords(url + addresses)):
+      return addresses
+  sys.exit(f"Could not find asset {queryAsset}")
+
+def getAssetIssuerUntrustedTOML(queryAsset):
   url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
   for addresses in BT_ISSUERS:
     if(requestRecords(url + addresses)):
@@ -50,8 +61,8 @@ def loadTomlData(link):
 
 def getFederationServerFromDomain(federationDomain):
   try:
-    requestAddr = f"https://{federationDomain}/.well-known/stellar.toml"
-    data = loadTomlData(requestAddr)
+    url = f"https://{federationDomain}/.well-known/stellar.toml"
+    data = loadTomlData(url)
     return data["FEDERATION_SERVER"]
   except requests.exceptions.ConnectionError:
     return ""
@@ -111,10 +122,28 @@ def getAffiliateShares(queryAsset): # TODO: rm, outdated
 
 def getCompanyCodeFromAssetCode(queryAsset):
   for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
-    if(assets["code"] == queryAsset):
+    if(assets["code"] == queryAsset): # won't work with templated codes
       issuerInfo = assets["attestation_of_reserve"]
       return loadTomlData(issuerInfo)["ISSUER"]["bt_company_code"]
   return 0
+
+def getIssuerInfoForQueryAsset(queryAsset): # won't work with BTD
+  for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
+    try:
+      code = assets["code_template"].split("?")[0]
+    except KeyError:
+      code = assets["code"]
+    codeLength = len(code)
+    if(code == queryAsset[:codeLength]):
+      print(assets)
+
+
+
+
+
+
+
+
 
 def isPublic(companyCode):
   issuerInfo = f"https://blocktransfer.io/assets/{companyCode}.toml"
