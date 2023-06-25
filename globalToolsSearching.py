@@ -47,6 +47,36 @@ def getIssuerAccObj(queryAsset):
   issuer = getAssetIssuer(queryAsset)
   return server.load_account(account_id = issuer)
 
+
+
+
+
+
+
+def getCompanyCodeFromAssetCode(queryAsset):
+  for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
+    if(assets["code"] == queryAsset): # won't work with templated codes
+      issuerInfo = assets["attestation_of_reserve"]
+      return loadTomlData(issuerInfo)["ISSUER"]["bt_company_code"]
+  return 0
+
+def getIssuerInfoForQueryAsset(queryAsset):
+  for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
+    try:
+      code = assets["code_template"].split("?")[0]
+    except KeyError:
+      code = assets["code"]
+    codeLength = len(code)
+    if(code == queryAsset[:codeLength]):
+      print(assets)
+
+
+
+
+
+
+
+
 def getNumRestrictedShares(queryAsset):
   assetData = requestAssetRecords(queryAsset)
   explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
@@ -119,29 +149,6 @@ def getAffiliateShares(queryAsset): # TODO: rm, outdated
     accounts = loadTomlData(BT_ACCOUNTS_TOML)
     pprint(accounts)
     return affiliateBalances
-
-def getCompanyCodeFromAssetCode(queryAsset):
-  for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
-    if(assets["code"] == queryAsset): # won't work with templated codes
-      issuerInfo = assets["attestation_of_reserve"]
-      return loadTomlData(issuerInfo)["ISSUER"]["bt_company_code"]
-  return 0
-
-def getIssuerInfoForQueryAsset(queryAsset): # won't work with BTD
-  for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
-    try:
-      code = assets["code_template"].split("?")[0]
-    except KeyError:
-      code = assets["code"]
-    codeLength = len(code)
-    if(code == queryAsset[:codeLength]):
-      print(assets)
-
-
-
-
-
-
 
 
 

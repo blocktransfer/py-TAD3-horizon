@@ -22,7 +22,7 @@ def getLedgerBalances(queryAsset):
     links, records = getNextLedgerData(links)
   return ledgerBalances
 
-def getNextLedgerData(links): # depricated for async
+def getNextLedgerData(links):
   nextData = requests.get(
     links["next"]["href"]
     .replace("\u0026", "&")
@@ -37,6 +37,7 @@ def getNextLedgerData(links): # depricated for async
 def checkForRateLimitFromLedgerData(ledger):
   try:
     if(ledger and not ledger["status"]):
+      print(f"Rate limited on ledger: {str(ledger)[:250]}")
       raise RateLimited
   except KeyError:
     pass

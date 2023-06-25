@@ -30,7 +30,7 @@ def toFullAddress(street, streetExtra, city, state, postal, country):
       cleanArr.append(items)
   return ", ".join(cleanArr)
 
-async def submitTxnAndWait(transaction):
+async def submitTxnAndWait1(transaction):
   async with ServerAsync(
     horizon_url = HORIZON_INST,
     client = AiohttpClient()

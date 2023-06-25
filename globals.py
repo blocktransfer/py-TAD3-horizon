@@ -55,9 +55,8 @@ MAX_PREC = Decimal("0.0000001")
 INVESTOR_MIN_EXCESS = Decimal("2.1")
 INVESTOR_STARTING_BAL = Decimal("4.2")
 
-unix_base = datetime.utcfromtimestamp(0)
 server = Server(HORIZON_INST)
-asyncServer = ServerAsync(HORIZON_INST)
+unix_base = datetime.utcfromtimestamp(0)
 fee = server.fetch_base_fee() * BASE_FEE_MULT
 distributor = server.load_account(account_id = BT_DISTRIBUTOR)
 treasury = server.load_account(account_id = BT_TREASURY)
