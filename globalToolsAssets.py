@@ -54,4 +54,73 @@ def listAllIssuerAssets():
       links, records = getNextLedgerData(links)
   return allAssets
   
-  
+  def getNumRestrictedShares(queryAsset):
+  assetData = requestAssetRecords(queryAsset)
+  explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
+  implicitRestrictedShares = Decimal("0")
+  for classifiers, balances in assetData["balances"].items():  
+    if(classifiers != "authorized"):
+      implicitRestrictedShares += Decimal(balances)
+  return explicitRestrictedShares + implicitRestrictedShares
+
+# todo: Change diction to reflect use of Soroban for options compensation data
+# def getNumAuthorizedSharesGeneratedButNotOutstanding(companyCode, queryAsset):
+def getNumAuthorizedSharesNotIssued(companyCode, queryAsset):
+  companyAccounts = [
+    "authorized.DSPP",
+    "initial.offering",
+    "reg.a.offering",
+    "reg.cf.offering",
+    "reg.d.offering",
+    "shelf.offering",
+    "reserved.employee", # todo: stock options via Soroban -> these held in contract
+    "treasury"
+  ]
+  shares = Decimal("0")
+  for accounts in companyAccounts:
+    holdingAccountPublicKey = resolveFederationAddress(f"{companyCode}*{accounts}.holdings")
+    shares += getCustodiedShares(queryAsset, holdingAccountPublicKey)
+  return shares
+
+def getCustodiedShares(queryAsset, account):
+  if(not account): return 0
+  accountBalances = getLedgerBalancesForPublicKey(publicKey)
+  return getAssetBalanceFromAllBalances(queryAsset, accountBalances)
+
+def getAffiliateShares(queryAsset): # TODO: rm, outdated
+  companyCode = getCompanyCodeFromAssetCode(queryAsset)
+  public = isPublic(companyCode)
+  if(not public):
+    affiliateAccount = requestAccount = resolveFederationAddress(f"{companyCode}*private.affiliate.holdings")
+    return getCustodiedShares(queryAsset, affiliateAccount)
+  else:
+    affiliateBalances = Decimal("0")
+    # fetch list of affiliates from accounts.toml
+    # get their balances
+    accounts = loadTomlData(BT_ACCOUNTS_TOML)
+    pprint(accounts)
+    return affiliateBalances
+
+def getNumTreasuryShares(queryAsset):
+  treasuryAddr = resolveFederationAddress(f"{queryAsset}*treasury.holdings")
+  if(not treasuryAddr): return 0
+  accountBalances = getLedgerBalancesForPublicKey(treasuryAddr)
+  return getAssetBalanceFromAllBalances(queryAsset, accountBalances)
+
+def getNumEmployeeBenefitShares(queryAsset):
+  employeeBenefitAddr = resolveFederationAddress(f"{queryAsset}*reserved.employee.holdings")
+  if(not employeeBenefitAddr): return 0
+  accountBalances = getLedgerBalancesForPublicKey(employeeBenefitAddr)
+  return getAssetBalanceFromAllBalances(queryAsset, accountBalances)
+
+def getAssetBalanceFromAllBalances(queryAsset, accountBalances):
+  asset = getAssetObjFromCode(queryAsset)
+  for balances in accountBalances:
+    if(balances["asset_type"] != "native"):
+      searchAsset = Asset(balances["asset_code"], balances["asset_issuer"])
+      if(searchAsset == asset):
+        return balances["balance"]
+
+def getLedgerBalancesForPublicKey(publicKey):
+  url = f"{HORIZON_INST}/accounts/{publicKey}"
+  return requestURL(url)["balances"]
