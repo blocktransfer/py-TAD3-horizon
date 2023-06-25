@@ -84,7 +84,7 @@ def getClaimableBalanceAdjustments(queryAsset, ratio, reason):
   source = getSource(ratio, queryAsset)
   roundingUpDifference = Decimal("0")
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, source)
-  for balanceIDs, data in getClaimableBalancesData(queryAsset).items():
+  for balanceIDs, data in getClaimableBalanceIDsMappedToDataForAsset(queryAsset).items():
     adjustedAmount = data["amount"] * ratio
     rounded = roundUp(adjustedAmount)
     roundingUpDifference += rounded - adjustedAmount
@@ -132,16 +132,18 @@ def prepAndSignForOutput(transactionsArray, reason):
     txns.sign(Keypair.from_secret(ISSUER_KEY))
   return builtTransactions
 
-def getClaimableBalancesData(queryAsset):
+def getClaimableBalanceIDsMappedToDataForAsset(queryAsset):
   claimableBalanceIDsMappedToData = {}
   ledger = requestURL(f"{HORIZON_INST}/claimable_balances?{getURLendAsset(queryAsset)}")
+  print(getURLendAsset(queryAsset))
   links, records = getLinksAndRecordsFromParsedLedger(ledger)
   while(records):
     for claimableBalances in records:
       data = {"release": 0}
       for claimants in claimableBalances["claimants"]:
         try:
-          data["release"] = int(claimants["predicate"]["not"]["abs_before_epoch"])
+          restrictedUntilEpoch = int(claimants["predicate"]["not"]["abs_before_epoch"])
+          data["release"] = restrictedUntilEpoch
           break
         except KeyError:
           continue # Expect investor as claimant via not abs_before
@@ -158,3 +160,4 @@ def exportSplitTransactions(queryAsset, transactionsArray):
     with open(f"{G_DIR}/outputs/{now} {queryAsset} StockSplitOutputXDR.txt", "w") as output:
       output.write(txns.to_xdr())
 
+print(getClaimableBalanceIDsMappedToDataForAsset("DEMO"))

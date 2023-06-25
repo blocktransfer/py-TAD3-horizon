@@ -119,7 +119,9 @@ def getNumOutstandingShares(queryAsset):
 def getFloat(queryAsset):
   url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
   assetData = requestRecords(url)[0]
-  shares = Decimal(assetData["liquidity_pools_amount"])
-  shares += Decimal(assetData["amount"])
+  tradingAMMshares = Decimal(assetData["liquidity_pools_amount"])
+  outstandingSharesTradable = Decimal(assetData["amount"])
+  shares = tradingAMMshares + outstandingSharesTradable
+  # CHANGE HERE TO UPDATED COMPANY ACCOUNT QUERIES
   return shares - getAffiliateShares(queryAsset)
 

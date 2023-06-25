@@ -1,12 +1,25 @@
 from globals import *
 
+### HOW LEDGER SHARE BALANCES WORK ###
+
+# Authorized shares on the ledger represent unrestricted stock when held outside of company accounts.
+# Authorized_to_maintain_liabilities is used when an account is frozen due to government requirements.
+#   These shouldn't meaningfully affect float, and are currently marked as unrestricted/outstanding.
+# Unauthorized shares are unrestricted stock held by a company insider who can't trade without help.
+
+# Claimable balances are restricted shares.
+# The claimable date indicates when the shares become unrestricted, typically following SEC Rule 144.
+# The release date may be denoted by a memo in other scenarios dictated by offline case-by-case terms.
+
+# Employee stock grants, options, and similar arrangements are through Soroban.
+
+
+### unrestricted shares only ###
 def getLedgerBalances(queryAsset):
   ledgerBalances = {}
   ledger = requestAssetAccounts(queryAsset)
   links, records = getLinksAndRecordsFromParsedLedger(ledger)
   queryAsset = getAssetObjFromCode(queryAsset)
-  ### unrestricted shares only ###
-  i = 0
   while(records):
     for accounts in records:
       for balances in accounts["balances"]:
@@ -15,6 +28,35 @@ def getLedgerBalances(queryAsset):
           if(asset == queryAsset):
             account = accounts["id"]
             balance = Decimal(balances["balance"])
+            ledgerBalances[account] = balance
+            break
+        except KeyError:
+          continue
+    links, records = getNextLedgerData(links)
+  return ledgerBalances
+
+def getLedgerBalancesV2(queryAsset):
+  ledgerBalances = {}
+  ledger = requestAssetAccounts(queryAsset)
+  links, records = getLinksAndRecordsFromParsedLedger(ledger)
+  queryAsset = getAssetObjFromCode(queryAsset)
+  i = 0
+  while(records):
+    for accounts in records:
+      for balances in accounts["balances"]:
+        try:
+          asset = Asset(balances["asset_code"], balances["asset_issuer"])
+          if(asset == queryAsset):
+            account = accounts["id"]
+            balance = {}
+            balance["unrestricted"] = Decimal(balances["balance"])
+            
+            # CB lookup
+            restricted = 1
+            if(restricted):
+              restricted
+              balance["restricted"] = restricted
+            
             ledgerBalances[account] = balance
             break
         except KeyError:
@@ -53,8 +95,10 @@ def listAllIssuerAssets():
         allAssets.append(entries["asset_code"])
       links, records = getNextLedgerData(links)
   return allAssets
-  
-  def getNumRestrictedShares(queryAsset):
+
+
+
+def getNumRestrictedShares(queryAsset):
   assetData = requestAssetRecords(queryAsset)
   explicitRestrictedShares = Decimal(assetData["claimable_balances_amount"])
   implicitRestrictedShares = Decimal("0")
