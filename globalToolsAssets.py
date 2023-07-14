@@ -168,3 +168,66 @@ def getAssetBalanceFromAllBalances(queryAsset, accountBalances):
 def getLedgerBalancesForPublicKey(publicKey):
   url = f"{HORIZON_INST}/accounts/{publicKey}"
   return requestURL(url)["balances"]
+
+def getTransactionsForAsset(queryAsset):
+  # When SE payments relaunched: 
+    # Get all transfers
+      # SEapiResponse = trySEpaymentsAPI
+    # Get all trades
+      # HorizonTradesSearch via horizon/trades?base_asset=DEMO...
+  
+  # tmp: search investor txns for payments
+  
+  # You need to iterate over all public keys to account for investors
+  # that previously transacted with the queryAsset but don't own now.
+  
+  # use queryAsset DEMO to test transferSearching: 
+  # (will throw KeyError on trades search due to no DEMO trades at the moment)
+  transactionsForAssets = {}
+  allPublicKeys = getAllPublicKeys()
+  for addresses in allPublicKeys:
+    accountLinks = getAccountLinksDict(addresses)
+    paymentsLedger = getPaymentsLedgerFromAccountLinks(accountLinks)
+    paymentLinks, paymentRecords = getLinksAndRecordsFromParsedLedger(paymentsLedger)
+    while(paymentRecords):
+      for payments in paymentRecords:
+        if(
+          payments["type"] == "payment" and
+          payments["asset_type"] != "native" and
+          payments["asset_issuer"] in BT_ISSUERS and
+          payments["asset_code"] == queryAsset
+        ):
+          transactionsForAssets[payments["paging_token"]] = {
+            "type": "transfer",
+            "txHash": payments["transaction_hash"],
+            "amount": Decimal(payments["amount"]),
+            "from": payments["from"],
+            "to": payments["to"],
+            "txSuccess": payments["transaction_successful"] # this should always be True, but should test on extensive dataset to confirm
+          }
+      paymentLinks, paymentRecords = getNextLedgerData(paymentLinks)
+  
+  # use queryAsset ETH to test tradeSearching:
+  fiatAsset = USDC_ASSET # BT_DOLLAR
+  url = f"{HORIZON_INST}/trades?base_asset_type={'credit_alphanum12' if len(queryAsset) > 4 else 'credit_alphanum4'}&base_asset_code={queryAsset}&base_asset_issuer={getAssetIssuer(queryAsset)}&counter_asset_type={fiatAsset.type}&counter_asset_code={fiatAsset.code}&counter_asset_issuer={fiatAsset.issuer}&{MAX_SEARCH}"
+  try:
+    tradesLedger = requestURL(url)
+    tradeLinks, tradeRecords = getLinksAndRecordsFromParsedLedger(tradesLedger)
+  except KeyError:
+    print(f"No trades found for {queryAsset} against {fiatAsset}")
+    return transactionsForAssets
+  while(tradeRecords):
+    for trades in tradeRecords:
+      if(trades["trade_type"] != "liquidity_pool"): # BT doesn't support liquidity pools or path payments yet
+        transactionsForAssets[trades["paging_token"].split("-")[0]] = {
+          "type": "trade",
+          "operationID": trades["id"].split("-")[0],
+          "buyer": trades["counter_account"],
+          "dollars": Decimal(trades["counter_amount"]),
+          "seller": trades["base_account"],
+          "shares": Decimal(trades["base_amount"]),
+          "price": Decimal(trades["price"]["n"]) / Decimal(trades["price"]["d"]), # todo: globalize
+          "timestamp": trades["ledger_close_time"]
+        }
+    tradeLinks, tradeRecords = getNextLedgerData(tradeLinks)
+  return transactionsForAssets
