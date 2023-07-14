@@ -182,7 +182,6 @@ def getTransactionsForAsset(queryAsset):
   # that previously transacted with the queryAsset but don't own now.
   
   # use queryAsset DEMO to test transferSearching: 
-  # (will throw KeyError on trades search due to no DEMO trades at the moment)
   transactionsForAssets = {}
   allPublicKeys = getAllPublicKeys()
   for addresses in allPublicKeys:
