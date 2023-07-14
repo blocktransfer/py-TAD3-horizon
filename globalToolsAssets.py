@@ -202,6 +202,7 @@ def getTransactionsForAsset(queryAsset):
             "amount": Decimal(payments["amount"]),
             "from": payments["from"],
             "to": payments["to"],
+            "timestamp": payments["created_at"],
             "txSuccess": payments["transaction_successful"] # this should always be True, but should test on extensive dataset to confirm
           }
       paymentLinks, paymentRecords = getNextLedgerData(paymentLinks)
