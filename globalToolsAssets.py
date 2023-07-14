@@ -231,3 +231,4 @@ def getTransactionsForAsset(queryAsset):
         }
     tradeLinks, tradeRecords = getNextLedgerData(tradeLinks)
   return transactionsForAssets
+
