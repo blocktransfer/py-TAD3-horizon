@@ -1,3 +1,5 @@
+
+# todo: move to internal/contracts
 include:
  - clause for uncertificated shares + conversion thereof in toto
  - if private, clause recognizing all private sales as undeniable
@@ -12,6 +14,7 @@ include:
  - (private) clause that says we will not restrict sales to new outside investors to prevent reaching the registration requirement shareowner threshold [+affidavit clause that they will send us a notice within five business days of reaching 10M thresh]
 
 
+# todo: move to GTassets/#authSharesNotIssued, revise affiliate holding scheme
 holding account federation descriptions:
   private.affiliate.holdings
     Control securities for private issuers which require special resale provisions.
