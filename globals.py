@@ -110,6 +110,7 @@ def SHA3(input):
 from globalToolsTransactions import *
 from globalToolsSearching import *
 from globalToolsAssets import *
+from globalToolsDebug import *
 
 def getNumOutstandingShares(queryAsset):
   assetData = requestAssetRecords(queryAsset)
