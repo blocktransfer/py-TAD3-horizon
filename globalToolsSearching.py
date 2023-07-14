@@ -6,8 +6,18 @@ def getValidAccountPublicKeys():
     next(MICR)
     for accounts in MICR:
       account = accounts.split("|")
+      # Logic here to check account standing
       validAccountPublicKeys.append(account[0])
   return validAccountPublicKeys
+
+def getAllPublicKeys():
+  publicKeys = []
+  with open(MICR_TXT) as MICR:
+    next(MICR)
+    for accounts in MICR:
+      account = accounts.split("|")
+      publicKeys.append(account[0])
+  return publicKeys
 
 def getAssetObjFromCode(code):
   return Asset(code, getAssetIssuer(code))
@@ -31,8 +41,8 @@ def requestAssetRecords(queryAsset):
   url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={issuer}"
   return requestRecords(url)[0]
 
-def requestAssetAccounts(queryAsset):
-  url = f"{HORIZON_INST}/accounts?{getURLendAsset(queryAsset)}"
+def requestAssetAccounts(queryAsset): # change this diction to chiefledger
+  url = f"{HORIZON_INST}/accounts?{getURLendAsset(queryAsset)}" # TODO: change these these to use param get request jsons
   return requestURL(url)
 
 def getURLendAsset(queryAsset):
@@ -67,7 +77,10 @@ def getFederationServerFromDomain(federationDomain):
     return ""
 
 def resolveFederationAddress(federationAddress):
-  federationDomain = federationAddress.split("*")[1]
+  federationComponents = federationAddress.split("*")
+  if(len(federationComponents) != 2):
+    sys.exit(f"Tried parsing invalid federation address: {federationAddress}")
+  federationDomain = federationComponents[1]
   homeDomainFederationServer = getFederationServerFromDomain(federationDomain)
   url = f"{homeDomainFederationServer}?q={federationAddress}&type=name"
   try:
@@ -83,9 +96,15 @@ def getAssetCodeFromTomlLink(link):
   rawCode = link.split("/")[-1]
   return rawCode[:-5]
 
+### potentially combine, see todo items for URL request reformatting to use params ###
 def getAccountDataDict(address):
   url = f"{HORIZON_INST}/accounts/{address}"
   return requestURL(url)["data"]
+
+def getAccountLinksDict(address):
+  url = f"{HORIZON_INST}/accounts/{address}"
+  return requestURL(url)["_links"]
+### ###
 
 def getISIN(ticker):
   try:

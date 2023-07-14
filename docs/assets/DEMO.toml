@@ -20,8 +20,8 @@ ir.phone = ""
 jurisdiction = "Delaware, United States"
 latest_financial_balance_sheet = "https://stocks.blocktransfer.io/DEMO/financial-reports/current/annual.pdf"
 latest_PNL_and_retained_earnings = "https://stocks.blocktransfer.io/DEMO/financial-reports/current/quarterly.pdf"
-lockout_period = ["12-31 to 4-15"]
-min_reg_d_506_c_state_init_usd = "5000"
+lockout_period = ["12-31->4-15"]
+min_reg_d_506c_state_init_usd = "5000"
 meetings = { 2023 = "2023-4-29" , 2024 = "endCountProxyVotesDate", 2024a = "2024-7-8" }
 name = "Example Security Inc."
 name_previous = ["Alias 1 (DE)", "Alias 2 (DE)", "Alias 3 Inc (WY)"]
@@ -54,7 +54,7 @@ image = "https://blocktransfer.io/imgs/demo.png"
 outstanding_EOY = { 2023-12-31 = "3248903" }
 par = "$0.001"
 preference = "Lowest"
-splits_effective = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2 to 1 effective 2022-1-1"
+splits_effective = "1 to 5 effective 2021-4-20|3 to 2 effective 2021-10-9|2->1 effective 2022-1-1"
 status = "test"
 votes_per_share = 1
 

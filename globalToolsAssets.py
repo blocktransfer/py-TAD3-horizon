@@ -35,6 +35,7 @@ def getLedgerBalances(queryAsset):
     links, records = getNextLedgerData(links)
   return ledgerBalances
 
+### todo ###
 def getLedgerBalancesV2(queryAsset):
   ledgerBalances = {}
   ledger = requestAssetAccounts(queryAsset)
@@ -63,6 +64,7 @@ def getLedgerBalancesV2(queryAsset):
           continue
     links, records = getNextLedgerData(links)
   return ledgerBalances
+######
 
 def getNextLedgerData(links):
   nextData = requests.get(
@@ -95,8 +97,6 @@ def listAllIssuerAssets():
         allAssets.append(entries["asset_code"])
       links, records = getNextLedgerData(links)
   return allAssets
-
-
 
 def getNumRestrictedShares(queryAsset):
   assetData = requestAssetRecords(queryAsset)

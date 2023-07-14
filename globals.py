@@ -71,16 +71,17 @@ SECTION_4_A_5_ANNUAL_LIM = 5 * MM
 REG_A_TIER_1_ANNUAL_LIM = 20 * MM
 REG_A_TIER_2_ANNUAL_LIM = 75 * MM
 
-# localize these?
-AFFILIATE_LOOKBACK_PER = pandas.DateOffset(days = 90)
-IPO_LOCKUP_OLD_SHARES_MIN = pandas.DateOffset(days = 90)
-RULE_144_HOLDING_MIN_REPORTING_CO = pandas.DateOffset(months = 6)
-RULE_144_HOLDING_MIN_NOT_REPORTING = pandas.DateOffset(years = 1)
-RULE_144_MIN_REPORTING_QUALIFICATION_TIME = pandas.DateOffset(days = 90)
-RULE_144_MIN_3_MO_AFF_REPORTING_SHARES = Decimal("5000")
-RULE_144_MIN_3_MO_AFF_REPORTING_USD_VAL = Decimal("50000")
-RULE_144_NOT_AFFILIATED_PERIOD = pandas.DateOffset(months = 3)
+# -> portal repo:
 RULE_144_SALE_REPORTING_PERIOD = pandas.DateOffset(months = 3)
+RULE_144_MIN_AFF_REPORTING_USD_THRESH_PER_PERIOD = Decimal("50000")
+RULE_144_MIN_AFF_REPORTING_SHARES_THRESH_PER_PERIOD = Decimal("5000")
+# -> app repo:
+RULE_144_REPORTING_CO_HOLDING_MIN = pandas.DateOffset(months = 6)
+RULE_144_NOT_REPORTING_HOLDING_MIN = pandas.DateOffset(years = 1)
+RULE_144_AFFILIATE_LOOKBACK_PERIOD = pandas.DateOffset(months = 3)
+RULE_144_MIN_REPORTING_QUALIFICATION_TIME = pandas.DateOffset(days = 90) # this doesn't have anything to compare to using bool reporting scheme
+# todo: implement IPO logic in /issuers
+IPO_OLD_SHARES_MIN_LOCKUP = pandas.DateOffset(days = 90)
 
 REG_CF_STD_LIM = Decimal("2500")
 REG_D_506B_NON_ACCREDITED_INVESTOR_LIM = 35
