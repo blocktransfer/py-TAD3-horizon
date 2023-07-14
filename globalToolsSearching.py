@@ -109,6 +109,13 @@ def getAccountLinksDict(address):
 def formatRawHref(href):
   return href.replace("{?cursor,limit,order}", f"?{MAX_SEARCH}")
 
+def getPaymentsLedgerFromAccountLinks(accountLinks):
+  return requestURL(
+    formatRawHref(
+      accountLinks["payments"]["href"]
+    )
+  )
+
 def getISIN(ticker):
   try:
     data = loadTomlData(BT_STELLAR_TOML)

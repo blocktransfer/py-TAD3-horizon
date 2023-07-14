@@ -84,10 +84,3 @@ def dayFromEpoch(epoch):
   except ValueError:
     return "Epoch out of range"
 
-def getPaymentsLedgerFromAccountLinks(accountLinks):
-  return requestURL(
-    formatRawHref(
-      accountLinks["payments"]["href"]
-    )
-  )
-
