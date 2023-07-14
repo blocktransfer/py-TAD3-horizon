@@ -106,6 +106,9 @@ def getAccountLinksDict(address):
   return requestURL(url)["_links"]
 ### ###
 
+def formatRawHref(href):
+  return href.replace("{?cursor,limit,order}", f"?{MAX_SEARCH}")
+
 def getISIN(ticker):
   try:
     data = loadTomlData(BT_STELLAR_TOML)

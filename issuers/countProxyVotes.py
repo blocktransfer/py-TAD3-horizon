@@ -86,10 +86,7 @@ def getPublicKeysMappedToMemos(queryAsset, votingFederationAddress):
     for accounts in records:
       numInvestors += 1
       if(accounts["account_id"] in validAccountPublicKeys):
-        paymentsLedger = requestRecords(
-          accounts["_links"]["payments"]["href"]
-          .replace("{?cursor,limit,order}", f"?{MAX_SEARCH}")
-        )
+        paymentsLedger = getPaymentsLedgerFromAccountLinks(accounts["_links"])
         paymentLinks, paymentRecords = getLinksAndRecordsFromParsedLedger(paymentsLedger)
         while(paymentRecords):
           for payments in paymentRecords:

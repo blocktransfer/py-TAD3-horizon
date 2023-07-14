@@ -135,7 +135,6 @@ def prepAndSignForOutput(transactionsArray, reason):
 def getClaimableBalanceIDsMappedToDataForAsset(queryAsset):
   claimableBalanceIDsMappedToData = {}
   ledger = requestURL(f"{HORIZON_INST}/claimable_balances?{getURLendAsset(queryAsset)}")
-  print(getURLendAsset(queryAsset))
   links, records = getLinksAndRecordsFromParsedLedger(ledger)
   while(records):
     for claimableBalances in records:
@@ -160,4 +159,3 @@ def exportSplitTransactions(queryAsset, transactionsArray):
     with open(f"{G_DIR}/outputs/{now} {queryAsset} StockSplitOutputXDR.txt", "w") as output:
       output.write(txns.to_xdr())
 
-print(getClaimableBalanceIDsMappedToDataForAsset("DEMO"))
