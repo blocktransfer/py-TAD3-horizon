@@ -1,5 +1,3 @@
-from globals import *
-
 def debugGetAllCurrPublicKeysForAsset(queryAsset):
   currPublicKeys = []
   ledger = requestAssetAccounts(queryAsset)

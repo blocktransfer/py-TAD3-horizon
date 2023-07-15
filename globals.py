@@ -1,4 +1,4 @@
-import asyncio, functools, json, os.path, pandas, requests, sys, toml
+import asyncio, functools, json, os.path, pandas, requests, sys, time, toml
 from stellar_sdk.xdr import TransactionEnvelope, TransactionResult
 from datetime import datetime
 from hashlib import sha3_256
@@ -92,17 +92,37 @@ NON_REPORTING_CO_TOTAL_INVESTORS_MAX = 2000
 NON_REPORTING_CO_NON_ACCREDITED_INVESTOR_MAX = 500
 AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 
+# Horizon access functions:
 class RateLimited(Exception):
   pass
 
+def checkForRateLimitFromLedgerData(ledger):
+  try:
+    if(ledger["status"] == 503):
+      print(f"Rate limited on ledger: {str(ledger)[:250]}")
+      time.sleep(128)
+      raise RateLimited
+  except KeyError:
+    pass
+
 def requestURL(url):
-  return requests.get(url).json()
+  data = requests.get(url).json()
+  try:
+    checkForRateLimitFromLedgerData(data)
+    return data
+  except RateLimited:
+    print(url)
+    return requestURL(url)
 
 def requestRecords(url):
   return requestURL(url)["_embedded"]["records"]
 
 def getLinksAndRecordsFromParsedLedger(data):
-  return data["_links"], data["_embedded"]["records"]
+  try:
+    return data["_links"], data["_embedded"]["records"]
+  except KeyError: ## TEMP ## 
+    pprint(data)
+    return 0
 
 def SHA3(input):
   return sha3_256(input.encode()).hexdigest()
@@ -110,8 +130,8 @@ def SHA3(input):
 from globalToolsTransactions import *
 from globalToolsSearching import *
 from globalToolsAssets import *
-from globalToolsDebug import *
 
+# Key stock data functions:
 def getNumOutstandingShares(queryAsset):
   assetData = requestAssetRecords(queryAsset)
   shares = Decimal(assetData["liquidity_pools_amount"])
@@ -122,7 +142,7 @@ def getNumOutstandingShares(queryAsset):
   return shares - getNumAuthorizedSharesNotIssued(companyCode, queryAsset)
 
 def getFloat(queryAsset):
-  url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={BT_ISSUER}"
+  url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={getAssetIssuer(queryAsset)}"
   assetData = requestRecords(url)[0]
   tradingAMMshares = Decimal(assetData["liquidity_pools_amount"])
   outstandingSharesTradable = Decimal(assetData["amount"])

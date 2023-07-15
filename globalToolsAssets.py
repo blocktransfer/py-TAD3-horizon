@@ -67,24 +67,20 @@ def getLedgerBalancesV2(queryAsset):
 ######
 
 def getNextLedgerData(links):
-  nextData = requests.get(
+  nextData = requestURL(
     links["next"]["href"]
     .replace("\u0026", "&")
     .replace("%3A", ":")
-  ).json()
+  )
   try:
     checkForRateLimitFromLedgerData(nextData)
     return getLinksAndRecordsFromParsedLedger(nextData)
-  except RateLimited:
-    return getNextLedgerData(links)
-
-def checkForRateLimitFromLedgerData(ledger):
-  try:
-    if(ledger and not ledger["status"]):
-      print(f"Rate limited on ledger: {str(ledger)[:250]}")
-      raise RateLimited
   except KeyError:
-    pass
+    print("KeyError in NextLedget function")
+    pprint(links)
+    print("->")
+    pprint(nextData)
+    return getNextLedgerData(links)
 
 def listAllIssuerAssets():
   allAssets = []
@@ -169,6 +165,17 @@ def getLedgerBalancesForPublicKey(publicKey):
   url = f"{HORIZON_INST}/accounts/{publicKey}"
   return requestURL(url)["balances"]
 
+def debugGetAllCurrPublicKeysForAsset(queryAsset):
+  currPublicKeys = []
+  ledger = requestAssetAccounts(queryAsset)
+  links, records = getLinksAndRecordsFromParsedLedger(ledger)
+  queryAsset = getAssetObjFromCode(queryAsset)
+  while(records):
+    for accounts in records:
+      currPublicKeys.append(accounts["id"])
+    links, records = getNextLedgerData(links)
+  return currPublicKeys
+
 def getTransactionsForAsset(queryAsset):
   # When SE payments relaunched: 
     # Get all transfers
@@ -183,7 +190,7 @@ def getTransactionsForAsset(queryAsset):
   
   # use queryAsset DEMO to test transferSearching: 
   transactionsForAssets = {}
-  allPublicKeys = getAllPublicKeys()
+  allPublicKeys = debugGetAllCurrPublicKeysForAsset(queryAsset)
   for addresses in allPublicKeys:
     accountLinks = getAccountLinksDict(addresses)
     paymentsLedger = getPaymentsLedgerFromAccountLinks(accountLinks)
@@ -196,17 +203,21 @@ def getTransactionsForAsset(queryAsset):
           payments["asset_issuer"] in BT_ISSUERS and
           payments["asset_code"] == queryAsset
         ):
-          transactionsForAssets[payments["paging_token"]] = {
+          transactionsForAssets[payments["paging_token"].split("-")[0]] = {
             "type": "transfer",
             "txHash": payments["transaction_hash"],
             "amount": Decimal(payments["amount"]),
             "from": payments["from"],
             "to": payments["to"],
             "timestamp": payments["created_at"],
-            "txSuccess": payments["transaction_successful"] # this should always be True, but should test on extensive dataset to confirm
+            "txSuccess": payments["transaction_successful"] ###
           }
+          if(not payments["transaction_successful"]):
+            pprint(payments)
       paymentLinks, paymentRecords = getNextLedgerData(paymentLinks)
   
+  print("debug: Done with transfers")
+  return 1
   # use queryAsset ETH to test tradeSearching:
   fiatAsset = USDC_ASSET # BT_DOLLAR
   url = f"{HORIZON_INST}/trades?base_asset_type={'credit_alphanum12' if len(queryAsset) > 4 else 'credit_alphanum4'}&base_asset_code={queryAsset}&base_asset_issuer={getAssetIssuer(queryAsset)}&counter_asset_type={fiatAsset.type}&counter_asset_code={fiatAsset.code}&counter_asset_issuer={fiatAsset.issuer}&{MAX_SEARCH}"
@@ -214,7 +225,7 @@ def getTransactionsForAsset(queryAsset):
     tradesLedger = requestURL(url)
     tradeLinks, tradeRecords = getLinksAndRecordsFromParsedLedger(tradesLedger)
   except KeyError:
-    print(f"No trades found for {queryAsset} against {fiatAsset}")
+    print(f"No trades found for {queryAsset} against {fiatAsset.code}")
     return transactionsForAssets
   while(tradeRecords):
     for trades in tradeRecords:
