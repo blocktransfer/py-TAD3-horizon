@@ -11,6 +11,7 @@ active = true
 affiliations = { DEMO = "current" }
 backup_witholding = false
 bad_actor = false
+created_at = "timestamp here"
 dealer = false
 qib = false
 show_506b = ["TEST"]
