@@ -26,6 +26,6 @@ Rename to `master-identity-account-mapping.txt`
 - We will work on publishing a test database for external audit workflows in due time.
 
 ## Things we will never do
-- Charge fees for standard activities
-- Sell investor data to third parties
-- Set unrequired trading restrictions
+1. Charge fees for standard activities
+2. Sell investor data to third parties
+3. Set unrequired trading restrictions
