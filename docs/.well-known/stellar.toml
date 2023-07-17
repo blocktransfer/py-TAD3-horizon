@@ -1,3 +1,8 @@
+# Block Transfer <blocktransfer.io>
+# US Patent 17/396,742
+
+# The Stellar distributed network, Stellar Development Foundation, and affiliates thereof are not associated such issuers.
+
 VERSION = "2.5.0"
 NETWORK_PASSPHRASE = "Public Global Stellar Network ; September 2015"
 FEDERATION_SERVER = "https://stellarid.io/federation"
@@ -40,7 +45,7 @@ image = "https://blocktransfer.io/imgs/btd.png" # todo: Overlay cash monts. on i
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
 is_asset_anchored = true
-name = "BT Dollars"
+name = "Block Transfer Dollars"
 redemption_instructions = "Use our app to link your bank or USDC wallet."
 status = "test"
 
