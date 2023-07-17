@@ -24,6 +24,8 @@ In that folder, add `exampleMICR` from `/issuers`
 
 Rename to `master-identity-account-mapping.txt`
 
+- Note: Unfortunately, this is soon to be depricated in favor of programmatic PII access and management. We will work on publishing a test database for external audit workflows in due time.
+
 # Things we will never do
 - Charge fees for standard activities
 - Sell investor data to third parties
