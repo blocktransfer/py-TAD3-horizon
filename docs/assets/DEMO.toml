@@ -1,3 +1,5 @@
+# This information is current
+
 [ISSUER]
 attestation_of_reserve = "https://blocktransfer.io/board-resolutions/demo.pdf"
 # affiliate_selling = false
@@ -34,6 +36,7 @@ reporting_company = false
 req_bt_506b_ppm = false
 shell_company = false
 sic = 7374
+transfer_agent = "BlockTrans Syndicate (99 Wall St #4640, New York, NY 10005)"
 
 [[INSIDERS]]
 name = "John Doe"

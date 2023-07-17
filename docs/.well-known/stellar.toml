@@ -1,7 +1,6 @@
 # Block Transfer <blocktransfer.io>
 # US Patent 17/396,742
 
-# In accordance with §240.15c2-11, BlockTrans Syndicate is the transfer agent for the issuers of securities detailed here.
 # The Stellar distributed network, Stellar Development Foundation, and affiliates thereof are not associated such issuers.
 
 VERSION = "2.5.0"
