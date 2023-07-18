@@ -72,15 +72,7 @@ def getNextLedgerData(links):
     .replace("\u0026", "&")
     .replace("%3A", ":")
   )
-  try:
-    checkForRateLimitFromLedgerData(nextData)
-    return getLinksAndRecordsFromParsedLedger(nextData)
-  except KeyError:
-    print("KeyError in NextLedget function")
-    pprint(links)
-    print("->")
-    pprint(nextData)
-    return getNextLedgerData(links)
+  return getLinksAndRecordsFromParsedLedger(nextData)
 
 def listAllIssuerAssets():
   allAssets = []
@@ -190,7 +182,9 @@ def getTransactionsForAsset(queryAsset):
   
   # use queryAsset DEMO to test transferSearching: 
   transactionsForAssets = {}
-  allPublicKeys = debugGetAllCurrPublicKeysForAsset(queryAsset)
+  allPublicKeys = getAllPublicKeys(queryAsset)
+  with open('outputs/AQUAaccounts.txt', 'w') as file:
+    file.write(str(allPublicKeys))
   for addresses in allPublicKeys:
     accountLinks = getAccountLinksDict(addresses)
     paymentsLedger = getPaymentsLedgerFromAccountLinks(accountLinks)
