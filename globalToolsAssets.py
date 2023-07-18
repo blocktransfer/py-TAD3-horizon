@@ -197,12 +197,23 @@ def getTransactionsForAsset(queryAsset):
   # use queryAsset ETH to test tradeSearching:
   fiatAsset = USDC_ASSET # BT_DOLLAR
   queryAsset = getAssetObjFromCode(queryAsset)
-  url = f"{HORIZON_INST}/trades?base_asset_type={queryAsset.type}&base_asset_code={queryAsset.code}&base_asset_issuer={queryAsset.issuer}&counter_asset_type={fiatAsset.type}&counter_asset_code={fiatAsset.code}&counter_asset_issuer={fiatAsset.issuer}&{MAX_SEARCH}"
+  
+  # url = f"{HORIZON_INST}/trades?base_asset_type={queryAsset.type}&base_asset_code={queryAsset.code}&base_asset_issuer={queryAsset.issuer}&counter_asset_type={fiatAsset.type}&counter_asset_code={fiatAsset.code}&counter_asset_issuer={fiatAsset.issuer}&{MAX_SEARCH}"
+  params = {
+    "base_asset_type": queryAsset.type,
+    "base_asset_code": queryAsset.code,
+    "base_asset_issuer": queryAsset.issuer,
+    "counter_asset_type": fiatAsset.type,
+    "counter_asset_code": fiatAsset.code,
+    "counter_asset_issuer": fiatAsset.issuer,
+    "limit": SEARCH_LIM
+  }
+  tradesLedger = requestURL(f"{HORIZON_INST}/trades", params)
+  
   try:
-    tradesLedger = requestURL(url)
     tradeLinks, tradeRecords = getLinksAndRecordsFromParsedLedger(tradesLedger)
   except KeyError:
-    print(f"No trades found for {queryAsset} against {fiatAsset.code}")
+    print(f"No trades found for {queryAsset.code} against {fiatAsset.code}")
     return transactionsForAssets
   while(tradeRecords):
     for trades in tradeRecords:
