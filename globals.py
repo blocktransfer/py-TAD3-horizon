@@ -115,11 +115,7 @@ def requestRecords(url):
   return requestURL(url)["_embedded"]["records"]
 
 def getLinksAndRecordsFromParsedLedger(data):
-  try:
-    return data["_links"], data["_embedded"]["records"]
-  except KeyError: ## TEMP ## 
-    pprint(data)
-    return 0
+  return data["_links"], data["_embedded"]["records"]
 
 def SHA3(input):
   return sha3_256(input.encode()).hexdigest()
