@@ -96,7 +96,7 @@ AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 class RateLimited(Exception):
   pass
 
-def checkLedgerForRateLimit(ledger, url):
+def verifyLedgerNotRateLimited(ledger):
   try:
     if(ledger["status"]):
       time.sleep(200)
@@ -107,7 +107,7 @@ def checkLedgerForRateLimit(ledger, url):
 def requestURL(url):
   data = requests.get(url).json()
   try:
-    return checkLedgerForRateLimit(data, url)
+    return verifyLedgerNotRateLimited(data)
   except RateLimited:
     return requestURL(url)
 

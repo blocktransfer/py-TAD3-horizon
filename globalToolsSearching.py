@@ -19,6 +19,17 @@ def getAllPublicKeys():
       publicKeys.append(account[0])
   return publicKeys
 
+def debugGetAllCurrPublicKeysForAsset(queryAsset):
+  currPublicKeys = []
+  ledger = requestAssetAccounts(queryAsset)
+  links, records = getLinksAndRecordsFromParsedLedger(ledger)
+  queryAsset = getAssetObjFromCode(queryAsset)
+  while(records):
+    for accounts in records:
+      currPublicKeys.append(accounts["id"])
+    links, records = getNextLedgerData(links)
+  return currPublicKeys
+
 def getAssetObjFromCode(code):
   return Asset(code, getAssetIssuer(code))
 

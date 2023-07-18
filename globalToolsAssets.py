@@ -157,17 +157,6 @@ def getLedgerBalancesForPublicKey(publicKey):
   url = f"{HORIZON_INST}/accounts/{publicKey}"
   return requestURL(url)["balances"]
 
-def debugGetAllCurrPublicKeysForAsset(queryAsset):
-  currPublicKeys = []
-  ledger = requestAssetAccounts(queryAsset)
-  links, records = getLinksAndRecordsFromParsedLedger(ledger)
-  queryAsset = getAssetObjFromCode(queryAsset)
-  while(records):
-    for accounts in records:
-      currPublicKeys.append(accounts["id"])
-    links, records = getNextLedgerData(links)
-  return currPublicKeys
-
 def getTransactionsForAsset(queryAsset):
   # When SE payments relaunched: 
     # Get all transfers
@@ -182,9 +171,7 @@ def getTransactionsForAsset(queryAsset):
   
   # use queryAsset DEMO to test transferSearching: 
   transactionsForAssets = {}
-  allPublicKeys = getAllPublicKeys(queryAsset)
-  with open('outputs/AQUAaccounts.txt', 'w') as file:
-    file.write(str(allPublicKeys))
+  allPublicKeys = getAllPublicKeys()
   for addresses in allPublicKeys:
     accountLinks = getAccountLinksDict(addresses)
     paymentsLedger = getPaymentsLedgerFromAccountLinks(accountLinks)
