@@ -196,7 +196,8 @@ def getTransactionsForAsset(queryAsset):
   
   # use queryAsset ETH to test tradeSearching:
   fiatAsset = USDC_ASSET # BT_DOLLAR
-  url = f"{HORIZON_INST}/trades?base_asset_type={'credit_alphanum12' if len(queryAsset) > 4 else 'credit_alphanum4'}&base_asset_code={queryAsset}&base_asset_issuer={getAssetIssuer(queryAsset)}&counter_asset_type={fiatAsset.type}&counter_asset_code={fiatAsset.code}&counter_asset_issuer={fiatAsset.issuer}&{MAX_SEARCH}"
+  queryAsset = getAssetObjFromCode(queryAsset)
+  url = f"{HORIZON_INST}/trades?base_asset_type={queryAsset.type}&base_asset_code={queryAsset.code}&base_asset_issuer={queryAsset.issuer}&counter_asset_type={fiatAsset.type}&counter_asset_code={fiatAsset.code}&counter_asset_issuer={fiatAsset.issuer}&{MAX_SEARCH}"
   try:
     tradesLedger = requestURL(url)
     tradeLinks, tradeRecords = getLinksAndRecordsFromParsedLedger(tradesLedger)
