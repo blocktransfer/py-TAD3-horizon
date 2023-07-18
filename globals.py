@@ -48,6 +48,7 @@ WASH_SALE_TOML = f"{BT_WELL_KNOWN}/xlm-cache/wash-sales.toml"
 DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
+SEARCH_LIM = 200
 
 BASE_FEE_MULT = 20
 MAX_NUM_TXN_OPS = 100
@@ -110,6 +111,16 @@ def requestURL(url):
     return verifyLedgerNotRateLimited(data)
   except RateLimited:
     return requestURL(url)
+
+def requestURLwithParams(url, params):
+  data = requests.get(
+    url,
+    params = params
+  ).json()
+  try:
+    return verifyLedgerNotRateLimited(data)
+  except RateLimited:
+    return requestURLwithParams(url, params)
 
 def requestRecords(url):
   return requestURL(url)["_embedded"]["records"]
