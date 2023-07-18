@@ -198,7 +198,7 @@ def getTransactionsForAsset(queryAsset):
   fiatAsset = USDC_ASSET # BT_DOLLAR
   queryAsset = getAssetObjFromCode(queryAsset)
   
-  # url = f"{HORIZON_INST}/trades?base_asset_type={queryAsset.type}&base_asset_code={queryAsset.code}&base_asset_issuer={queryAsset.issuer}&counter_asset_type={fiatAsset.type}&counter_asset_code={fiatAsset.code}&counter_asset_issuer={fiatAsset.issuer}&{MAX_SEARCH}"
+  # url = f"{HORIZON_INST}/trades?base_asset_type={queryAsset.type}&base_asset_code={queryAsset.code}&base_asset_issuer={queryAsset.issuer}&counter_asset_type={fiatAsset.type}&counter_asset_code={fiatAsset.code}&counter_asset_issuer={fiatAsset.issuer}&{MAX_SEARCH}" ## swap rest to params
   params = {
     "base_asset_type": queryAsset.type,
     "base_asset_code": queryAsset.code,
