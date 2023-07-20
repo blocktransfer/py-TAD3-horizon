@@ -156,7 +156,7 @@ def getAssetBalanceFromAllBalances(queryAsset, accountBalances):
 def getLedgerBalancesForPublicKey(publicKey):
   url = f"{HORIZON_INST}/accounts/{publicKey}"
   return requestURL(url)["balances"]
-import ast
+
 def getTransactionsForAsset(queryAsset):
   # When SE payments relaunched: 
     # Get all transfers
