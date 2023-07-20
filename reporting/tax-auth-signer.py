@@ -14,7 +14,7 @@ secret = account.secret
 # todo: add section for company FACTAs
 
 fullName = "First Last"
-fullResidenialAddress = "99 Wall St #4640, New York, NY 10005"
+fullResidenialAddress = "123 Somewhere St"
 taxID = "123-45-6789"
 DOB = "YYYY-MM-DD"
 FTIN = None
@@ -28,8 +28,9 @@ withholding as a result of a failure to report all interest or dividends, or (c)
 the IRS has notified me that I am no longer subject to backup withholding; and 3.
 I am a U.S. citizen or other U.S. person (including a U.S. resident alien)."""
 
-W9individualStatementNoBackupWitholding = f"""Under penalties of perjury, I, {fullName},
-born {DOB} and residing at {fullResidenceAddress}, do hereby certify that:
+W9individualStatementNoBackupWitholding = f"""Under penalties of perjury, I,
+{fullName}, born {DOB} and residing at {fullResidenceAddress},
+do hereby certify that:
 1. {taxID} is my correct taxpayer identification number; and
 2. I am not subject to backup withholding because:
   (a) I am exempt from backup withholding, or
@@ -39,7 +40,7 @@ born {DOB} and residing at {fullResidenceAddress}, do hereby certify that:
 3. I am a U.S. citizen or other U.S. person (including a U.S. resident alien)."""
 
 # EIN biz statement
-
+# change these to inline items and provision S3 arctic storage in tokenization VPS
 W9authStatementWithBackupWitholding = """Under penalties of perjury, I certify that:
 1. The number shown on this form is my correct taxpayer identification number (or I
 am waiting for a number to be issued to me); and 2. I am currently subject to
@@ -62,16 +63,17 @@ interest subject to withholding under section 1446(f); - The person named on lin
 of this form is a resident of the treaty country listed on line 9 of the form (if
 any) within the meaning of the income tax treaty between the United States and that
 country; and - For broker transactions or barter exchanges, the beneficial owner is
-an exempt foreign person because the person named on this form is (a) 
-a nonresident alien individual or a foreign corporation, partnership, estate, or trust;
-an individual who has not been, and does not plan to be, present in the United States for a total
-of 183 days or more during the calendar year; and neither engaged, nor plan to be engaged
-during the year, in a U.S. trade or business that has effectively connected gains from transactions with a broker or barter exchange.
-Furthermore, I authorize this form to be provided to any withholding agent that has control, receipt, or
-custody of the income of which I am the beneficial owner or any withholding agent
+an exempt foreign person because the person named on this form is (a) a nonresident
+alien individual or a foreign corporation, partnership, estate, or trust; an
+individual who has not been, and does not plan to be, present in the United States
+for a total of 183 days or more during the calendar year; and neither engaged, nor
+plan to be engaged during the year, in a U.S. trade or business that has effectively
+connected gains from transactions with a broker or barter exchange. Furthermore, I
+authorize this form to be provided to any withholding agent that has control, receipt,
+or custody of the income of which I am the beneficial owner or any withholding agent
 that can disburse or make payments of the income of which I am the beneficial owner.
-I agree that I will submit a new form within 30 days if any certification made on
-this form becomes incorrect."""
+I agree that I will submit an updated form W8 within 30 days if any certification
+made on this form becomes incorrect via email to authentication@blocktransfer.com."""
 
 UScitizen = 1
 subjectToBackupWitholding = 0
@@ -84,11 +86,12 @@ if(UScitizen):
 else: 
   signature = account.sign(encodeString(W8authStatement))
 
+inq_ID = "inq_iQATg2szLK5kfVLiNhhY5yZ6"
 msg = f"""signedOn: {datetime.now()}
 account: {signer}
 backupWitholding: {subjectToBackupWitholding}
 signature: {signature}
-personaSessionID: abc
+personaInquiryID: {inq_ID}
 instanceType: xyz""" # make sure persona session reference includes georgraphic information for signature verification incl. device type, IP info, etc.
 
 # Send msg to Lambda

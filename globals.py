@@ -68,8 +68,8 @@ treasury = server.load_account(account_id = BT_TREASURY)
 MM = Decimal("1000000")
 REG_CF_ANNUAL_LIM = 5 * MM
 RULE_701_ANNUAL_LIM = 1 * MM
+SEC_4_A_5_ANNUAL_LIM = 5 * MM
 REG_D_504_ANNUAL_LIM = 10 * MM
-SECTION_4_A_5_ANNUAL_LIM = 5 * MM
 REG_A_TIER_1_ANNUAL_LIM = 20 * MM
 REG_A_TIER_2_ANNUAL_LIM = 75 * MM
 
@@ -100,19 +100,21 @@ class RateLimited(Exception):
 def returnLedgerIfNotRateLimited(ledger):
   try:
     if(ledger["status"]):
-      time.sleep(200)
+      time.sleep(250)
       raise RateLimited
   except KeyError:
     return ledger
 
 def requestURL(url):
   data = requests.get(url).json()
-  try: #
+  try: #todo: change diction and decrease use significantly
     return returnLedgerIfNotRateLimited(data)
-  except RateLimited: #
+  except RateLimited: #perhaps still good for continued ledger url searches
     return requestURL(url)
+  except requests.exceptions.JSONDecodeError:
+    sys.exit(f"JSONparseErr:\n{data}\n{url}")
 
-def requestURLwithParams(url, params):
+def requestURLwithParams(url, params): # best!
   data = requests.get(
     url,
     params = params

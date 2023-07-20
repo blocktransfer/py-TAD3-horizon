@@ -84,3 +84,6 @@ def dayFromEpoch(epoch):
   except ValueError:
     return "Epoch out of range"
 
+def divide(numerator, denominator):
+  return Decimal(numerator) / Decimal(denominator)
+

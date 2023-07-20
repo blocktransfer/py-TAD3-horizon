@@ -196,3 +196,6 @@ def getClaimedIDfromClaimingTxnHashForAsset(transaction, queryAsset):
       except KeyError:
         continue
 
+def stripPagingNum(fullPaging):
+  return fullPaging.split("-")[0]
+

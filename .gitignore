@@ -1,5 +1,6 @@
 __pycache__
 outputs
 testing.py
-investors/splits/__pycache__
+investors/__pycache__
+reporting/__pycache__
 investors/testing-kyc-responses
