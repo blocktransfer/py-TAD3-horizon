@@ -29,3 +29,9 @@ holding account federation descriptions:
 	  Undistributed stock allocated for a Regulation D offering.
   treasury.holdings
     Treasury stock held by an issuer.
+
+
+
+
+
+
