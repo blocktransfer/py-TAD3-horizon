@@ -12,5 +12,8 @@ def generateRandomPassword():
     if hasDigit and hasSpecChar:
       return password
 
-print(generateRandomPassword())
+def generate_token(length = 10):
+  characters = string.ascii_letters + string.digits + string.punctuation
+  return ''.join(random.choice(characters) for _ in range(length))
 
+print(generate_token(99))
