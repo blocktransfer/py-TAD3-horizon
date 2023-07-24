@@ -1,5 +1,6 @@
-import asyncio, functools, json, os.path, pandas, requests, sys, time, toml
+import asyncio, boto3, functools, json, os.path, pandas, requests, sys, time, toml
 from stellar_sdk.xdr import TransactionEnvelope, TransactionResult
+from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 from datetime import datetime
 from hashlib import sha3_256
 from decimal import Decimal
@@ -40,12 +41,15 @@ EMPLOYEE_COMP_CB_NO_VOTING = "GBLOCKTRANSFER777EMPLOYEECOMPENSATION777WITHOUTVOT
 USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
 BT_DOLLAR = Asset("BTD", BT_ISSUERS[0])
 
+BT_API_SERVER = "https://api.blocktransfer.com"
 BT_WELL_KNOWN = "https://blocktransfer.io/.well-known"
+
 BT_STELLAR_TOML = f"{BT_WELL_KNOWN}/stellar.toml"
 BT_ACCOUNTS_TOML = f"{BT_WELL_KNOWN}/accounts.toml"
 OFFER_MEMO_TOML = f"{BT_WELL_KNOWN}/xlm-cache/offer-memos.toml"
 WASH_SALE_TOML = f"{BT_WELL_KNOWN}/xlm-cache/wash-sales.toml"
 DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
+
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
 SEARCH_LIM = 200
@@ -105,24 +109,25 @@ def returnLedgerIfNotRateLimited(ledger):
   except KeyError:
     return ledger
 
-def requestURL(url):
-  data = requests.get(url).json()
-  try: #todo: change diction and decrease use significantly
-    return returnLedgerIfNotRateLimited(data)
-  except RateLimited: #perhaps still good for continued ledger url searches
-    return requestURL(url)
-  except requests.exceptions.JSONDecodeError:
-    sys.exit(f"JSONparseErr:\n{data}\n{url}")
-
-def requestURLwithParams(url, params): # best!
+# presently aimed towards Horizon > general API
+def requestURL(url, params=None, auth=None):
   data = requests.get(
     url,
-    params = params
+    params = params,
+    auth = auth
   ).json()
   try:
     return returnLedgerIfNotRateLimited(data)
   except RateLimited:
-    return requestURLwithParams(url, params)
+    return requestURL(url, params, auth)
+
+# Use AWS environmental short-term credentials
+def getAPIauth():
+  return BotoAWSRequestsAuth(
+    aws_host = BT_API_SERVER[8:],
+    aws_region = "us-east-2",
+    aws_service = "execute-api"
+  )
 
 def requestRecords(url):
   return requestURL(url)["_embedded"]["records"]

@@ -208,7 +208,7 @@ def getTransactionsForAsset(queryAsset):
     "counter_asset_issuer": fiatAsset.issuer,
     "limit": SEARCH_LIM
   }
-  tradesLedger = requestURLwithParams(f"{HORIZON_INST}/trades", params)
+  tradesLedger = requestURL(f"{HORIZON_INST}/trades", params)
   try:
     tradeLinks, tradeRecords = getLinksAndRecordsFromParsedLedger(tradesLedger)
   except KeyError:
