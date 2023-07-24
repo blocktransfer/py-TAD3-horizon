@@ -87,16 +87,16 @@ def getFederationServerFromDomain(federationDomain):
   except requests.exceptions.ConnectionError:
     return ""
 
-def resolveFederationAddress(federationAddress):
-  federationComponents = federationAddress.split("*")
-  if(len(federationComponents) != 2):
-    sys.exit(f"Tried parsing invalid federation address: {federationAddress}")
-  federationDomain = federationComponents[1]
-  homeDomainFederationServer = getFederationServerFromDomain(federationDomain)
-  url = f"{homeDomainFederationServer}?q={federationAddress}&type=name"
+def resolveFederationAddress(address):
+  try:
+    user, domain = address.split("*")
+  except ValueError:
+    return ""
+  homeDomainFederationServer = getFederationServerFromDomain(domain)
+  url = f"{homeDomainFederationServer}?q={address}&type=name"
   try:
     return requestURL(url)["account_id"]
-  except requests.exceptions.MissingSchema:
+  except KeyError:
     return ""
 
 def isPublic(companyCode):
