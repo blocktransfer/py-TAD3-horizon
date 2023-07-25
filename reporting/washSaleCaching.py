@@ -5,7 +5,7 @@ from globals import *
 def updateAllOfferIDs():
   cacheData = getOfferIDsMappedToChiefMemosFromCache()
   newWashSaleOfferIDsMappedToAdjustments = {}
-  for addresses in getValidAccountPublicKeys():
+  for addresses in getAllPublicKeys():
     print(f"Querying new wash sales for {addresses}")
     newWashSaleOfferIDsMappedToAdjustments.update(
       getNewWashSalesFromStellar(addresses, cacheData)

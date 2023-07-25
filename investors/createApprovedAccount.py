@@ -1,11 +1,11 @@
 import sys
 sys.path.append("../")
 from globals import *
-from stellar_sdk import exceptions
+from stellar_sdk import exceptions ###
 
 try:
   MEMO = sys.argv[1]
-except Exception:
+except Exception: ###
   MEMO = "Account verified"
 
 def createApprovedAccount():
@@ -47,15 +47,15 @@ def createAccount(resolvedAddr, transaction):
     starting_balance = approvalAmountXLM
   )
 
-def buildTxnsArr(approvedAddresses): # todo: similarly, globalize
+def buildTxnsArr(approvedAddrs): # todo: similarly, globalize
   transactions = []
   appendTransactionEnvelopeToArrayWithSourceAccount(transactions, treasury)
   numTxnOps = idx = 0
-  for providedAddresses in approvedAddresses:
-    resolvedAddresses = getAddress(providedAddresses)
-    alreadyExists = seeIfAccountExists(resolvedAddresses)
-    pairedInput = (resolvedAddresses, transactions[idx])
-    declareApproval(*pairedInput) if alreadyExists else createAccount(*pairedInput)
+  for providedAddrs in approvedAddrs:
+    resolvedAddr = getAddress(providedAddrs)
+    alreadyExists = seeIfAccountExists(resolvedAddr)
+    packedInput = (resolvedAddr, transactions[idx])
+    declareApproval(*packedInput) if alreadyExists else createAccount(*packedInput)
     numTxnOps += 1
     if(numTxnOps >= MAX_NUM_TXN_OPS):
       transactions[idx] = transactions[idx].add_text_memo(MEMO).set_timeout(30).build()

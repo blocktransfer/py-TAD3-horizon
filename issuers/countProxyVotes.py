@@ -43,7 +43,7 @@ from globals import *
 # Last day reasonable for mailing materisl T-9?
 
 VOTE_CUTOFF_TIME_UTC = pandas.to_datetime("2031-04-29T12:30:00Z") # set to meeting time for audits
-validAccountPublicKeys = getValidAccountPublicKeys()
+accountPublicKeys = getAllPublicKeys()
 year = datetime.today().year
 
 #testing: countProxyVotes("DEMO", 15, "annual")
@@ -85,7 +85,7 @@ def getPublicKeysMappedToMemos(queryAsset, votingFederationAddress):
   while(records):
     for accounts in records:
       numInvestors += 1
-      if(accounts["account_id"] in validAccountPublicKeys):
+      if(accounts["account_id"] in accountPublicKeys):
         paymentsLedger = getPaymentsLedgerFromAccountLinks(accounts["_links"])
         paymentLinks, paymentRecords = getLinksAndRecordsFromParsedLedger(paymentsLedger)
         while(paymentRecords):
@@ -151,7 +151,7 @@ def parseMemosToVotes(balancesMappedToMemos, addrsMappedToMemos, numVotingItems)
       sharesVoted += numShares
   # todo: segment both these two sections into their own functions
   for delegeeAddrs, sharesAllocated in delegeeAddrsMappedToSharesAllocated.items():
-    if(delegeeAddrs in validAccountPublicKeys):
+    if(delegeeAddrs in accountPublicKeys):
       voteMemo = addrsMappedToMemos[delegeeAddrs]
       try:
         while(len(voteMemo) > numVotingItems):

@@ -1,5 +1,5 @@
-import asyncio, boto3, functools, json, os.path, pandas, requests, sys, time, toml
-from stellar_sdk.xdr import TransactionEnvelope, TransactionResult
+import asyncio, boto3, functools, json, os.path, pandas, requests, sys, time, toml #
+from stellar_sdk.xdr import TransactionEnvelope, TransactionResult ### * as (xlm.)xdr
 from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 from datetime import datetime
 from hashlib import sha3_256
@@ -16,7 +16,7 @@ from stellar_sdk import (
   ServerAsync,
   TransactionBuilder,
   TrustLineFlags
-)
+) ### incl. exceptions, all * as xlm
 TOP_DIR = os.path.dirname(__file__)
 sys.path.append(f"{TOP_DIR}/../")
 MICR_DIR = f"{TOP_DIR}/../master-identity-catalog-records"

@@ -1,14 +1,7 @@
 from globals import *
 
 def getValidAccountPublicKeys():
-  validAccountPublicKeys = []
-  with open(MICR_TXT) as MICR:
-    next(MICR)
-    for accounts in MICR:
-      account = accounts.split("|")
-      # Logic here to check account standing
-      validAccountPublicKeys.append(account[0])
-  return validAccountPublicKeys
+  return requestURL(f"{BT_API_SERVER}/accounts/valid")
 
 def getAllPublicKeys():
   return requestURL(f"{BT_API_SERVER}/accounts/all")
