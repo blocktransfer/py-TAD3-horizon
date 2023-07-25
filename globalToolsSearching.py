@@ -11,13 +11,7 @@ def getValidAccountPublicKeys():
   return validAccountPublicKeys
 
 def getAllPublicKeys():
-  publicKeys = []
-  with open(MICR_TXT) as MICR:
-    next(MICR)
-    for accounts in MICR:
-      account = accounts.split("|")
-      publicKeys.append(account[0])
-  return publicKeys
+  return requestURL(f"{BT_API_SERVER}/accounts/all")
 
 def debugGetAllCurrPublicKeysForAsset(queryAsset):
   currPublicKeys = []

@@ -106,23 +106,25 @@ def returnLedgerIfNotRateLimited(ledger):
     if(ledger["status"]):
       time.sleep(250)
       raise RateLimited
-  except KeyError:
+  except (TypeError, KeyError):
     return ledger
 
 # presently aimed towards Horizon > general API
 def requestURL(url, params=None, auth=None):
+  if(BT_API_SERVER in url):
+    auth = getIAMenvAuth()
   data = requests.get(
     url,
     params = params,
     auth = auth
   ).json()
   try:
+    # todo: implement Dynamo reply pagination
     return returnLedgerIfNotRateLimited(data)
   except RateLimited:
     return requestURL(url, params, auth)
 
-# Use AWS environmental short-term credentials
-def getAPIauth():
+def getIAMenvAuth():
   return BotoAWSRequestsAuth(
     aws_host = BT_API_SERVER[8:],
     aws_region = "us-east-2",
