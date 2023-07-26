@@ -11,16 +11,19 @@ ACCOUNTS = [
 [DOCUMENTATION]
 ORG_NAME = "BlockTrans Syndicate"
 ORG_DBA = "Block Transfer"
-ORG_URL = "https://www.blocktransfer.com"
+ORG_URL = "https://blocktransfer.com"
 ORG_LOGO = "https://blocktransfer.com/logo.png"
-ORG_DESCRIPTION = "A fast, free, and fair digital transfer agent."
+ORG_DESCRIPTION = "Bringing stocks to internet speed."
 ORG_PHYSICAL_ADDRESS = "99 Wall Street #4640, New York, NY 10005"
+ORG_PHYSICAL_ADDRESS_ATTESTATION = "https://blocktransfer.com/compliance/proof-of-address.pdf"
 # ORG_PHONE_NUMBER = ""
+# ORG_PHONE_NUMBER_ATTESTATION = "https://blocktransfer.com/compliance/proof-of-phone.pdf"
 ORG_GITHUB = "blocktransfer"
+ORG_OFFICIAL_EMAIL = "hello@blocktransfer.dev"
 ORG_SUPPORT_EMAIL = "support@blocktransfer.com"
-ORG_LICENSING_AUTHORITY = "Various, chiefly the Securities and Exchange Commission"
+ORG_LICENSING_AUTHORITY = "U.S. Securities and Exchange Commission"
 ORG_LICENSE_TYPE = "CIK"
-ORG_LICENSE_NUMBER = "0001846058"
+ORG_LICENSE_NUMBER = "1846058"
 
 [[PRINCIPALS]]
 name = "John Wooten"
