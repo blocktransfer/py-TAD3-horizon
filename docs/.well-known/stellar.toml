@@ -49,7 +49,6 @@ status = "test"
 
 [[CURRENCIES]]
 attestation_of_reserve = "https://blocktransfer.com/assets/DEMO.toml"
-anchor_asset = "private"
 anchor_asset_type = "stock"
 code_template = "DEMO????????"
 conditions = "Fully paid and non-assessable shares."
@@ -65,7 +64,6 @@ status = "test"
 
 [[CURRENCIES]]
 attestation_of_reserve = "https://blocktransfer.com/assets/1984803.toml"
-anchor_asset = "506b"
 anchor_asset_type = "stock"
 code_template = "LAYLOR??????"
 conditions = "Fully paid and non-assessable shares."
