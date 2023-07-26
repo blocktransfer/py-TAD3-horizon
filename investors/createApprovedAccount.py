@@ -72,3 +72,5 @@ def submitTxnsToStellar(txnArr): # globalize
     submitTxnGarunteed(txns)
 
 createApprovedAccount()
+
+# distributeLegacyShares

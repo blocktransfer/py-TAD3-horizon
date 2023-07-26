@@ -27,16 +27,7 @@ def distributeLegacyShares(account, queryAsset, amount, basis, vestingDate):
   claimableBalanceID = ""
   with open(f"{G_DIR}/docs/.well-known/distribution-bases.toml", "a") as cache:
     cache.write(f"{claimableBalanceID} = \"{basis}\"\n")
-  
-  
-  #getAllInvestors # global func 
-  #availableLumensDict = getAddrsMappedToAvailableLumens(allInvestors)
-  #replenishTxn = replenishDepletedBalances(availableLumensDict) # impliment some kind of way to watch for misuse
-  #exportTxn # global
 
-def onboardNewAccounts():
-  # read MICR -> accounts cache 
-  return 1
-
-distributeLegacyShares(BT_TREASURY, "DEMO", "10.4983211", "10|2009-9-9", "2023-1-1")
-distributeLegacyShares(BT_TREASURY, "DEMO", "10.4983211", "10|2009-9-9", "")
+# Basis tracking, -> investor app, document with BIP paths
+# distributeLegacyShares(BT_TREASURY, "DEMO", "10.4983211", "10|2009-9-9", "2023-1-1")
+# distributeLegacyShares(BT_TREASURY, "DEMO", "10.4983211", "10|2009-9-9", "")

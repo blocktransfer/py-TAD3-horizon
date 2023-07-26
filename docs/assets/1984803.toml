@@ -1,14 +1,13 @@
-# This information is current
+# Current information #
 
 [ISSUER]
-attestation_of_reserve = "https://blocktransfer.io/board-resolutions/LAYLOR.pdf"
+attestation_of_reserve = "https://blocktransfer.io/board-resolutions/1984803.pdf"
 # affiliate_selling = false
 bt_company_code = "LAYLOR"
 blue_sky = { reg_states = [], exchange = "None" }
-cik = "0001984803"
+cik = 1984803
 conditions = "Fully paid and non-assessable shares."
 corporate_affiliations = []
-cusip = ""
 display_decimals = 7
 desc.main = "Laylor Corporation is a billion-dollar tech startup company that operates as a business development accelerator and multi-industry conglomerate. Laylor Corporation specializes in providing support to small and minority-owned businesses, with a specific focus on empowering individuals from diverse backgrounds, including people of color, impoverished communities, women, veterans, and individuals with disabilities. Their primary objective is to assist entrepreneurs in accessing the resources they need to bring their innovative ideas to fruition. With a strong emphasis on advertising and marketing, Laylor Corporation enables companies to expand their global reach. Their areas of expertise encompass investment management, cutting-edge programs, seamless payment solutions, secure financial transactions, cryptocurrency and blockchain investments, artificial intelligence, software technology, app development, and clean energy initiatives. Laylor Corporation is committed to fostering inclusive growth, driving technological advancements, and promoting a sustainable future in the business world."
 desc.business = "Laylor Corporation is a prominent tech company offering comprehensive business services and specializing in the development of innovative app platforms."
@@ -20,8 +19,8 @@ intra_state = false
 ir.email = "support@laylorcorporation.com"
 ir.phone = "(650) 465-7193"
 jurisdiction = "South Carolina, US"
-latest_financial_balance_sheet = "https://blocktransfer.info/DEMO/financial-reports/current/annual.pdf"
-latest_PNL_and_retained_earnings = "https://blocktransfer.info/DEMO/financial-reports/current/quarterly.pdf"
+latest_financial_balance_sheet = "https://blocktransfer.info/1984803/financial-reports/current/annual.pdf"
+latest_PNL_and_retained_earnings = "https://blocktransfer.info/DEMO/financial-reports/current/quarterly.pdf" # update todo, give template ppms
 lockout_period = []
 min_reg_d_506c_state_init_usd = "5000"
 meetings = {}
@@ -74,6 +73,7 @@ code = "LAYLOR"
 class = "None"
 class_type = "common"
 convertible = ""
+cusip = ""
 dividend = "None planned."
 image = "https://blocktransfer.io/imgs/laylor.png"
 outstanding_EOY = {}

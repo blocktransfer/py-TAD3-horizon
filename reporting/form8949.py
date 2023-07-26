@@ -12,34 +12,17 @@ taxYearEnd = taxYearStart + pandas.DateOffset(years = 1) # set custom taxYearEnd
 # washSaleAdjCutoff = taxYearEnd + pandas.DateOffset(days = WASH_SALE_DAY_RANGE)
 
 def bulkOutput():
-  numAccounts = i = 0
-  with open(MICR_TXT) as MICR:
-    next(MICR)
-    for lines in MICR:
-      account = lines.strip().split("|")[0]
-      numAccounts += 1
-      i += 1
-      print(f"Executing export for {account} ({i}/{numAccounts})")
-      form8949(account)
-  return 1
+  accounts = getAllPublicKeys()
+  numAccounts = len(accounts)
+  i = 0
+  for account in accounts:
+    i += 1
+    print(f"Executing export for {account} ({i}/{numAccounts})")
+    form8949(account)
 
-## Testing needed at scale
-# import threading
-# threads = []
-# for addresses, i in enumerate(lines.split("|")[0]):
-#   form8949(addresses)
-#   threads.append(
-#       threading.Thread(
-#         target = form8949forAccount,
-#         args = (addresses,)
-#       )
-#     )
-#   threads[i].start().join()
-##
 
 def form8949(queryAccount):
   allTrades = []
-  
   offerIDsMappedToChiefMemos = getOfferIDsMappedToChiefMemosFromCache()
   for offerIDs, memos in offerIDsMappedToChiefMemos.items():
     requestAddr = f"{HORIZON_INST}/offers/{offerIDs}/trades"
@@ -59,13 +42,14 @@ def form8949(queryAccount):
   # finalFormData = placeFieldsplaceFields(adjustedTrades)
   # exportForm8949(finalFormData) # mergeForVarious
 
+# -> investor app diction
 # b = len("1234567890123456")
 # if(b < 16):
 #   offerID
 # elif(b < 19)
-#   synthetic
+#   synthetic offerID
 # else: 
-#   PT
+#   paging token
 
 def tradeInTaxableYear(tradeData):
   return taxYearStart <= tradeData["fillDate"] < taxYearEnd

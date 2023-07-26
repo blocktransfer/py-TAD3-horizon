@@ -1,10 +1,10 @@
 from globals import *
 
 def getValidAccountPublicKeys():
-  return requestURL(f"{BT_API_SERVER}/accounts/valid")
+  return requestURL(f"{BT_API_SERVER}/accounts/validPubKeys")
 
 def getAllPublicKeys():
-  return requestURL(f"{BT_API_SERVER}/accounts/all")
+  return requestURL(f"{BT_API_SERVER}/accounts/allPubKeys")
 
 def debugGetAllCurrPublicKeysForAsset(queryAsset):
   currPublicKeys = []
