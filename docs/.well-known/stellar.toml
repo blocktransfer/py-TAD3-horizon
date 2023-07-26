@@ -12,7 +12,7 @@ ACCOUNTS = [
 ORG_NAME = "BlockTrans Syndicate"
 ORG_DBA = "Block Transfer"
 ORG_URL = "https://www.blocktransfer.com"
-ORG_LOGO = "https://blocktransfer.io/logo.png"
+ORG_LOGO = "https://blocktransfer.com/logo.png"
 ORG_DESCRIPTION = "A fast, free, and fair digital transfer agent."
 ORG_PHYSICAL_ADDRESS = "99 Wall Street #4640, New York, NY 10005"
 # ORG_PHONE_NUMBER = ""
@@ -29,14 +29,14 @@ id_photo_hash = "0dce43292a7dd2c6ef021cca9f84330ceeec34e8587172453bc2b05f1bd13ed
 verification_photo_hash = "a3b5109c1afb0d7ce22780fc5a656bda0f24b63d4bbddcff35f44f0b8e62ff48"
 
 [[CURRENCIES]]
-attestation_of_reserve = "https://blocktransfer.io/assets/bt-dollar/current.pdf"
+attestation_of_reserve = "https://blocktransfer.com/assets/bt-dollar/current.pdf"
 anchor_asset = "USD"
 anchor_asset_type = "fiat"
 code = "BTD"
 conditions = "Block Transfer is not a bank and does not itself take deposits. You will not receive any interest, credit, or other earnings on the funds in your Block Transfer account."
 display_decimals = 7
 desc = "You can deposit US dollars as unsecured claims against Block Transfer, a Delaware corporation regulated by the SEC. We hold deposits in fungible bulk, matched 1:1 on and off Stellar. Your funds are not insured by the FDIC or SIPC."
-image = "https://blocktransfer.io/imgs/btd.png" # todo: Overlay cash monts. on icon
+image = "https://blocktransfer.com/imgs/btd.png" # todo: Overlay cash monts. on icon
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
 is_asset_anchored = true
@@ -45,14 +45,14 @@ redemption_instructions = "Use our app to link your bank or USDC wallet."
 status = "test"
 
 [[CURRENCIES]]
-attestation_of_reserve = "https://blocktransfer.io/assets/DEMO.toml"
+attestation_of_reserve = "https://blocktransfer.com/assets/DEMO.toml"
 anchor_asset = "private"
 anchor_asset_type = "stock"
 code_template = "DEMO????????"
 conditions = "Fully paid and non-assessable shares."
 display_decimals = 7
 desc = "Example Company is used interally for product demos and development." # General solicitation disclaimer for 506B here
-image = "https://blocktransfer.io/imgs/demo.png"
+image = "https://blocktransfer.com/imgs/demo.png"
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
 is_asset_anchored = true
@@ -61,14 +61,14 @@ redemption_instructions = "Use our app to move stock to/from a legacy broker."
 status = "test"
 
 [[CURRENCIES]]
-attestation_of_reserve = "https://blocktransfer.io/assets/1984803.toml"
+attestation_of_reserve = "https://blocktransfer.com/assets/1984803.toml"
 anchor_asset = "506b"
 anchor_asset_type = "stock"
 code_template = "LAYLOR??????"
 conditions = "Fully paid and non-assessable shares."
 display_decimals = 7
 desc = "The information provided here is for informational purposes only and is not intended to be an offer to sell or a solicitation of an offer to buy any securities or investment products. The tokenization of shares on the Stellar blockchain is used to facilitate record-keeping and enhance liquidity, but this distributed ownership data does not constitute an advertisement or promotion of the sale of securities, and it should not be construed as such."
-image = "https://blocktransfer.io/imgs/1984803.png"
+image = "https://blocktransfer.com/imgs/1984803.png"
 issuer = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 is_unlimited = true
 is_asset_anchored = true

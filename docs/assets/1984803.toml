@@ -1,7 +1,7 @@
 # Current information #
 
 [ISSUER]
-attestation_of_reserve = "https://blocktransfer.io/board-resolutions/1984803.pdf"
+attestation_of_reserve = "https://blocktransfer.com/board-resolutions/1984803.pdf"
 # affiliate_selling = false
 bt_company_code = "LAYLOR"
 blue_sky = { reg_states = [], exchange = "None" }
@@ -68,14 +68,13 @@ director = true
 
 [[STOCKS]]
 authorized = 100000000
-bankruptcy_preference = 0
+bankruptcy_preference = 1
 code = "LAYLOR"
 class = "None"
 class_type = "common"
 convertible = ""
 cusip = ""
 dividend = "None planned."
-image = "https://blocktransfer.io/imgs/laylor.png"
 outstanding_EOY = {}
 par = "None"
 splits_effective = ""
