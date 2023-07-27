@@ -29,10 +29,11 @@ except ModuleNotFoundError:
 
 BT_ISSUERS = [
 "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7",
-"GCNSGHUCG5VMGLT5RIYYZSO7VQULQKAJ62QA33DBC5PPBSO57LFWVV6P", # debug: trades
-"GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM", # debug: accounts
-"GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS", # debug: trustlines
-"GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA" # debug: large sets
+# Debug Issuers #
+"GCNSGHUCG5VMGLT5RIYYZSO7VQULQKAJ62QA33DBC5PPBSO57LFWVV6P", # trades
+"GD3VPKNLTLBEKRY56AQCRJ5JN426BGQEPE6OIX3DDTSEEHQRYIHIUGUM", # accounts
+"GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS", # trustlines
+"GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA" # large sets
 ]
 BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
@@ -42,8 +43,9 @@ USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4
 BT_DOLLAR = Asset("BTD", BT_ISSUERS[0])
 
 BT_API_SERVER = "https://api.blocktransfer.com"
-BT_WELL_KNOWN = "https://blocktransfer.io/.well-known"
+BT_WELL_KNOWN = "https://blocktransfer.com/.well-known"
 
+# just query docs? lots of this schema in the air
 BT_STELLAR_TOML = f"{BT_WELL_KNOWN}/stellar.toml"
 BT_ACCOUNTS_TOML = f"{BT_WELL_KNOWN}/accounts.toml"
 OFFER_MEMO_TOML = f"{BT_WELL_KNOWN}/xlm-cache/offer-memos.toml"
@@ -52,7 +54,8 @@ DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
 
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
-SEARCH_LIM = 200
+MAX_API_BATCH_POST = 25
+SEARCH_LIM = 200 # -> params 
 
 BASE_FEE_MULT = 20
 MAX_NUM_TXN_OPS = 100
@@ -97,32 +100,42 @@ NON_REPORTING_CO_TOTAL_INVESTORS_MAX = 2000
 NON_REPORTING_CO_NON_ACCREDITED_INVESTOR_MAX = 500
 AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 
-# Horizon access functions:
 class RateLimited(Exception):
   pass
+
+# requestXLM
+def requestURL(url, params=None):
+  data = requests.get(url, params=params).json()
+  try:
+    return returnLedgerIfNotRateLimited(data)
+  except RateLimited:
+    return requestURL(url, params)
 
 def returnLedgerIfNotRateLimited(ledger):
   try:
     if(ledger["status"]):
       time.sleep(250)
       raise RateLimited
-  except (TypeError, KeyError):
+  except KeyError:
     return ledger
 
-# presently aimed towards Horizon > general API
-def requestURL(url, params=None, auth=None):
-  if(BT_API_SERVER in url):
-    auth = getIAMenvAuth()
-  data = requests.get(
-    url,
-    params = params,
-    auth = auth
-  ).json()
+class PagignationIncomplete(Exception):
+  pass
+
+def requestAWS(url, params=None):
+  data = requests.get(url,
+    auth=getIAMenvAuth(),
+    params=params).json()
   try:
-    # todo: implement Dynamo reply pagination
-    return returnLedgerIfNotRateLimited(data)
-  except RateLimited:
-    return requestURL(url, params, auth)
+    return returnAPIresponseIfComplete(data)
+  except PagignationIncomplete:
+    return requestURL(url, params)
+
+def returnAPIresponseIfComplete(response):
+  # if ( response LastItem ):
+  #   implement recursive pagination
+  #   response[].append(requestAWS(_next))
+  return response
 
 def getIAMenvAuth():
   return BotoAWSRequestsAuth(
@@ -144,7 +157,7 @@ from globalToolsTransactions import *
 from globalToolsSearching import *
 from globalToolsAssets import *
 
-# Key stock data functions:
+# Key stock data functions #
 def getNumOutstandingShares(queryAsset):
   assetData = requestAssetRecords(queryAsset)
   shares = Decimal(assetData["liquidity_pools_amount"])
