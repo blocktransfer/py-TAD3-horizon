@@ -1,4 +1,4 @@
-import asyncio, boto3, functools, json, os.path, pandas, requests, sys, time, toml #
+import asyncio, boto3, csv, functools, json, os.path, pandas, requests, sys, time, toml #
 from stellar_sdk.xdr import TransactionEnvelope, TransactionResult ### * as (xlm.)xdr
 from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 from datetime import datetime
@@ -130,6 +130,12 @@ def requestAWS(url, params=None):
     return returnAPIresponseIfComplete(data)
   except PagignationIncomplete:
     return requestURL(url, params)
+
+def postAWS(url, data):
+  return requests.post(url,
+    data=json.dumps(data),
+    auth=getIAMenvAuth()
+  ).json()
 
 def returnAPIresponseIfComplete(response):
   # if ( response LastItem ):

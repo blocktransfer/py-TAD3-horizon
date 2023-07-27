@@ -1,0 +1,4 @@
+legalName|shares|DOB|address
+John Doe|5000|1985-6-15|123 Main St, City, CA 90210
+Jane Smith|3000|1978-11-25|456 Elm St, Town, TX 75001
+Robert Johnson|8000|1990-3-10|789 Oak St, Village, FL 33001
