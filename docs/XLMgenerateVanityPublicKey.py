@@ -1,34 +1,42 @@
-from stellar_sdk import Keypair
-from stellar_sdk import exceptions
-import random, string, sys
+from stellar_sdk import Keypair, exceptions
+import base64, binascii, random, string, sys
 
-def getLast3bytesToMakeValidStellarPublicKeyIfPossible(publicKey):
+def getValidStellarPublicKeyIfExists(publicKeyNoChecksum):
   base32Alphabet = string.ascii_uppercase + '234567'
-  print(f"Testing {publicKey}")
+  print(f"Testing {publicKeyNoChecksum}")
   for char1 in base32Alphabet:
     for char2 in base32Alphabet:
       for char3 in base32Alphabet:
         try:
-          answer = f"{publicKey}{char1}{char2}{char3}"
-          keypair = Keypair.from_public_key(answer)
-          return char1, char2, char3
+          trying = f"{publicKeyNoChecksum}{char1}{char2}{char3}"
+          keypair = Keypair.from_public_key(trying)
+          return trying
         except exceptions.Ed25519PublicKeyInvalidError:
           continue
-  return 0, 0, 0
+  return 0
 
-def generateVanityPhraseInclPublicKey(phrase):
-  if(len(phrase) >= 53):
+def generatePubKeyWithVanityPhrase():
+  phrase = input("Enter the desired vanity phrase: ").upper()
+  if len(phrase) >= 53:
     sys.exit("Try a shorter phrase")
+  try:
+    padding = "=" * (8 - len(phrase) % 8)
+    base64.b32decode(phrase + padding)
+  except (TypeError, binascii.Error):
+    sys.exit("Try a base32 phrase")
   while True:
-    keypair = Keypair.random()
-    publicKey = keypair.public_key
-    publicKey = publicKey[:-3]
-    startIndex = random.randint(1, len(publicKey) - len(phrase))
-    endIndex = startIndex + len(phrase)
-    publicKey = f"{publicKey[:startIndex]}{phrase}{publicKey[endIndex:]}"
-    char1, char2, char3 = getLast3bytesToMakeValidStellarPublicKeyIfPossible(publicKey)
-    if char1:
-      print(f"\n\tVALID:\n\t{publicKey}{char1}{char2}{char3}\n")
-      return 1
+    publicKey = Keypair.random().public_key
+    PKnoChecksum = publicKey[:-3]
+    phraseInsertStartIndex = random.randint(1, len(PKnoChecksum) - len(phrase))
+    phraseInsertEndIndex = phraseInsertStartIndex + len(phrase)
+    PKnoChecksumWithPhrase = (
+      PKnoChecksum[:phraseInsertStartIndex] +
+      phrase +
+      PKnoChecksum[phraseInsertEndIndex:]
+    )
+    PK = getValidStellarPublicKeyIfExists(PKnoChecksumWithPhrase)
+    if PK:
+      sys.exit(f"\n\tVALID:\n\t{PK}\n")
 
-generateVanityPhraseInclPublicKey("BLOCKTRANSFER777EMPLOYEECOMPENSATION777WITHOUTVOTING")
+# Example usage:
+generatePubKeyWithVanityPhrase()
