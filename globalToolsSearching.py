@@ -1,10 +1,13 @@
 from globals import *
 
 def getValidAccountPublicKeys():
-  return requestURL(f"{BT_API_SERVER}/accounts/public-keys/valid")
+  return requestAWS(f"{BT_API_SERVER}/accounts/public-keys/valid")
 
 def getAllPublicKeys():
-  return requestURL(f"{BT_API_SERVER}/accounts/public-keys/all")
+  return requestAWS(f"{BT_API_SERVER}/accounts/public-keys/all")
+
+def fetchAccount(pubKey):
+  return requestAWS(f"{BT_API_SERVER}/PII/{pubKey}")
 
 def debugGetAllCurrPublicKeysForAsset(queryAsset):
   currPublicKeys = []

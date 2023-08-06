@@ -1,4 +1,4 @@
-import asyncio, boto3, csv, functools, json, os.path, pandas, requests, sys, time, toml #
+import asyncio, base64, boto3, csv, functools, json, os.path, pandas, random, requests, sys, string, time, toml #
 from stellar_sdk.xdr import TransactionEnvelope, TransactionResult ### * as (xlm.)xdr
 from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 from datetime import datetime
@@ -103,9 +103,9 @@ AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 class RateLimited(Exception):
   pass
 
-# requestXLM
-def requestURL(url, params=None):
-  data = requests.get(url, params=params).json()
+def requestXLM(url, params=None):
+  data = requests.get(url,
+    params = params).json()
   try:
     return returnLedgerIfNotRateLimited(data)
   except RateLimited:
@@ -124,23 +124,83 @@ class PagignationIncomplete(Exception):
 
 def requestAWS(url, params=None):
   data = requests.get(url,
-    auth=getIAMenvAuth(),
-    params=params).json()
+    auth = getIAMenvAuth(),
+    params = params).json()
   try:
     return returnAPIresponseIfComplete(data)
   except PagignationIncomplete:
     return requestURL(url, params)
 
+def requestAWStmpDeleteMeHome(url, params=None):
+    aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
+    aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
+    aws_session_token = os.environ.get("AWS_SESSION_TOKEN")
+    
+    try:
+      
+      headers = {
+        "Authorization": f"AWS {aws_access_key_id}:{aws_secret_access_key}",
+        "x-api-key": "YOUR_API_KEY"  # If your API requires an API key
+      }
+      response = requests.get(url, headers=headers)
+      #response = requests.get(url,
+      #  params = params,
+      #  auth = (
+      #    aws_access_key_id, 
+      #    aws_secret_access_keyf
+      #  )
+      #)
+
+      if response.status_code == 200:
+        return response.json()
+      else:
+        print(f"Error: {response.status_code}, {response.text}")
+        return None
+    except Exception as e:
+      print(f"Error: {e}")
+      return None
+
+    session = boto3.client("apigateway",
+      aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID"),
+      aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY"),
+      region_name = "us-east-2"
+    )
+    
+    request = session.get(
+        method = "GET",
+        url = url,
+        params = params,
+        auth = "AWS_IAM"
+    )
+
+    try:
+      response = session.send(request)
+
+      # Process the response as needed
+      if response.status_code == 200:
+        return response.json()
+      else:
+        print("Error:", response.status_code, response.text)
+        return None
+
+    except Exception as e:
+        print("Error:", e)
+        return None
+
+
 def postAWS(url, data):
   return requests.post(url,
-    data=json.dumps(data),
-    auth=getIAMenvAuth()
+    data = json.dumps(data),
+    auth = getIAMenvAuth()
   ).json()
 
 def returnAPIresponseIfComplete(response):
   # if ( response LastItem ):
   #   implement recursive pagination
   #   response[].append(requestAWS(_next))
+  
+  # in Lambda? 
+  #
   return response
 
 def getIAMenvAuth():
