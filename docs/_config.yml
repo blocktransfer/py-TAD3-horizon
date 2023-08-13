@@ -1,9 +1,0 @@
-title: Block Transfer
-email: devs@blocktransfer.io
-description: "Block Transfer: Digital assets for global capital markets"
-baseurl: ""
-url: "blocktransfer.io"
-github_username:  blocktransfer
-theme: minima
-plugins:
-  - jekyll-feed
