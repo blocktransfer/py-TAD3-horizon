@@ -24,27 +24,27 @@ def getAssetObjFromCode(code):
   return Asset(code, getAssetIssuer(code))
 
 def getAssetIssuer(queryAsset):
-  url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
+  path = f"assets?asset_code={queryAsset}&asset_issuer="
   for addrs in BT_ISSUERS:
-    if(requestRecords(url + addrs)):
+    if(requestRecords(path + addrs)):
       return addrs
   sys.exit(f"Could not find asset {queryAsset}")
 
 def getAssetIssuerUntrustedTOML(queryAsset):
-  url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
+  path = f"assets?asset_code={queryAsset}&asset_issuer="
   for addrs in BT_ISSUERS:
-    if(requestRecords(url + addrs)):
+    if(requestRecords(path + addrs)):
       return addrs
   sys.exit(f"Could not find asset {queryAsset}")
 
 def requestAssetRecords(queryAsset):
   issuer = getAssetIssuer(queryAsset)
-  url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer={issuer}"
-  return requestRecords(url)[0]
+  path = f"assets?asset_code={queryAsset}&asset_issuer={issuer}"
+  return requestRecords(path)[0]
 
 def requestAssetAccounts(queryAsset): # change this diction to chiefledger
-  url = f"{HORIZON_INST}/accounts?{getURLendAsset(queryAsset)}" # TODO: change these these to use param get request jsons
-  return requestURL(url)
+  path = f"accounts?{getURLendAsset(queryAsset)}" # TODO: change these these to use param get request jsons
+  return requestXLM(path)
 
 def getURLendAsset(queryAsset):
   issuer = getAssetIssuer(queryAsset)
@@ -99,21 +99,18 @@ def getAssetCodeFromTomlLink(link):
 
 ### potentially combine, see todo items for URL request reformatting to use params ###
 def getAccountDataDict(addr):
-  url = f"{HORIZON_INST}/accounts/{addr}"
-  return requestURL(url)["data"]
+  path = f"accounts/{addr}"
+  return requestXLM(path)["data"]
 
 def getAccountLinksDict(addr):
-  url = f"{HORIZON_INST}/accounts/{addr}"
-  return requestURL(url)["_links"]
+  path = f"accounts/{addr}"
+  return requestXLM(path)["_links"]
 ### ###
-
-def formatRawHref(href):
-  return href.replace("{?cursor,limit,order}", f"?{MAX_SEARCH}")
 
 def getPaymentsLedgerFromAccountLinks(accountLinks):
   return requestURL(
-    formatRawHref(
-      accountLinks["payments"]["href"]
+    accountLinks["payments"]["href"].replace(
+      "{?cursor,limit,order}", "?limit=200"
     )
   )
 
@@ -161,12 +158,12 @@ def getCBmemoFromClaimableID(ID):
   return getMemoFromTransaction(CBcreationTxn)
 
 def getCBcreationTxnFromClaimableID(ID):
-  url = f"{HORIZON_INST}/claimable_balances/{ID}/transactions"
-  return requestRecords(url)[0]
+  path = f"claimable_balances/{ID}/transactions"
+  return requestRecords(path)[0]
 
 def getClaimedIDfromClaimingTxnHashForAsset(transaction, queryAsset):
-  url = f"{HORIZON_INST}/transactions/{transaction}/operations?limit={MAX_NUM_TXN_OPS}"
-  userClaimTxnOps = requestRecords(url)
+  path = f"transactions/{transaction}/operations"
+  userClaimTxnOps = requestRecords(path)
   for ops in userClaimTxnOps:
     try:
       originClaimableID = ops["balance_id"]

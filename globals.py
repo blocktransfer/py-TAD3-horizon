@@ -108,6 +108,9 @@ NON_REPORTING_CO_TOTAL_INVESTORS_MAX = 2000
 NON_REPORTING_CO_NON_ACCREDITED_INVESTOR_MAX = 500
 AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 
+def requestURL(url):
+  return requests.get(url).json()
+
 def requestXLM(path, params={}):
   params["limit"] = 200
   data = requests.get(
