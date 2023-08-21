@@ -67,11 +67,11 @@ def getLedgerBalancesV2(queryAsset):
 ######
 
 def getNextLedgerData(links):
-  nextData = requestURL(
+  nextData = requests.get(
     links["next"]["href"]
     .replace("\u0026", "&")
     .replace("%3A", ":")
-  )
+  ).json()
   return getLinksAndRecordsFromParsedLedger(nextData)
 
 def listAllIssuerAssets():
@@ -206,9 +206,8 @@ def getTransactionsForAsset(queryAsset):
     "counter_asset_type": fiatAsset.type,
     "counter_asset_code": fiatAsset.code,
     "counter_asset_issuer": fiatAsset.issuer,
-    "limit": SEARCH_LIM
   }
-  tradesLedger = requestURL(f"{HORIZON_INST}/trades", params)
+  tradesLedger = requestXLM(f"trades", params)
   try:
     tradeLinks, tradeRecords = getLinksAndRecordsFromParsedLedger(tradesLedger)
   except KeyError:
@@ -216,7 +215,7 @@ def getTransactionsForAsset(queryAsset):
     return transactions
   while(tradeRecords):
     for trades in tradeRecords:
-      if(trades["trade_type"] != "liquidity_pool"): # BT doesn't support liquidity pools or path payments yet
+      if(trades["trade_type"] != "liquidity_pool"): # add liquidity pools or path payments here
         transactions[
           stripPagingNum(trades["paging_token"])
         ] = {
