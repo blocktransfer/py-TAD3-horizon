@@ -51,4 +51,3 @@ def getCIKfromQueryAsset(code):
 
 # pprint(importLegacyAccounts("DEMO", "investorImport.txt"))
 
-

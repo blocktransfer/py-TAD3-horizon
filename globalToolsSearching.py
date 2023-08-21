@@ -183,3 +183,6 @@ def getClaimedIDfromClaimingTxnHashForAsset(transaction, queryAsset):
 def stripPagingNum(pagingTkn):
   return pagingTkn.split("-")[0]
 
+def getRefBlock():
+  return requestXLM("")["history_latest_ledger"] - HIST_SAFETY_REWIND_BLOCKS
+

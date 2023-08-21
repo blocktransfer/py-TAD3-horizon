@@ -4,11 +4,12 @@ from globals import *
 
 cache = getOfferIDsMappedToChiefMemosFromCache()
 
-def updateAllOfferIDs():
+def updateCache():
+  block = getRefBlock()
   for pubKeys in getValidAccountPublicKeys():
     print(f"Querying new offers for {pubKeys}")
     updateSuccessfulOfferIDsMappedToChiefMemosCacheForPK(pubKeys)
-  saveCache("offer-memos")
+  saveCache("offer-memos", block)
 
 def updateSuccessfulOfferIDsMappedToChiefMemosCacheForPK(pubKey):
   ledger = requestXLM(f"accounts/{pubKey}/transactions")
@@ -95,8 +96,8 @@ def getListOpOfferIDreturnsMultipleForMarketOrderV2betaTestingReq(op, pubKey):
   return offerIDsConsumed
 
 
-def saveCache(type):
-  path = f"{CACHE_DIR}/{type}.json"
+def saveCache(type, block):
+  path = f"{CACHE_DIR}/{type}-{block}.json"
   with open(path, "w") as cacheFile:
     json.dump(cache, cacheFile)
 
