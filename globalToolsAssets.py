@@ -74,11 +74,10 @@ def getNextLedgerData(links):
   ).json()
   return getLinksAndRecordsFromParsedLedger(nextData)
 
-def listAllIssuerAssets():
+def getAllIssuerCompanyCodes():
   allAssets = []
-  for addresses in BT_ISSUERS:
-    url = f"{HORIZON_INST}/assets?asset_issuer={addresses}&{MAX_SEARCH}"
-    ledger = requestURL(url)
+  for addrs in BT_ISSUERS:
+    ledger = requestXLM(f"assets?asset_issuer={addrs}")
     links, records = getLinksAndRecordsFromParsedLedger(ledger)
     while(records):
       for entries in records:
@@ -105,7 +104,7 @@ def getNumAuthorizedSharesNotIssued(companyCode, queryAsset):
     "reg.cf.offering",
     "reg.d.offering",
     "shelf.offering",
-    "reserved.employee", # todo: stock options via Soroban -> these held in contract
+    "reserved.employee",
     "treasury"
   ]
   shares = Decimal("0")
@@ -172,8 +171,8 @@ def getTransactionsForAsset(queryAsset):
   # use queryAsset DEMO to test transferSearching: 
   transactions = {}
   allPublicKeys = getAllPublicKeys()
-  for addresses in allPublicKeys:
-    accountLinks = getAccountLinksDict(addresses)
+  for addrs in allPublicKeys:
+    accountLinks = getAccountLinksDict(addrs)
     paymentsLedger = getPaymentsLedgerFromAccountLinks(accountLinks)
     paymentLinks, paymentRecords = getLinksAndRecordsFromParsedLedger(paymentsLedger)
     while(paymentRecords):

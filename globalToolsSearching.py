@@ -139,6 +139,11 @@ def isCUSIP(query):
   return query in allCUSIPs
 
 def getOfferIDsMappedToChiefMemosFromCache():
+  path = f"{CACHE_DIR}/offer-memos.json"
+  with open(path) as cache:
+    return json.load(cache)
+
+  
   offerIDsMappedToChiefMemos = {}
   cache = loadTomlData(OFFER_MEMO_TOML)
   for offerIDs, memos in cache.items():
