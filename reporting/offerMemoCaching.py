@@ -12,7 +12,7 @@ def updateAllOfferIDs():
     )
   with open(f"{CACHE_DIR}/offer-memos.toml", "a") as cache:
     for offerIDs, memos in newOfferIDsMappedToChiefMemos.items():
-      cache.write(f"{offerIDs} = \"{memos}\"\n")
+      cache.write(f'{offerIDs} = "{memos}"\n')
 
 def getPubKeyOfferIDsMappedToChiefMemosNotCached(pubKey, existingOfferMemos):
   pubKeyOfferIDsMappedToChiefMemos = {}
@@ -29,12 +29,10 @@ def getPubKeyOfferIDsMappedToChiefMemosNotCached(pubKey, existingOfferMemos):
             offerIDarr = []
             appendOfferIDsToArr(op, offerIDarr, pubKey)
             for offerIDs in offerIDarr:
-              noSyntheticCollisions = offerIDs not in pubKeyOfferIDsMappedToChiefMemos.keys()
-              newOfferMemos = offerIDs not in existingOfferMemos.keys()
-              if(offerIDs and noSyntheticCollisions and newOfferMemos):
+              unknown = offerIDs not in pubKeyOfferIDsMappedToChiefMemos.keys()
+              notCached = offerIDs not in existingOfferMemos.keys()
+              if(unknown and notCached):
                 instructions = getMemoFromTransaction(txns)
-                except TypeError:
-                  pprint(txns)
                 memo = "|".join([instructions, pubKey])
                 pubKeyOfferIDsMappedToChiefMemos[offerIDs] = memo
     links, records = getNextLedgerData(links)
@@ -47,23 +45,24 @@ def getAttr(obj, attr):
 
 def appendOfferIDsToArr(op, offerIDarr, pubKey):
   makerIDattr = "success.offer.offer.offer_id.int64"
-  takerIDattr = "success.offers_claimed"
   try:
     offerID = getAttr(op.manage_sell_offer_result, makerIDattr)
   except AttributeError:
     try:
       offerID = getAttr(op.manage_buy_offer_result, makerIDattr)
     except AttributeError:
+      takerIDattr = "success.offers_claimed"
       try:
-        offerID = resolveTakerOffer(getAttr(op.manage_sell_offer_result, takerIDattr), offerIDarr, pubKey)
+        claimedOffersObj = getAttr(op.manage_sell_offer_result, takerIDattr)
       except AttributeError:
-        offerID = resolveTakerOffer(getAttr(op.manage_buy_offer_result, takerIDattr), offerIDarr, pubKey)
+        claimedOffersObj = getAttr(op.manage_buy_offer_result, takerIDattr)
+      return resolveMarketOrder(claimedOfferObj, offerIDarr, pubKey)
   return offerIDarr.append(offerID)
 
-def resolveTakerOffer(offersClaimed, offerIDarr, pubKey):
+def resolveMarketOrder(claimedOffersObj, offerIDarr, pubKey):
   IDattr = "offer_id.int64"
   offerID = 0
-  for trades in offersClaimed:
+  for trades in claimedOffersObj:
     try:
       offerID = getOfferIDfromContraID(getAttr(trades.order_book, IDattr), pubKey)
     except AttributeError:
