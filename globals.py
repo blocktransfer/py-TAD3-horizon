@@ -45,11 +45,7 @@ BT_DOLLAR = Asset("BTD", BT_ISSUERS[0])
 BT_API_SERVER = "https://api.blocktransfer.com"
 BT_WELL_KNOWN = "https://blocktransfer.com/.well-known"
 
-# just query docs? lots of this schema in the air
 BT_STELLAR_TOML = f"{BT_WELL_KNOWN}/stellar.toml"
-BT_ACCOUNTS_TOML = f"{BT_WELL_KNOWN}/accounts.toml"
-OFFER_MEMO_TOML = f"{BT_WELL_KNOWN}/cache/offer-memos.toml"
-WASH_SALE_TOML = f"{BT_WELL_KNOWN}/cache/wash-sales.toml"
 DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
 
 HORIZON_INST = "https://horizon.stellar.org"
@@ -100,99 +96,38 @@ NON_REPORTING_CO_TOTAL_INVESTORS_MAX = 2000
 NON_REPORTING_CO_NON_ACCREDITED_INVESTOR_MAX = 500
 AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 
-class RateLimited(Exception):
-  pass
-
-def requestXLM(url, params=None):
-  data = requests.get(url,
-    params = params).json()
+def requestXLM(path, params=None):
+  data = requests.get(
+    f"{HORIZON_INST}/{path}",
+    params = params
+  ).json()
   try:
     return returnLedgerIfNotRateLimited(data)
-  except RateLimited:
-    return requestURL(url, params)
+  except LookupError:
+    return requestXLM(path, params)
 
 def returnLedgerIfNotRateLimited(ledger):
   try:
     if(ledger["status"]):
       time.sleep(250)
-      raise RateLimited
+      raise LookupError
   except KeyError:
     return ledger
 
+# replace with a default error
 class PagignationIncomplete(Exception):
   pass
 
-def requestAWS(url, params=None):
-  data = requests.get(url,
+def requestAWS(path, params=None):
+  data = requests.get(
+    f"{BT_API_SERVER}/{path}",
     auth = getIAMenvAuth(),
-    params = params).json()
+    params = params
+  ).json()
   try:
     return returnAPIresponseIfComplete(data)
   except PagignationIncomplete:
-    return requestURL(url, params)
-
-def requestAWStmpDeleteMeHome(url, params=None):
-    aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
-    aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
-    aws_session_token = os.environ.get("AWS_SESSION_TOKEN")
-    
-    try:
-      
-      headers = {
-        "Authorization": f"AWS {aws_access_key_id}:{aws_secret_access_key}",
-        "x-api-key": "YOUR_API_KEY"  # If your API requires an API key
-      }
-      response = requests.get(url, headers=headers)
-      #response = requests.get(url,
-      #  params = params,
-      #  auth = (
-      #    aws_access_key_id, 
-      #    aws_secret_access_keyf
-      #  )
-      #)
-
-      if response.status_code == 200:
-        return response.json()
-      else:
-        print(f"Error: {response.status_code}, {response.text}")
-        return None
-    except Exception as e:
-      print(f"Error: {e}")
-      return None
-
-    session = boto3.client("apigateway",
-      aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID"),
-      aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY"),
-      region_name = "us-east-2"
-    )
-    
-    request = session.get(
-        method = "GET",
-        url = url,
-        params = params,
-        auth = "AWS_IAM"
-    )
-
-    try:
-      response = session.send(request)
-
-      # Process the response as needed
-      if response.status_code == 200:
-        return response.json()
-      else:
-        print("Error:", response.status_code, response.text)
-        return None
-
-    except Exception as e:
-        print("Error:", e)
-        return None
-
-
-def postAWS(url, data):
-  return requests.post(url,
-    data = json.dumps(data),
-    auth = getIAMenvAuth()
-  ).json()
+    return requestAWS(path, params)
 
 def returnAPIresponseIfComplete(response):
   # if ( response LastItem ):
@@ -202,6 +137,13 @@ def returnAPIresponseIfComplete(response):
   # in Lambda? 
   #
   return response
+
+def postAWS(path, data):
+  return requests.post(
+    f"{BT_API_SERVER}/{path}",
+    data = json.dumps(data),
+    auth = getIAMenvAuth()
+  ).json()
 
 def getIAMenvAuth():
   return BotoAWSRequestsAuth(
