@@ -53,9 +53,7 @@ DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
 
 
 HORIZON_INST = "https://horizon.stellar.org"
-MAX_SEARCH = "limit=200"
 MAX_API_BATCH_POST = 25
-SEARCH_LIM = 200 # -> params 
 
 BASE_FEE_MULT = 20
 MAX_NUM_TXN_OPS = 100
@@ -101,6 +99,7 @@ NON_REPORTING_CO_NON_ACCREDITED_INVESTOR_MAX = 500
 AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 
 def requestXLM(path, params=None):
+  params["limit"] = 200
   data = requests.get(
     f"{HORIZON_INST}/{path}",
     params = params
