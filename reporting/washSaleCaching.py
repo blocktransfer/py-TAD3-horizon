@@ -10,7 +10,7 @@ def updateAllOfferIDs():
     newWashSaleOfferIDsMappedToAdjustments.update(
       getNewWashSalesFromStellar(addrs, cached)
     )
-  with open(f"{G_DIR}/docs/.well-known/wash-sales.toml", "a") as cache:
+  with open(f"{CACHE_DIR}/wash-sales.toml", "a") as cache:
     for offerIDs, adjustments in newOfferIDsMappedToChiefMemos.items():
       cache.write(f"{offerIDs} = \"{memos}\"\n")
 

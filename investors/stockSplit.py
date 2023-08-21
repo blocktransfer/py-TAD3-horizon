@@ -24,7 +24,7 @@ def generatePostSplitMSF(queryAsset, ratio, MSFpreSplitBalancesTXT):
   else:
     postSplitFileName = f"[REVERSE] {queryAsset} Post-Split Master Securityholder File.txt"
   with open(MSFpreSplitBalancesTXT) as oldMSF:
-    with open(f"{G_DIR}/outputs/{postSplitFileName}", "w") as newMSF:
+    with open(f"{OUT_DIR}/{postSplitFileName}", "w") as newMSF:
       newMSF.write(f"{next(oldMSF)}\n")
       recordDifference = Decimal("0")
       for accounts in oldMSF:
@@ -156,6 +156,6 @@ def getClaimableBalanceIDsMappedToDataForAsset(queryAsset):
 def exportSplitTransactions(queryAsset, transactionsArray):
   for txns in transactionsArray:
     now = str(datetime.now()).replace(":",".")
-    with open(f"{G_DIR}/outputs/{now} {queryAsset} StockSplitOutputXDR.txt", "w") as output:
+    with open(f"{OUT_DIR}/{now} {queryAsset} StockSplitOutputXDR.txt", "w") as output:
       output.write(txns.to_xdr())
 

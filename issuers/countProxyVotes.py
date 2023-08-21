@@ -59,7 +59,13 @@ def countProxyVotes(queryAsset, numVotingItems, meetingType):
 def getBalancesOnRecordDate(queryAsset):
   balancesOnRecordDate = {}
   companyCode = getCompanyCodeFromAssetCode(queryAsset)
+  
+  # URGENT TODO: MIGRATE SNAPSHOTS
+  # URGENT TODO: DAILY (0:0:0 UTC) LAMBDA SNAPSHOT -> S3 BUCKET {ADDRS: BAL}
+  # todo: change this to load from AWS
   internalRecordDateTXT = f"{TOP_DIR}/../record-date-ledger-snapshots/{companyCode}/{year}/{queryAsset}.txt"
+  
+  
   with open(internalRecordDateTXT) as internalRecordDateHoldings:
     next(internalRecordDateHoldings)
     for lines in internalRecordDateHoldings:
