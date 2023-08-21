@@ -25,16 +25,16 @@ def getAssetObjFromCode(code):
 
 def getAssetIssuer(queryAsset):
   url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
-  for addresses in BT_ISSUERS:
-    if(requestRecords(url + addresses)):
-      return addresses
+  for addrs in BT_ISSUERS:
+    if(requestRecords(url + addrs)):
+      return addrs
   sys.exit(f"Could not find asset {queryAsset}")
 
 def getAssetIssuerUntrustedTOML(queryAsset):
   url = f"{HORIZON_INST}/assets?asset_code={queryAsset}&asset_issuer="
-  for addresses in BT_ISSUERS:
-    if(requestRecords(url + addresses)):
-      return addresses
+  for addrs in BT_ISSUERS:
+    if(requestRecords(url + addrs)):
+      return addrs
   sys.exit(f"Could not find asset {queryAsset}")
 
 def requestAssetRecords(queryAsset):
@@ -77,13 +77,13 @@ def getFederationServerFromDomain(federationDomain):
   except requests.exceptions.ConnectionError:
     return ""
 
-def resolveFederationAddress(address):
+def resolveFederationAddress(addr):
   try:
-    user, domain = address.split("*")
+    user, domain = addr.split("*")
   except ValueError:
     return ""
   homeDomainFederationServer = getFederationServerFromDomain(domain)
-  url = f"{homeDomainFederationServer}?q={address}&type=name"
+  url = f"{homeDomainFederationServer}?q={addr}&type=name"
   try:
     return requestURL(url)["account_id"]
   except KeyError:
@@ -98,12 +98,12 @@ def getAssetCodeFromTomlLink(link):
   return rawCode[:-5]
 
 ### potentially combine, see todo items for URL request reformatting to use params ###
-def getAccountDataDict(address):
-  url = f"{HORIZON_INST}/accounts/{address}"
+def getAccountDataDict(addr):
+  url = f"{HORIZON_INST}/accounts/{addr}"
   return requestURL(url)["data"]
 
-def getAccountLinksDict(address):
-  url = f"{HORIZON_INST}/accounts/{address}"
+def getAccountLinksDict(addr):
+  url = f"{HORIZON_INST}/accounts/{addr}"
   return requestURL(url)["_links"]
 ### ###
 
