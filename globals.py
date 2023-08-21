@@ -46,7 +46,11 @@ BT_API_SERVER = "https://api.blocktransfer.com"
 BT_WELL_KNOWN = "https://blocktransfer.com/.well-known"
 
 BT_STELLAR_TOML = f"{BT_WELL_KNOWN}/stellar.toml"
+BT_STELLAR_TOML = f"https://blocktransfer.com/.well-known/stellar.toml"
+
 DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
+
+
 
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_SEARCH = "limit=200"
