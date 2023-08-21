@@ -127,6 +127,9 @@ def returnLedgerIfNotRateLimited(ledger):
   except KeyError:
     return ledger
 
+def requestRecords(path):
+  return requestXLM(path)["_embedded"]["records"]
+
 # replace with a default error
 class PagignationIncomplete(Exception):
   pass
@@ -164,9 +167,6 @@ def getIAMenvAuth():
     aws_region = "us-east-2",
     aws_service = "execute-api"
   )
-
-def requestRecords(url):
-  return requestURL(url)["_embedded"]["records"]
 
 def getLinksAndRecordsFromParsedLedger(data):
   return data["_links"], data["_embedded"]["records"]
