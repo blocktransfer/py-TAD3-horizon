@@ -1,4 +1,14 @@
 
+
+
+
+## Use claimable balances for restricted shares # and stock grant
+# Sorobon for stock options
+
+
+
+
+
 # todo: move to internal/contracts
 include:
  - clause for uncertificated shares + conversion thereof in toto

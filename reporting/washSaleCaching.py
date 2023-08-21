@@ -3,12 +3,12 @@ sys.path.append("../")
 from globals import *
 
 def updateAllOfferIDs():
-  cacheData = getOfferIDsMappedToChiefMemosFromCache()
+  cached = getOfferIDsMappedToChiefMemosFromCache()
   newWashSaleOfferIDsMappedToAdjustments = {}
-  for addresses in getAllPublicKeys():
-    print(f"Querying new wash sales for {addresses}")
+  for addrs in getAllPublicKeys():
+    print(f"Querying new wash sales for {addrs}")
     newWashSaleOfferIDsMappedToAdjustments.update(
-      getNewWashSalesFromStellar(addresses, cacheData)
+      getNewWashSalesFromStellar(addrs, cached)
     )
   with open(f"{G_DIR}/docs/.well-known/wash-sales.toml", "a") as cache:
     for offerIDs, adjustments in newOfferIDsMappedToChiefMemos.items():
