@@ -143,17 +143,6 @@ def getOfferIDsMappedToChiefMemosFromCache():
   with open(path) as cache:
     return json.load(cache)
 
-  
-  offerIDsMappedToChiefMemos = {}
-  cache = loadTomlData(OFFER_MEMO_TOML)
-  for offerIDs, memos in cache.items():
-    try:
-      offerID = int(offerIDs)
-    except ValueError:
-      sys.exit("Bad validity: Searching/offer-memos")
-    offerIDsMappedToChiefMemos[offerID] = memos
-  return offerIDsMappedToChiefMemos
-
 def getWashSaleOfferIDsMappedToAdjustments():
   washSaleOfferIDsMappedToAdjustments = {}
   cache = loadTomlData(WASH_SALE_TOML)
