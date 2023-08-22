@@ -65,13 +65,13 @@ def getMakerOfferID(successfulOfferObj):
 def getListOfferIDsForOfferObj(offer, pubKey):
   if(not offer):
     return []
-  if(isMakerTrade(offer)):
+  elif(isMakerTrade(offer)):
     return getMakerOfferID(offer)
   else:
     marketOrderCounterTrades = offer.offers_claimed
-  return getSyntheticTakerIDs(marketOrderCounterTrades, pubKey)
+  return getTakerOfferIDs(marketOrderCounterTrades, pubKey)
 
-def getSyntheticTakerIDs(counterTrades, pubKey):
+def getTakerOfferIDs(counterTrades, pubKey):
   tradeTypes = ["order_book", "liquidity_pool", "v0"]
   syntheticTakerIDs = []
   for trades in counterTrades:
