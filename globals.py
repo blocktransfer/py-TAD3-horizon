@@ -111,6 +111,9 @@ AFFILIATE_VIA_PERCENT_FLOAT_OWNED_MIN = Decimal("0.1")
 def requestURL(url):
   return requests.get(url).json()
 
+def requestRecords(path, params=None):
+  return requestXLM(path, params)["_embedded"]["records"]
+
 def requestXLM(path, params={}):
   params["limit"] = 200
   data = requests.get(
@@ -129,9 +132,6 @@ def returnLedgerIfNotRateLimited(ledger):
       raise LookupError
   except KeyError:
     return ledger
-
-def requestRecords(path):
-  return requestXLM(path)["_embedded"]["records"]
 
 # replace with a default error
 class PagignationIncomplete(Exception):
