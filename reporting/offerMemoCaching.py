@@ -4,6 +4,21 @@ from globals import *
 
 from cacheHelper import *
 
+def getLifetimeOfferMemosForIndvPK(pubKey):
+  offerMemos = {}
+  ledger = requestXLM(f"accounts/{pubKey}/transactions")
+  links, records = getLinksAndRecordsFromParsedLedger(ledger)
+  while(records):
+    for txns in records:
+      if(txns["source_account"] == pubKey):
+        txResults = getTxnResFromXDR(txns["result_xdr"])
+        for ops in results:
+          offer = getSuccessfulOfferObjFromTxnOp(ops)
+          for offerIDs in getListOfferIDsForOfferObj(offer, pubKey):
+            offerMemos[offerIDs] = getMemoFromTransaction(txns)
+    links, records = getNextLedgerData(links)
+  return offerMemos
+
 def updateCache(type="offer-memos"):
   currHeight = getRefBlock()
   cacheHeight, cache = readCache(type)
@@ -22,16 +37,24 @@ def updateCacheFromHeightForFilledOfferMemosForPK(cache, cacheHeight, pubKey):
         continue
       if(txns["ledger"] <= cacheHeight):
         continue
-      txResults = TransactionResult.from_xdr(txns["result_xdr"]).result.results
-      if(not txResults):
-        continue
+      txResults = getTxnResFromXDR(txns["result_xdr"])
       for ops in txResults:
-        op = ops.tr
-        if(op.manage_buy_offer_result or op.manage_sell_offer_result):
-          for offerIDs in getListOpOfferIDreturnsMultipleForMarketOrder(op, pubKey):
-            if(offerIDs not in cache):
-              cache[offerIDs] = getMemoFromTransaction(txns)
+        offer = getSuccessfulOfferObjFromTxnOp(ops)
+        for offerIDs in getListOfferIDsForOfferObj(offer, pubKey):
+          offerMemos[offerIDs] = getMemoFromTransaction(txns)
     links, records = getNextLedgerData(links)
+
+def getTxnResFromXDR(resultXDR):
+  txnRes = TransactionResult.from_xdr(resultXDR).result.results
+  return txnRes if txnRes else []
+
+def getSuccessfulOfferObjFromTxnOp(op):
+  op = op.tr
+  return (
+    op.manage_sell_offer_result
+    if op.manage_sell_offer_result
+    else op.manage_buy_offer_result
+  ).success
 
 def isMakerTrade(successfulOfferObj):
   return successfulOfferObj.offer.offer
@@ -39,12 +62,9 @@ def isMakerTrade(successfulOfferObj):
 def getMakerOfferID(successfulOfferObj):
   return [successfulOfferObj.offer.offer.offer_id.int64]
 
-def getListOpOfferIDreturnsMultipleForMarketOrder(op, pubKey):
-  offer = (
-    op.manage_sell_offer_result
-    if op.manage_sell_offer_result
-    else op.manage_buy_offer_result
-  ).success 
+def getListOfferIDsForOfferObj(offer, pubKey):
+  if(not offer):
+    return []
   if(isMakerTrade(offer)):
     return getMakerOfferID(offer)
   else:
@@ -56,9 +76,10 @@ def getSyntheticTakerIDs(counterTrades, pubKey):
   syntheticTakerIDs = []
   for trades in counterTrades:
     for types in tradeTypes:
-      contraType = getattr(trades, types, None)
-      if(contraType):
-        contraID = contraType.offer_id.int64
+      contra = getattr(trades, types, 0)
+      if(contra):
+        contraID = contra.offer_id.int64
+        break
     syntheticTakerIDs.append(
       getOfferIDforPKfromContraID(contraID, pubKey)
     )
@@ -75,5 +96,3 @@ def getOfferIDforPKfromContraID(contraID, pubKey):
         return int(trades["base_offer_id"])
     links, records = getNextLedgerData(links)
 
-
-updateCache()
