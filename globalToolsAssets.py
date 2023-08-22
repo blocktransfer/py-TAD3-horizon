@@ -152,9 +152,8 @@ def getAssetBalanceFromAllBalances(queryAsset, accountBalances):
       if(searchAsset == asset):
         return balances["balance"]
 
-def getLedgerBalancesForPublicKey(publicKey):
-  url = f"{HORIZON_INST}/accounts/{publicKey}"
-  return requestURL(url)["balances"]
+def getLedgerBalancesForPublicKey(PK):
+  return requestXLM(f"accounts/{PK}")["balances"]
 
 def getTransactionsForAsset(queryAsset):
   # When SE payments relaunched: 

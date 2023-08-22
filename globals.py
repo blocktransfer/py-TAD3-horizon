@@ -1,22 +1,11 @@
-import asyncio, base64, boto3, csv, functools, json, os.path, pandas, random, requests, sys, string, time, toml #
-from stellar_sdk.xdr import TransactionEnvelope, TransactionResult ### * as (xlm.)xdr
+from stellar_sdk import AiohttpClient, Asset, Claimant, ClaimPredicate, Keypair, Network, Server, ServerAsync, TransactionBuilder, TrustLineFlags
+import asyncio, base64, boto3, csv, functools, json, os.path, pandas, random, requests, sys, string, time, toml
+from stellar_sdk.xdr import TransactionEnvelope, TransactionResult
 from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 from datetime import datetime
 from hashlib import sha3_256
 from decimal import Decimal
 from pprint import pprint
-from stellar_sdk import (
-  AiohttpClient,
-  Asset,
-  Claimant,
-  ClaimPredicate,
-  Keypair,
-  Network,
-  Server,
-  ServerAsync,
-  TransactionBuilder,
-  TrustLineFlags
-) ### incl. exceptions, all * as xlm
 TOP_DIR = os.path.dirname(__file__)
 OUT_DIR = f"{TOP_DIR}/outputs"
 CACHE_DIR = f"{TOP_DIR}/cache"
@@ -52,14 +41,10 @@ DEBUG_PKS = [
 ]
 
 BT_API_SERVER = "https://api.blocktransfer.com"
-BT_WELL_KNOWN = "https://blocktransfer.com/.well-known"
-
-BT_STELLAR_TOML = f"{BT_WELL_KNOWN}/stellar.toml"
 BT_STELLAR_TOML = f"https://blocktransfer.com/.well-known/stellar.toml"
 
+BT_WELL_KNOWN = "https://blocktransfer.com/.well-known"
 DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
-
-
 
 HORIZON_INST = "https://horizon.stellar.org"
 MAX_API_BATCH_POST = 25
