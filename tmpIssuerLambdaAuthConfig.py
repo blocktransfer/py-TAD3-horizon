@@ -36,14 +36,22 @@ auth = {
   "signature": signature
 }
 
-# message = base64.b64encode(json.dumps(auth).encode()).decode('utf-8')
-# print(message)
+headers = {
+  "Authorization": json.dumps(str(auth))
+}
 
-response = postAWS(
-  testingFuncURL,
-  json.dumps({ "Authorization": token })
-)
+params = { "PKs": DEBUG_PKS }
 
+do = 0
+if(do):
+  response = requests.get(
+    testingFuncURL,
+    headers = headers,
+    params = params
+  )
 
+# print(response)
+#print(str(response))
 
-print(response)
+testMN = Keypair.generate_mnemonic_phrase(strength=192)
+print(str(testMN))
