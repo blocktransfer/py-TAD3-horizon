@@ -135,11 +135,6 @@ def isCUSIP(query):
     allCUSIPs.append(getCUSIP(query))
   return query in allCUSIPs
 
-def getOfferIDsMappedToChiefMemosFromCache():
-  path = f"{CACHE_DIR}/offer-memos.json"
-  with open(path) as cache:
-    return json.load(cache)
-
 def getWashSaleOfferIDsMappedToAdjustments():
   washSaleOfferIDsMappedToAdjustments = {}
   cache = loadTomlData(WASH_SALE_TOML)

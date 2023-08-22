@@ -1,6 +1,7 @@
 import sys
 sys.path.append("../")
 from globals import *
+
 from trustlineHelper import *
 
 def freezeBulkAssetTrustlines(asset, reason):

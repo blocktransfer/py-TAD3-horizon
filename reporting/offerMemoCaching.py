@@ -2,6 +2,9 @@ import sys
 sys.path.append("../")
 from globals import *
 
+from cacheHelper import *
+
+type = "offer-memos"
 cache = getOfferIDsMappedToChiefMemosFromCache()
 
 def updateCache():
@@ -9,7 +12,7 @@ def updateCache():
   for pubKeys in getValidAccountPublicKeys():
     print(f"Querying new offers for {pubKeys}")
     updateSuccessfulOfferIDsMappedToChiefMemosCacheForPK(pubKeys)
-  saveCache("offer-memos", block)
+  saveCache(type, block)
 
 def updateSuccessfulOfferIDsMappedToChiefMemosCacheForPK(pubKey):
   ledger = requestXLM(f"accounts/{pubKey}/transactions")
@@ -95,6 +98,8 @@ def getListOpOfferIDreturnsMultipleForMarketOrderV2betaTestingReq(op, pubKey):
     )
   return offerIDsConsumed
 
+
+import shutil
 
 def saveCache(type, block):
   path = f"{CACHE_DIR}/{type}-{block}.json"
