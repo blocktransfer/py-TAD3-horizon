@@ -57,11 +57,11 @@ def submitTxnStd(transaction):
 
 def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
   splitsDict = {}
-  data = loadTomlData(BT_STELLAR_TOML)
-  for currencies in data["CURRENCIES"]:
-    assetCode = getAssetCodeFromTomlLink(currencies["toml"])
+  CIK = getCIKforIssuerOfAsset(queryAsset)
+  for currencies in getAllBTcompanies():
+    assetCode = getAssetCodeFromTomlLink(currencies["attestation_of_reserve"])
     if(assetCode == queryAsset):
-      data = loadTomlData(currencies["toml"])
+      data = loadTomlData(currencies["attestation_of_reserve"])
       splitData = data["CURRENCIES"][0]["splits"].split("|")
       for splits in splitData:
         date = pandas.to_datetime(f"{splits.split('effective ')[1]}T00:00:00Z")

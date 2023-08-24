@@ -1,6 +1,7 @@
-from stellar_sdk import AiohttpClient, Asset, Claimant, ClaimPredicate, Keypair, Network, Server, ServerAsync, TransactionBuilder, TrustLineFlags
-import asyncio, base64, boto3, csv, functools, json, os.path, pandas, random, requests, sys, string, time, toml
-from stellar_sdk.xdr import TransactionEnvelope, TransactionResult
+import base64, boto3, csv, json, os.path, pandas, requests, sys, time, toml
+import stellar_sdk as xlm
+# depricated: AiohttpClient, Asset, Claimant, ClaimPredicate, Keypair, Network, Server, ServerAsync, TransactionBuilder, TrustLineFlags
+# from stellar_sdk.xdr import TransactionEnvelope, TransactionResult
 from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 from datetime import datetime
 from hashlib import sha3_256
@@ -28,8 +29,8 @@ BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 EMPLOYEE_COMP_CB_WITH_VOTING = "GBLOCKTRANSFER777EMPLOYEECOMPENSATION777WITHVOTING7777RV"
 EMPLOYEE_COMP_CB_NO_VOTING = "GBLOCKTRANSFER777EMPLOYEECOMPENSATION777WITHOUTVOTING5M7"
-USDC_ASSET = Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
-BT_DOLLAR = Asset("BTD", BT_ISSUERS[0])
+USDC_ASSET = xlm.Asset("USDC", "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN")
+BT_DOLLAR = xlm.Asset("BTD", BT_ISSUERS[0])
 
 DEBUG_PKS = [
   "GC5TUPFLOXCINDYHQVYYLLVYP6GKHT65ELB2Q2WLFTGN63YYIXPQTDFJ", # trading
@@ -40,26 +41,23 @@ DEBUG_PKS = [
   # SCVNEA3UKCQYHQ332QENKUINKHOTPOAADERSC6SKTUQCTD7NSH3PEXFX #
 ]
 
+DIST_DATA_TOML = f"../distribution-data.toml"
+
 BT_API_SERVER = "https://api.blocktransfer.com"
-BT_STELLAR_TOML = f"https://blocktransfer.com/.well-known/stellar.toml"
-
-BT_WELL_KNOWN = "https://blocktransfer.com/.well-known"
-DIST_DATA_TOML = f"{BT_WELL_KNOWN}/distribution-data.toml"
-
 HORIZON_INST = "https://horizon.stellar.org"
-MAX_API_BATCH_POST = 25
 
 BASE_FEE_MULT = 20
 MAX_NUM_TXN_OPS = 100
 DEF_TXN_TIMEOUT = 3600
-WASH_SALE_DAY_RANGE = 30
+MAX_API_BATCH_POST = 25
 MAX_SUBMISSION_ATTEMPTS = 15
 HIST_SAFETY_REWIND_BLOCKS = 256
 MAX_PREC = Decimal("0.0000001")
-INVESTOR_MIN_EXCESS = Decimal("2.1")
-INVESTOR_STARTING_BAL = Decimal("4.2")
+INVESTOR_MIN_EXCESS_XLM = Decimal("2.1")
+INVESTOR_STARTING_BAL_XLM = Decimal("4.2")
+WASH_SALE_RANGE = pandas.DateOffset(days = 30)
 
-server = Server(HORIZON_INST)
+server = xlm.Server(HORIZON_INST)
 unix_base = datetime.utcfromtimestamp(0)
 fee = server.fetch_base_fee() * BASE_FEE_MULT
 distributor = server.load_account(account_id = BT_DISTRIBUTOR)

@@ -9,6 +9,9 @@ def getAllPublicKeys():
 def fetchAccount(pubKey):
   return requestAWS(f"PII/{pubKey}")
 
+def getAccountIDfromPubKey(PK):
+  return fetchAccount(pubKey)["ID"]
+
 def debugGetAllCurrPublicKeysForAsset(queryAsset):
   currPublicKeys = []
   ledger = requestAssetAccounts(queryAsset)
@@ -38,12 +41,14 @@ def getAssetIssuerUntrustedTOML(queryAsset):
   sys.exit(f"Could not find asset {queryAsset}")
 
 def requestAssetRecords(queryAsset):
-  issuer = getAssetIssuer(queryAsset)
-  path = f"assets?asset_code={queryAsset}&asset_issuer={issuer}"
-  return requestRecords(path)[0]
+  params = {
+    "asset_code": queryAsset,
+    "asset_issuer": getAssetIssuer(queryAsset)
+  }
+  return requestRecords("assets", params)[0]
 
 def requestAssetAccounts(queryAsset): # change this diction to chiefledger
-  path = f"accounts?{getURLendAsset(queryAsset)}" # TODO: change these these to use param get request jsons
+  path = f"accounts?{getURLendAsset(queryAsset)}"
   return requestXLM(path)
 
 def getURLendAsset(queryAsset):
@@ -55,7 +60,7 @@ def getIssuerAccObj(queryAsset):
   return server.load_account(account_id = issuer)
 
 def getCompanyCodeFromAssetCode(queryAsset):
-  for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
+  for assets in getAllBTcompanies():
     try:
       code = assets["code_template"].split("?")[0]
     except KeyError:
@@ -69,43 +74,54 @@ def getCompanyCodeFromAssetCode(queryAsset):
 def loadTomlData(link):
   return toml.loads(requests.get(link).content.decode())
 
-def getFederationServerFromDomain(federationDomain):
-  try:
-    url = f"https://{federationDomain}/.well-known/stellar.toml"
-    data = loadTomlData(url)
-    return data["FEDERATION_SERVER"]
-  except requests.exceptions.ConnectionError:
-    return ""
+def getAllBTcompanies():
+  return xlm.sep.fetch_stellar_toml_async("blocktransfer.com")
+
+# depricated, to be deleted by October
+  # def getFederationServerFromDomain(federationDomain):
+  #   try:
+  #     url = f"https://{federationDomain}/.well-known/stellar.toml"
+  #     data = loadTomlData(url)
+  #     return data["FEDERATION_SERVER"]
+  #   except requests.exceptions.ConnectionError:
+  #     return ""
 
 def resolveFederationAddress(addr):
-  try:
-    user, domain = addr.split("*")
-  except ValueError:
-    return ""
-  homeDomainFederationServer = getFederationServerFromDomain(domain)
-  url = f"{homeDomainFederationServer}?q={addr}&type=name"
-  try:
-    return requestURL(url)["account_id"]
-  except KeyError:
-    return ""
+  return xlm.resolve_stellar_address(addr)
+  # depricated, to be deleted by October
+    # try:
+    #   user, domain = addr.split("*")
+    # except ValueError:
+    #   return ""
+    # homeDomainFederationServer = getFederationServerFromDomain(domain)
+    # url = f"{homeDomainFederationServer}?q={addr}&type=name"
+    # try:
+    #   return requestURL(url)["account_id"]
+    # except KeyError:
+    #   return ""
 
-def isPublic(companyCode):
-  issuerInfo = f"https://blocktransfer.io/assets/{companyCode}.toml"
+def isPublic(CIK):
+  issuerInfo = f"https://blocktransfer.com/assets/{CIK}.toml"
   return loadTomlData(issuerInfo)["ISSUER"]["reporting_company"]
 
-def getAssetCodeFromTomlLink(link):
+def getCIKfromTomlLink(link):
   rawCode = link.split("/")[-1]
   return rawCode[:-5]
 
-### potentially combine, see todo items for URL request reformatting to use params ###
-def getAccountDataDict(addr):
-  path = f"accounts/{addr}"
-  return requestXLM(path)["data"]
+def getCIKfromQueryAsset(code):
+  CIK = 0
+  for assets in getAllBTcompanies():
+    if(code.startswith(assets["code"])):
+      refURL = assets["attestation_of_reserve"]
+      CIK = refURL.split("/")[-1][:-5]
+      break
+  return CIK
+
+def getLedgerDataForPK(pubKey):
+  return requestXLM(f"accounts/{pubKey}")["data"]
 
 def getAccountLinksDict(addr):
-  path = f"accounts/{addr}"
-  return requestXLM(path)["_links"]
-### ###
+  return requestXLM(f"accounts/{addr}")["_links"]
 
 def getPaymentsLedgerFromAccountLinks(accountLinks):
   return requestURL(
@@ -114,20 +130,27 @@ def getPaymentsLedgerFromAccountLinks(accountLinks):
     )
   )
 
-def getISIN(ticker):
+def getISIN(queryAsset):
   try:
-    data = loadTomlData(BT_STELLAR_TOML)
-    for currencies in data["CURRENCIES"]:
-      assetCode = getAssetCodeFromTomlLink(currencies["toml"])
-      if(assetCode == ticker):
-        return currencies["code"]
+    for currencies in getAllBTcompanies():
+      # match code_template startsWith
+      
+      
+      # get full data loadTomlData(currencies["attestation_of_reserve"])
+      
+      
+      # iterate through ["securities?"] // S&B
+      for securities in []:
+        if(securities["code"] == queryAsset):
+          return securities["ISIN"]
   except KeyError:
     sys.exit(f"ITIN toml resolution failed")
   return 0
 
-def getCUSIP(ISIN):
-  return ISIN[2:-1]
+def getCUSIP(queryAsset):
+  return getISIN[2:-1]
 
+# THIS DOES NOT WORK #
 def isCUSIP(query):
   allAssets = listAllIssuerAssets()
   allCUSIPs = []

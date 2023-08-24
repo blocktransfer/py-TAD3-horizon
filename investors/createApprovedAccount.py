@@ -12,15 +12,14 @@ def createApprovedAccount():
   approvedAddrsArr = getValidAccountPublicKeys()
   transactionsArr = buildTxnsArr(approvedAddrsArr)
   submitTxnsToStellar(transactionsArr)
-
+#
 def getAddress(providedAddr):
   splitAddr = providedAddr.split("*")
   if(len(splitAddr) == 1):
     return providedAddr
-  elif(len(splitAddr) == 2):
+  if(len(splitAddr) == 2):
     return resolveFederationAddress(providedAddr)
-  else: 
-    sys.exit(f"Bad address: {providedAddr}")
+  sys.exit(f"Bad address: {providedAddr}")
 
 def seeIfAccountExists(resolvedAddr):
   try:

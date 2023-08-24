@@ -65,16 +65,14 @@ def getMakerOfferID(successfulOfferObj):
 def getListOfferIDsForOfferObj(offer, pubKey):
   if(not offer):
     return []
-  elif(isMakerTrade(offer)):
-    return getMakerOfferID(offer)
-  else:
-    marketOrderCounterTrades = offer.offers_claimed
-  return getTakerOfferIDs(marketOrderCounterTrades, pubKey)
+  if(isMakerTrade(offer)):
+    return getMakerOfferID(offer) 
+  return getTakerOfferIDs(offer.offers_claimed, pubKey)
 
-def getTakerOfferIDs(counterTrades, pubKey):
+def getTakerOfferIDs(marketOrderCounterTrades, pubKey):
   tradeTypes = ["order_book", "liquidity_pool", "v0"]
   syntheticTakerIDs = []
-  for trades in counterTrades:
+  for trades in marketOrderCounterTrades:
     for types in tradeTypes:
       contra = getattr(trades, types, 0)
       if(contra):
@@ -92,7 +90,7 @@ def getOfferIDforPKfromContraID(contraID, pubKey):
     for trades in records:
       if(trades["counter_account"] == pubKey):
         return int(trades["counter_offer_id"])
-      elif(trades["base_account"] == pubKey):
+      if(trades["base_account"] == pubKey):
         return int(trades["base_offer_id"])
     links, records = getNextLedgerData(links)
 

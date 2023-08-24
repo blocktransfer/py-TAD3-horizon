@@ -181,7 +181,7 @@ def getOriginDataFromPagingToken(opPagingToken, address):
       legacyPrice = Decimal("0")
     case "DWAC":
       try:
-        legacyPrice = Decimal(getAccountDataDict(BT_DISTRIBUTOR)[f"DWAC|{opPagingToken}"])
+        legacyPrice = Decimal(getLedgerDataForPK(BT_DISTRIBUTOR)[f"DWAC|{opPagingToken}"])
       except KeyError:
         sys.exit(f"{address} missing DWAC mapping for {opPagingToken}")
     case other:
@@ -198,14 +198,14 @@ def getOriginDataFromPagingToken(opPagingToken, address):
 # individual account data should not be responsible for tracking wash sale adjusts;
 # investor only specifies sale lot
 def basisFromAccountData(addr):
-  data = getAccountDataDict(addr)
+  data = getLedgerDataForPK(addr)
   historicPositionsCUSIPsMappedToBasisData = {}
   for key, value in data.items():
     if(isCUSIP(key)):
       historicPositionsCUSIPsMappedToBasisData[key] = value
   return historicPositionsCUSIPsMappedToBasisData
 def getWashSalesFromAccountData(addr):
-  data = getAccountDataDict(addr)
+  data = getLedgerDataForPK(addr)
   succeedingOffersMappedToBasisAdjustments = {}
   for key, value in data.items():
     if(key in offerIDsMappedToChiefMemosForAccount.keys()):

@@ -38,16 +38,3 @@ def addInvestorDataForAWS(account, queryAsset):
   account["CIK"] = getCIKfromQueryAsset(queryAsset)
   return account
 
-
-
-def getCIKfromQueryAsset(code):
-  CIK = 0
-  for assets in loadTomlData(BT_STELLAR_TOML)["CURRENCIES"]:
-    if(code.startswith(assets["code"])):
-      refURL = assets["attestation_of_reserve"]
-      CIK = refURL.split("/")[-1][:-5]
-      break
-  return CIK
-
-# pprint(importLegacyAccounts("DEMO", "investorImport.txt"))
-
