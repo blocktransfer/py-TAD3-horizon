@@ -62,7 +62,7 @@ def adjustNumSharesForStockSplits(numShares, purchaseTimestamp, queryAsset):
     assetCode = getAssetCodeFromTomlLink(currencies["attestation_of_reserve"])
     if(assetCode == queryAsset):
       data = loadTomlData(currencies["attestation_of_reserve"])
-      splitData = data["CURRENCIES"][0]["splits"].split("|")
+      splitData = data["CURRENCIES"][0]["splits"].split("|") # bad match
       for splits in splitData:
         date = pandas.to_datetime(f"{splits.split('effective ')[1]}T00:00:00Z")
         splits = splits.split(" ")
