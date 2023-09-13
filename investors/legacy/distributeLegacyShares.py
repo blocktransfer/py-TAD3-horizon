@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../")
+sys.path.append("../../")
 from globals import *
 
 def distributeLegacyShares(account, queryAsset, amount, basis, vestingDate):

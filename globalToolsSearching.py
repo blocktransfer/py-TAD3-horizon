@@ -59,7 +59,7 @@ def getIssuerAccObj(queryAsset):
   issuer = getAssetIssuer(queryAsset)
   return server.load_account(account_id = issuer)
 
-def getCompanyCodeFromAssetCode(queryAsset):
+def getCompanyCodeFromAssetCode(queryAsset): # todo: Change this to use permanant diction
   for assets in getAllBTcompanies():
     try:
       code = assets["code_template"].split("?")[0]
@@ -71,7 +71,7 @@ def getCompanyCodeFromAssetCode(queryAsset):
       return loadTomlData(issuerInfo)["ISSUER"]["bt_company_code"]
   return 0
 
-def loadTomlData(link):
+def loadTomlData(link): # todo: Change this to use permanant diction
   return toml.loads(requests.get(link).content.decode())
 
 def getAllBTcompanies():
