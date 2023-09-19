@@ -196,3 +196,25 @@ def stripPagingNum(pagingTkn):
 def getRefBlock():
   return requestXLM("")["history_latest_ledger"] - HIST_SAFETY_REWIND_BLOCKS
 
+def getCBsForPK(pubKey):
+  allCBs = {}
+  # Assume under 200 or do pagination links/records
+  response = server.claimable_balances().for_claimant(pubKey).limit(200).call()
+  for CBs in response["_embedded"]["records"]:
+    CB = {}
+    code, issuer = CBs["asset"].split(":")
+    if issuer != BT_ISSUERS[0]: continue
+    CB["asset"] = code
+    CB["amount"] = CBs["amount"]
+    otherClaimants = []
+    for claimants in CBs["claimants"]:
+      recipient = claimants["destination"]
+      if recipient == pubKey:
+        CB["claimable"] = claimants.get("predicate", {}).get("not", {}).get("abs_before", "available")
+      else:
+        otherClaimants.append(recipient)
+    if otherClaimants:
+      CB["otherClaimants"] = otherClaimants    
+    allCBs[CBs["id"]] = CB
+  return allCBs
+
