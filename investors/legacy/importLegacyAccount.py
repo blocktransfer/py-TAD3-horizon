@@ -33,6 +33,7 @@ def extractInvestorDataFromRow(row, queryAsset):
     "DOB": row.get("DOB"),
     "address": row.get("address"),
     "email": row.get("email"),
+    "phone": row.get("phone"),
     "orgRepContact": row.get("repNameForOrgOnly"),
     "holdings": holdings
   }
@@ -40,18 +41,18 @@ def extractInvestorDataFromRow(row, queryAsset):
 
 def addInvestorDataForAWS(account, queryAsset):
   lastName = HumanName(account["legalName"]).last
-  if account.get("DOB"):
-    PKspecifier = account["DOB"]
-  elif account.get("email"):
-    PKspecifier = account["email"]
-  elif account.get("repNameForOrgOnly"):
-    PKspecifier = HumanName(account["repNameForOrgOnly"]).last
-  else:
-    PKspecifier = HumanName(account["legalName"]).first
-  account["PK"] = f"{lastName}|{PKspecifier}"
-  account["SK"] = datetime.now().isoformat()
+  email = getItemStrStrict(account, "email")
+  account["PK"] = f"{lastName}|{email}"
+  DOB = getItemStrStrict(account, "DOB")
+  account["SK"] = f"{DOB}|{datetime.now().isoformat()}"
   account["CIK"] = getCIKfromQueryAsset(queryAsset)
   return account
+
+def getItemStrStrict(dict, item):
+  if(dict.get(item)):
+    return dict[item]
+  else:
+    return ""
 
 AWSdata = importLegacyAccounts("1984803ORD", "prodImports/1984803.txt")
 # pprint(AWSdata)
