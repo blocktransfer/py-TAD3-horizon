@@ -28,6 +28,51 @@ def distributeLegacyShares(account, queryAsset, amount, basis, vestingDate):
   with open(f"{G_DIR}/docs/.well-known/distribution-bases.toml", "a") as cache:
     cache.write(f"{claimableBalanceID} = \"{basis}\"\n")
 
+def distributeLegacySharesV2channelAccs(txnEnvelope, account, queryAsset, amount, basis, UNIXsoonerOfVestingDateOrHoldingPeriodEndSetAs0ifAvalNow):
+  if UNIXsoonerOfVestingDateOrHoldingPeriodEndSetAs0ifAvalNow: # assumes you use CBs for employee comp. as of now due to Soroban in futurenet only
+    claimPred = ClaimPredicate.predicate_not(
+      ClaimPredicate.predicate_before_absolute_time(
+        epochFromDay(
+          pandas.to_datetime(UNIXsoonerOfVestingDateOrHoldingPeriodEndSetAs0ifAvalNow)
+        )
+      )
+    )
+  else:
+    claimPred = ClaimPredicate.predicate_unconditional()
+  txnEnvelope.append_create_claimable_balance_op(
+    asset = getAssetObjFromCode(queryAsset),
+    amount = amount,
+    claimants = [
+      Claimant(
+        destination = account,
+        predicate =  claimPred
+      )
+    ]
+  )
+  txn = transactions[0].set_timeout(90).add_text_memo(basis).build()
+  txn.sign(Keypair.from_secret(DISTRIBUTOR_KEY))
+  response = submitTxnGuaranteed(txn)
+  claimableBalanceID = ""
+  with open(f"{G_DIR}/docs/.well-known/distribution-bases.toml", "a") as cache:
+    cache.write(f"{claimableBalanceID} = \"{basis}\"\n")
+
 # Basis tracking, -> investor app, document with BIP paths
 # distributeLegacyShares(BT_TREASURY, "DEMO", "10.4983211", "10|2009-9-9", "2023-1-1")
 # distributeLegacyShares(BT_TREASURY, "DEMO", "10.4983211", "10|2009-9-9", "")
+
+Hello, you've reached John Wooten
+
+Unfortunately, I don't take unscheduled phone calls
+
+If you're a client trying to reach me, please text this number
+
+If you're looking for help with your Block Transfer account, please contact support@blocktransfer.com
+
+For all other matters, please send me an email
+
+Thank you, and have a stellar day!
+
+
+
+
+AAAAAgAAAAAgqUUcJ33N0pRiZ8jYWarxrswtzcbCcsuKC9Q9y5rr9gAAA+gCLh4FAAAAEgAAAAEAAAAAAAAAAAAAAABlCFlNAAAAAQAAAAlCYXNpczogJDAAAAAAAAABAAAAAAAAAA4AAAACMTk4NDgwM09SRAAAAAAAAOLNsV5TDywifCaAbUtLtMYUtxcnD/0L+JzjZ1r9yEgiAAAteYg9IAAAAAABAAAAAAAAAAD06ieQUB5JM02pokDmaypwxbxGlQ+axZODC9nvlHDqdwAAAAMAAAABAAAABAAAAABxyngAAAAAAAAAAAA=

@@ -1,4 +1,4 @@
-import base64, boto3, csv, json, os.path, pandas, requests, sys, time, toml
+import base64, boto3, csv, json, os.path, pandas, re, requests, sys, time, toml
 import stellar_sdk as xlm
 # depricated: AiohttpClient, Asset, Claimant, ClaimPredicate, Keypair, Network, Server, ServerAsync, TransactionBuilder, TrustLineFlags
 # from stellar_sdk.xdr import TransactionEnvelope, TransactionResult
@@ -26,7 +26,7 @@ BT_ISSUERS = [
   "GD7HBNPUAIK5QW7MLC7VKKHIQZCYZYCAC4YNRT3YOPYPQRK3G5ZGQJOS", # trustlines
   "GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA"  # large sets
 ]
-BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6"
+BT_DISTRIBUTOR = "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6" # This will need to be an array at >1000 client assets
 BT_TREASURY = "GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY"
 EMPLOYEE_COMP_CB_WITH_VOTING = "GBLOCKTRANSFER777EMPLOYEECOMPENSATION777WITHVOTING7777RV"
 EMPLOYEE_COMP_CB_NO_VOTING = "GBLOCKTRANSFER777EMPLOYEECOMPENSATION777WITHOUTVOTING5M7"

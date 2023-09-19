@@ -5,7 +5,6 @@ from globals import *
 def importLegacyAccounts(queryAsset, importTXT):
   oldInvestorsArrOfInfoDicts = getInvestorAccountsFromLegacyTXT(queryAsset, importTXT)
   return oldInvestorsArrOfInfoDicts
-  postAWS("legacy/new", AWSupload)
 
 def getInvestorAccountsFromLegacyTXT(queryAsset, importTXT):
   accounts = []
@@ -18,28 +17,45 @@ def getInvestorAccountsFromLegacyTXT(queryAsset, importTXT):
   return accounts
 
 def extractInvestorDataFromRow(row, queryAsset):
-  return {
-    "legalName": row["registration"],
-    # "DOB": row["DOB"],
-    # "address": row["address"],
-    "email": row["email"],
-    "orgRepContact": row["repNameForOrgOnly"],
-    "holdings": {
-      queryAsset: {
-        "amount": row["shares"],
-        # "basis": row["basis"],
-        # "available": row["vesting"]
-      }
+  # configure multiple assets here with queryAsset2, shares2, etc. 
+  holdings = {
+    queryAsset: {
+      "code": queryAsset,
+      "amount": row["shares"],
+      "basis": row.get("basis"),
+      "pending": row.get("vesting") # add pending info as needed
     }
   }
+  holdings[queryAsset] = {k: v for k, v in holdings[queryAsset].items() if v}
+  # could just do a 'holdings' for loop once header diction est.
+  record = {
+    "legalName": row["registration"],
+    "DOB": row.get("DOB"),
+    "address": row.get("address"),
+    "email": row.get("email"),
+    "orgRepContact": row.get("repNameForOrgOnly"),
+    "holdings": holdings
+  }
+  return {k: v for k, v in record.items() if v}
 
 def addInvestorDataForAWS(account, queryAsset):
   lastName = HumanName(account["legalName"]).last
-  account["PK"] = f"{lastName}|{account['email']}"
+  if account.get("DOB"):
+    PKspecifier = account["DOB"]
+  elif account.get("email"):
+    PKspecifier = account["email"]
+  elif account.get("repNameForOrgOnly"):
+    PKspecifier = HumanName(account["repNameForOrgOnly"]).last
+  else:
+    PKspecifier = HumanName(account["legalName"]).first
+  account["PK"] = f"{lastName}|{PKspecifier}"
   account["SK"] = datetime.now().isoformat()
-  account["CIK"] = "1984803" #tmpBroken getCIKfromQueryAsset(queryAsset)
+  account["CIK"] = getCIKfromQueryAsset(queryAsset)
   return account
 
-AWSdata = importLegacyAccounts("LAYLOR", "prodImports/LAYLOR_investor_import_2023-09-12_at_20-36_by_John_Wooten.txt")
-for accounts in AWSdata:
-  print(accounts["email"])
+AWSdata = importLegacyAccounts("1984803ORD", "prodImports/1984803.txt")
+# pprint(AWSdata)
+
+pprint(
+  postAWS("legacy/new", AWSdata)
+)

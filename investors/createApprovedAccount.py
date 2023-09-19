@@ -1,12 +1,11 @@
 import sys
 sys.path.append("../")
 from globals import *
-from stellar_sdk import exceptions ###
 
 try:
   MEMO = sys.argv[1]
 except Exception: ###
-  MEMO = "Account verified"
+  MEMO = "Account Verified ✔️"
 
 def createApprovedAccount():
   approvedAddrsArr = getValidAccountPublicKeys()
@@ -25,9 +24,9 @@ def seeIfAccountExists(resolvedAddr):
   try:
     server.load_account(account_id = resolvedAddr)
     return 1
-  except exceptions.Ed25519PublicKeyInvalidError:
+  except xdr.exceptions.Ed25519PublicKeyInvalidError:
     sys.exit(f"Breaking - invalid public key: {resolvedAddr}")
-  except exceptions.SdkError as error:
+  except xdr.exceptions.SdkError as error:
     if(error.status == 404):
       return 0
     else:

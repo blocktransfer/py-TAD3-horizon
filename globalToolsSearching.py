@@ -109,13 +109,8 @@ def getCIKfromTomlLink(link):
   return rawCode[:-5]
 
 def getCIKfromQueryAsset(code):
-  CIK = 0
-  for assets in getAllBTcompanies():
-    if(code.startswith(assets["code"])):
-      refURL = assets["attestation_of_reserve"]
-      CIK = refURL.split("/")[-1][:-5]
-      break
-  return CIK
+  match = re.search(r'\d+', code)
+  return int(match.group()) if match else 0
 
 def getLedgerDataForPK(pubKey):
   return requestXLM(f"accounts/{pubKey}")["data"]
