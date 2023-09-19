@@ -9,62 +9,13 @@ from globals import *
 
 # Claimable balances are restricted shares.
 # The claimable date indicates when the shares become unrestricted, typically following SEC Rule 144.
-# The release date may be denoted by a memo in other scenarios dictated by offline case-by-case terms.
+# If NOT unconditional predicate, the release date is denoted by offline case-by-case terms.
+# Standard CB memo is "Basis: {basis}"
 
-# Employee stock grants, options, and similar arrangements are through Soroban.
+# Employee stock grants, options, and similar arrangements are planned through Soroban.
 
-
-### unrestricted shares only ###
-def getLedgerBalances(queryAsset):
-  ledgerBalances = {}
-  ledger = requestAssetAccounts(queryAsset)
-  links, records = getLinksAndRecordsFromParsedLedger(ledger)
-  queryAsset = getAssetObjFromCode(queryAsset)
-  while(records):
-    for accounts in records:
-      for balances in accounts["balances"]:
-        try:
-          asset = Asset(balances["asset_code"], balances["asset_issuer"])
-          if(asset == queryAsset):
-            account = accounts["id"]
-            balance = Decimal(balances["balance"])
-            ledgerBalances[account] = balance
-            break
-        except KeyError:
-          continue
-    links, records = getNextLedgerData(links)
-  return ledgerBalances
-
-### todo ###
-def getLedgerBalancesV2(queryAsset):
-  ledgerBalances = {}
-  ledger = requestAssetAccounts(queryAsset)
-  links, records = getLinksAndRecordsFromParsedLedger(ledger)
-  queryAsset = getAssetObjFromCode(queryAsset)
-  i = 0
-  while(records):
-    for accounts in records:
-      for balances in accounts["balances"]:
-        try:
-          asset = Asset(balances["asset_code"], balances["asset_issuer"])
-          if(asset == queryAsset):
-            account = accounts["id"]
-            balance = {}
-            balance["unrestricted"] = Decimal(balances["balance"])
-            
-            # CB lookup
-            restricted = 1
-            if(restricted):
-              restricted
-              balance["restricted"] = restricted
-            
-            ledgerBalances[account] = balance
-            break
-        except KeyError:
-          continue
-    links, records = getNextLedgerData(links)
-  return ledgerBalances
-######
+def getLedgerBalances(code):
+  return requestAWS(f"balances/{code}")
 
 def getNextLedgerData(links):
   nextData = requests.get(
