@@ -65,8 +65,8 @@ importedData = parseRawStr(rawStrCapTable)
 printCapTable(importedData)
 importAdmin = input("Verified as correct by: ")
 clientCIK = "1984803"
-importedAt = datetime.utcnow().strftime("%Y-%m-%d at %H-%M")
-fileName = f"{clientCIK} investor import {importedAt} by {importAdmin}.txt"
+importedAt = time.time()
+fileName = f"{clientCIK} investor import at {importedAt} by {importAdmin}.txt"
 with open(fileName, "w") as file:
   file.write("registration|shares|repNameForOrgOnly|email\n")
   for registration, data in importedData.items():
