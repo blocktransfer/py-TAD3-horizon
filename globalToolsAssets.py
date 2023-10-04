@@ -15,7 +15,7 @@ from globals import *
 # Employee stock grants, options, and similar arrangements are planned through Soroban.
 
 def getLedgerBalances(code):
-  return requestAWS(f"balances/{code}")
+  return requestAWS(f"assets/{code}/balances")
 
 def getNextLedgerData(links):
   nextData = requests.get(
