@@ -66,6 +66,7 @@ def buildTxnsArr(approvedAddrs): # todo: similarly, globalize
   return transactions
 
 def submitTxnsToStellar(txnArr): # globalize
+  sys.exit(txnArr)
   for txns in txnArr:
     submitTxnGarunteed(txns)
 

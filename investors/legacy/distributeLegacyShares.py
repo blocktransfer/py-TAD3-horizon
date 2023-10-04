@@ -60,19 +60,3 @@ def distributeLegacySharesV2channelAccs(txnEnvelope, account, queryAsset, amount
 # distributeLegacyShares(BT_TREASURY, "DEMO", "10.4983211", "10|2009-9-9", "2023-1-1")
 # distributeLegacyShares(BT_TREASURY, "DEMO", "10.4983211", "10|2009-9-9", "")
 
-Hello, you've reached John Wooten
-
-Unfortunately, I don't take unscheduled phone calls
-
-If you're a client trying to reach me, please text this number
-
-If you're looking for help with your Block Transfer account, please contact support@blocktransfer.com
-
-For all other matters, please send me an email
-
-Thank you, and have a stellar day!
-
-
-
-
-AAAAAgAAAAAgqUUcJ33N0pRiZ8jYWarxrswtzcbCcsuKC9Q9y5rr9gAAA+gCLh4FAAAAEgAAAAEAAAAAAAAAAAAAAABlCFlNAAAAAQAAAAlCYXNpczogJDAAAAAAAAABAAAAAAAAAA4AAAACMTk4NDgwM09SRAAAAAAAAOLNsV5TDywifCaAbUtLtMYUtxcnD/0L+JzjZ1r9yEgiAAAteYg9IAAAAAABAAAAAAAAAAD06ieQUB5JM02pokDmaypwxbxGlQ+axZODC9nvlHDqdwAAAAMAAAABAAAABAAAAABxyngAAAAAAAAAAAA=

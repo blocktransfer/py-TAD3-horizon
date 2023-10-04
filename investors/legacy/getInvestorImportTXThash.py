@@ -22,6 +22,6 @@ def sumFinalSharesHeld(filePath):
       totalShares += Decimal(row["shares"])
   return totalShares
 
-investorImportPath = "/mnt/d/env/stellar-interface/investors/legacy/prodImports/FILE.txt"
+investorImportPath = "/mnt/d/env/stellar-interface/investors/legacy/prodImports/a.pdf"
 print(f"The SHA-256 hash of the file is: {calculateSHA256(investorImportPath)}")
-print(f"You should be issuing: {sumFinalSharesHeld(investorImportPath)} shares")
+# print(f"You should be issuing: {sumFinalSharesHeld(investorImportPath)} shares")
