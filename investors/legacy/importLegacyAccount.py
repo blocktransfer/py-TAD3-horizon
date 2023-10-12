@@ -2,15 +2,16 @@ import sys
 sys.path.append("../../")
 from globals import *
 
+HORIZON_INST = "globalizeMe!!!!!"
 FTIN_SERVER = "https://ftinmanager.blocktransfer.com"
 mTLS_thing = 1 #?
 
 def importLegacyAccounts(importTXT, legacyImportTxnHash):
-  codesImported, CIK = getCodesImportedAndCIKfromLegacyImportHash(legacyImportTxnHash)
+  legacyIssuerAssetCodes, CIK = getCodesAndCIKfromHash(legacyImportTxnHash)
   importUnix = getDefImportUnix(legacyImportTxnHash, CIK)
   accounts = []
-  with open(importTXT, "r") as finalInvestorImport:
-    reader = csv.DictReader(finalInvestorImport, delimiter="|")
+  with open(importTXT, "r") as issuerLegacyImportFinal:
+    reader = csv.DictReader(issuerLegacyImportFinal, delimiter="|")
     for legacyInvestorData in reader:
       holdings = [
         {
@@ -21,9 +22,8 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
           **({"notes": legacyInvestorData.get(f"{codes}-notes")}
             if legacyInvestorData.get(f"{codes}-notes") else {})
         }
-        for codes in codesImported if legacyInvestorData.get(f"{codes}-quantity")
+        for codes in legacyIssuerAssetCodes if legacyInvestorData.get(f"{codes}-quantity")
       ]
-      holdings["blame"] = legacyImportTxnHash
       FTIN = legacyInvestorData.get("FTIN")
       token = 0 if not FTIN else putFTIN({
         "FTIN": FTIN,
@@ -37,6 +37,7 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
         "FTIN": token,
         "holdings": holdings,
         "legalName": legalName,
+        "from": legacyImportTxnHash
         "DOB": legacyInvestorData.get("DOB"),
         "email": legacyInvestorData.get("email"),
         "phone": legacyInvestorData.get("phone"),
@@ -46,7 +47,6 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
         "orgOtherContacts": legacyInvestorData.get("orgOtherContacts"),
         "orgChiefExecutive": legacyInvestorData.get("orgChiefExecutive")
       })
-      
       accounts.append(investor)
   return accounts
 
@@ -60,8 +60,8 @@ def getSK(account):
   )
   return f"{chiefIdentifier}|{time.time_ns()}"
 
-def getCodesImportedAndCIKfromLegacyImportHash(legacyImportTxnHash):
-  transaction = server.transactions().transaction(legacyImportOmnibusLedgerIssueTxnHash).call()
+def getCodesAndCIKfromHash(legacyImportTxnHash):
+  transaction = requests.get(f"{HORIZON_INST}/transactions/{legacyImportOmnibusLedgerIssueTxnHash}").json()
   codesImported = []
   CIKs = set()
   for legacyImportOmnibusLedgerIssueOps in transaction["operations"]:
