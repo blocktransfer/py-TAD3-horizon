@@ -51,10 +51,9 @@ HORIZON_INST = "https://horizon.stellar.org"
 
 MAIN_ACC_TYPES = [
   "_person",
-  "_irrev-trust",
+  "_irv-trust",
   "_rev-trust",
-  "_liv-trust"
-  "_sole-prop",
+  "_liv-trust",
   "_c-co",
   "_s-co",
   "_part",
