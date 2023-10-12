@@ -12,17 +12,16 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
   with open(importTXT, "r") as finalInvestorImport:
     reader = csv.DictReader(finalInvestorImport, delimiter="|")
     for legacyInvestorData in reader:
-      holdings = {}
-      for codes in codesImported:
-        quantity = legacyInvestorData.get(f"{codes}-owned")
-        if not quantity: continue
-        holdings[codes] = {
-          "amount": quantity,
+      holdings = {
+        codes: {
+          "amount": legacyInvestorData.get(f"{codes}-owned"),
           "basis": legacyInvestorData.get(f"{codes}-basis", "unknown"),
-          "aqAt": int(legacyInvestorData.get(f"{codes}-aqAt", importUnix))
+          "aqAt": int(legacyInvestorData.get(f"{codes}-aqAt", importUnix)),
+          **({"notes": legacyInvestorData.get(f"{codes}-notes")}
+            if legacyInvestorData.get(f"{codes}-notes") else {})
         }
-        otherInfo = legacyInvestorData.get(f"{codes}-notes")
-        if otherInfo: holdings[codes]["notes"] = otherInfo
+        for codes in codesImported if legacyInvestorData.get(f"{codes}-owned")
+      }
       legalName = legacyInvestorData["legalName"]
       email = legacyInvestorData.get("email")
       FTIN = legacyInvestorData.get("FTIN")
@@ -31,8 +30,8 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
         "type": legacyInvestorData.get("FTIN-type")
       })
       investor = scrubNullVals({
-        "PK": f"{getPKnameAbbrv(legalName)}|{email}"
-        "SK": 
+        "PK": legalName.split(" ")[0]
+        "SK": getSK(legacyInvestorData)
         "CIK": CIK,
         "FTIN": token,
         "email": email,
@@ -57,13 +56,15 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
       accounts.append(investor)
   return accounts
 
-def getPKnameAbbrv(legalName):
-  orgIdentifiers = r"\b(?:INC(?:ORPORATED)?|LLC|LTD|CO(?:-OP)?|CO(?:MPANY)?|CORP(?:ORATION)?|AG|ALLIANCE|ASSOC|CLG|CLS|CONSORTIUM|CVA|CV|CVBA|DA|DBA|DMCC|EES|EOOD|EPE|ETF|EV|FC|FCP|FDN|FOUNDATION|FUND|GP|GOV(?:ERNMENT)?|GMBH|GU|GUILD|GIE|HB|HOLDINGS|ICVC|IEC|IES|IKE|INST(?:ITUTE)?|IO|JD|JPA|JSC|KF|KG|KU|LCC|LC|LDA|LLLC|LLLP|LLP|MBH|MIC|NV|NU|NFP|NGO|NPO|OAO|ODO|OEIC|OEOD|OOD|OP|PAO|PC|PJS|PMC|PO|POA|PPO|PP|PSJC|PSC|PT|PTE|PLC|PTY|RAO|REIT|RL|RO|RA|SARL|SA|SAS|SCE|SCI|SCS|SC|SCA|SDN BHD|SE|SL|SNC|SOC(?:IETY)?|SPA|SPC|SRO|SYNDICATE|TDV|THT|TMK|TOO|TRUST|ULC|UNION|UP|VPK|WLL|ZOAO|ZOOP)(?:[.,\s;!?-]|$)"
-  isAnOrg = re.search(orgIdentifiers, legalName.upper())
-  if isAnOrg:
-    return legalName.split(" ")[0]
-  else:
-    return HumanName(legalName).last
+def getSK(account):
+  chiefIdentifier = (
+    account.get("DOB") or
+    account.get("email") or
+    account.get("phone") or
+    account.get("address") or
+    f"mail/{account.get('mailAddress')}"
+  )
+  return f"{chiefIdentifier}|{time.time_ns()}"
 
 def getCodesImportedAndCIKfromLegacyImportHash(legacyImportTxnHash):
   transaction = server.transactions().transaction(legacyImportOmnibusLedgerIssueTxnHash).call()
