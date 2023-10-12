@@ -2,8 +2,8 @@ import sys
 sys.path.append("../../")
 from globals import *
 
-HORIZON_INST = "globalizeMe!!!!!"
 FTIN_SERVER = "https://ftinmanager.blocktransfer.com"
+HORIZON_INST = "https://horizon.stellar.org"
 mTLS_thing = 1 #?
 
 def importLegacyAccounts(importTXT, legacyImportTxnHash):
@@ -31,13 +31,13 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
       })
       legalName = legacyInvestorData["legalName"]
       investor = scrubNullVals({
-        "PK": legalName.split(" ")[0]
-        "SK": getSK(legacyInvestorData)
         "CIK": CIK,
         "FTIN": token,
         "holdings": holdings,
         "legalName": legalName,
+        "addNS": time.time_ns(),
         "from": legacyImportTxnHash
+        "first": legalName.split(" ")[0],
         "DOB": legacyInvestorData.get("DOB"),
         "email": legacyInvestorData.get("email"),
         "phone": legacyInvestorData.get("phone"),
