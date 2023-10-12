@@ -12,8 +12,9 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
   with open(importTXT, "r") as finalInvestorImport:
     reader = csv.DictReader(finalInvestorImport, delimiter="|")
     for legacyInvestorData in reader:
-      holdings = {
-        codes: {
+      holdings = [
+        {
+          "code": codes,
           "amount": legacyInvestorData.get(f"{codes}-quantity"),
           "basis": legacyInvestorData.get(f"{codes}-basis", "unknown"),
           "aqAt": int(legacyInvestorData.get(f"{codes}-aqAt", importUnix)),
@@ -21,23 +22,23 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
             if legacyInvestorData.get(f"{codes}-notes") else {})
         }
         for codes in codesImported if legacyInvestorData.get(f"{codes}-quantity")
-      }
-      legalName = legacyInvestorData["legalName"]
-      email = legacyInvestorData.get("email")
+      ]
+      holdings["blame"] = legacyImportTxnHash
       FTIN = legacyInvestorData.get("FTIN")
       token = 0 if not FTIN else putFTIN({
         "FTIN": FTIN,
         "type": legacyInvestorData.get("FTIN-type")
       })
+      legalName = legacyInvestorData["legalName"]
       investor = scrubNullVals({
         "PK": legalName.split(" ")[0]
         "SK": getSK(legacyInvestorData)
         "CIK": CIK,
         "FTIN": token,
-        "email": email,
         "holdings": holdings,
         "legalName": legalName,
         "DOB": legacyInvestorData.get("DOB"),
+        "email": legacyInvestorData.get("email"),
         "phone": legacyInvestorData.get("phone"),
         "notes": legacyInvestorData.get("notes"),
         "addr": legacyInvestorData.get("address"),
@@ -45,13 +46,6 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
         "orgOtherContacts": legacyInvestorData.get("orgOtherContacts"),
         "orgChiefExecutive": legacyInvestorData.get("orgChiefExecutive")
       })
-      
-      lastName = HumanName(registration).last ### prob don't want this extra import, but infrequent call so yeah
-      
-      DOB = legacyInvestorData.get("DOB")
-      
-      investor["PK"] = 
-      investor["SK"] = f"{DOB}|{legacyImportTxnHash}"
       
       accounts.append(investor)
   return accounts
@@ -99,7 +93,7 @@ def getCIKfromCode(code)
   return int(nums.group()) if nums else 0
 
 def scrubNullVals(dict)
-  return {k: v for k, v in dict.items() if v}
+  return {key: val for key, val in dict.items() if val}
 
 def putFTIN(data):
   return requests.post(FTIN_SERVER, params=data, auth="self_").json()
