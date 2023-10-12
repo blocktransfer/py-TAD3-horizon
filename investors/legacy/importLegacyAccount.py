@@ -14,13 +14,13 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
     for legacyInvestorData in reader:
       holdings = {
         codes: {
-          "amount": legacyInvestorData.get(f"{codes}-owned"),
+          "amount": legacyInvestorData.get(f"{codes}-quantity"),
           "basis": legacyInvestorData.get(f"{codes}-basis", "unknown"),
           "aqAt": int(legacyInvestorData.get(f"{codes}-aqAt", importUnix)),
           **({"notes": legacyInvestorData.get(f"{codes}-notes")}
             if legacyInvestorData.get(f"{codes}-notes") else {})
         }
-        for codes in codesImported if legacyInvestorData.get(f"{codes}-owned")
+        for codes in codesImported if legacyInvestorData.get(f"{codes}-quantity")
       }
       legalName = legacyInvestorData["legalName"]
       email = legacyInvestorData.get("email")
