@@ -4,6 +4,7 @@ from globals import *
 
 FTIN_SERVER = "https://ftinmanager.blocktransfer.com"
 HORIZON_INST = "https://horizon.stellar.org"
+BT_ISSUER = "GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7"
 mTLS_thing = 1 #?
 
 def importLegacyAccounts(importTXT, legacyImportTxnHash):
@@ -36,7 +37,7 @@ def importLegacyAccounts(importTXT, legacyImportTxnHash):
         "holdings": holdings,
         "legalName": legalName,
         "addNS": time.time_ns(),
-        "from": legacyImportTxnHash
+        "from": legacyImportTxnHash,
         "first": legalName.split(" ")[0],
         "DOB": legacyInvestorData.get("DOB"),
         "email": legacyInvestorData.get("email"),
@@ -61,12 +62,12 @@ def getSK(account):
   return f"{chiefIdentifier}|{time.time_ns()}"
 
 def getCodesAndCIKfromHash(legacyImportTxnHash):
-  transaction = requests.get(f"{HORIZON_INST}/transactions/{legacyImportOmnibusLedgerIssueTxnHash}").json()
+  ledgerOps = requests.get(f"{HORIZON_INST}/transactions/{legacyImportTxnHash}/operations").json()
   codesImported = []
   CIKs = set()
-  for legacyImportOmnibusLedgerIssueOps in transaction["operations"]:
-    assert(legacyImportOmnibusLedgerIssueOps["asset_issuer"] = BT_ISSUER)
-    code = legacyImportOmnibusLedgerIssueOp["asset_code"]
+  for issueOps in ledgerOps["_embedded"]["records"]:
+    assert(issueOps["asset_issuer"] == BT_ISSUER)
+    code = issueOps["asset_code"]
     codesImported.append(code)
     CIKs.add(getCIKfromCode(code))
   sameCIKs = len(CIKs) == 1
@@ -88,16 +89,16 @@ def getDefImportUnix(legacyImportTxnHash, ledgerCIK):
   assert(tableCIK == ledgerCIK)
   return importUnix
 
-def getCIKfromCode(code)
+def getCIKfromCode(code):
   nums = re.search(r"\d+", code)
   return int(nums.group()) if nums else 0
 
-def scrubNullVals(dict)
+def scrubNullVals(dict):
   return {key: val for key, val in dict.items() if val}
 
 def putFTIN(data):
   return requests.post(FTIN_SERVER, params=data, auth="self_").json()
 
-# AWSdata = importLegacyAccounts("prodImports/1984803.txt", hash)
-# pprint(AWSdata)
+AWSdata = importLegacyAccounts("prodImports/1984803.txt", "37be2f6976bf0fc8ca9c716e49e970a2271dd6574feda80df8377530eb88b80a")
+pprint(AWSdata)
 # pprint(postAWS("legacy/new", AWSdata))

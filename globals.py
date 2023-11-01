@@ -56,9 +56,9 @@ MAIN_ACC_TYPES = [
   "_liv-trust",
   "_c-co",
   "_s-co",
-  "_part",
-  "_org",
-  "_gov",
+  "_partnership",
+  "_foundation",
+  "_government",
   "_issuer",
   "_internal",
   "_dev"
