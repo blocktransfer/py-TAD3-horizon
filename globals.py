@@ -49,19 +49,20 @@ DIST_DATA_TOML = f"../distribution-data.toml"
 BT_API_SERVER = "https://api.blocktransfer.com"
 HORIZON_INST = "https://horizon.stellar.org"
 
-MAIN_ACC_TYPES = [
-  "_person",
-  "_irv-trust",
-  "_rev-trust",
-  "_liv-trust",
-  "_c-co",
-  "_s-co",
-  "_partnership",
-  "_foundation",
-  "_government",
-  "_issuer",
-  "_internal",
-  "_dev"
+ROOT_ACC_TYPES = [
+  "_INDV",
+  "_TST-IRV",
+  "_TST-REV",
+  "_TST-LIV",
+  "_CO-S",
+  "_CO-C",
+  "_PART",
+  "_ORG",
+  "_PBC",
+  "_GOV",
+  "_ISSUER",
+  "_INTERNAL",
+  "_DEV"
 ]
 
 BASE_FEE_MULT = 20
