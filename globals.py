@@ -43,8 +43,8 @@ DEBUG_PKS = [
   # SCVNEA3UKCQYHQ332QENKUINKHOTPOAADERSC6SKTUQCTD7NSH3PEXFX  # ..AKA signer testing
 ]
 
-# create basis DB
-DIST_DATA_TOML = f"../distribution-data.toml"
+# DIST_DATA_TOML = f"../distribution-data.toml"
+# replaced with Dynamo CBs
 
 BT_API_SERVER = "https://api.blocktransfer.com"
 HORIZON_INST = "https://horizon.stellar.org"
