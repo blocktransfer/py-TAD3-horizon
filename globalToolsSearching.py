@@ -109,7 +109,7 @@ def getCIKfromTomlLink(link):
   return rawCode[:-5]
 
 def getCIKfromQueryAsset(code):
-  match = re.search(r'\d+', code)
+  match = re.search(r"\d+", code)
   return int(match.group()) if match else 0
 
 def getLedgerDataForPK(pubKey):
