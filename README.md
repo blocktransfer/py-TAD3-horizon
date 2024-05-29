@@ -1,6 +1,6 @@
 <div align="center">
-<a href="https://www.blocktransfer.io"><img alt="Block Transfer" src="https://www.blocktransfer.com/hosted/images/39/3e0a939c35424d9a5b392a10a08e28/BT_GH.png" width="558" /></a>
+<a href="https://www.blocktransfer.com/?utm_source=github&utm_medium=organic&utm_campaign=py-tad3-horizon"><img alt="Block Transfer" src="https://blocktransfer.com/logo.png" width="558" /></a>
 <br/>
-<h2>Stellar Interface</h2>
-Backend scripts to interface with Stellar.
+<h2>TAD3: Python Interface to Stellar Horizon</h2>
+desc. per release at https://www.blocktransfer.com/blog/post/introducing-transfer-agent-depository
 </div>
