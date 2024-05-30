@@ -1,13 +1,5 @@
-
-
-
-
 ## Use claimable balances for restricted shares # and stock grant
 # Sorobon for stock options
-
-
-
-
 
 # todo: move to internal/contracts
 include:
@@ -22,7 +14,6 @@ include:
  - clause that lets them pay late, but 10% of their contract value will be added pro rata to their next bill for each month a late payment is made, starting 3 business days after due date
  - blanked denial of right of first refusal or any oversight of seconday transactions
  - (private) clause that says we will not restrict sales to new outside investors to prevent reaching the registration requirement shareowner threshold [+affidavit clause that they will send us a notice within five business days of reaching 10M thresh]
-
 
 # todo: move to GTassets/#authSharesNotIssued, revise affiliate holding scheme
 holding account federation descriptions:
@@ -39,9 +30,4 @@ holding account federation descriptions:
 	  Undistributed stock allocated for a Regulation D offering.
   treasury.holdings
     Treasury stock held by an issuer.
-
-
-
-
-
-
+(including schema for federation resolution)
