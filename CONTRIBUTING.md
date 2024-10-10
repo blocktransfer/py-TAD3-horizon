@@ -63,7 +63,7 @@ We welcome suggestions for new features! To request a feature, please open an is
 
 ## License
 
-By contributing to TAD3, you agree that your contributions will be licensed under the [GNU General Public License v3.0](LICENSE.md). This means:
+By contributing to TAD3, you agree that your contributions will be licensed under the [GNU Affero General Public License v3.0](LICENSE.md). This means:
 - Your contributions are free from attribution rights or royalties.
 - You are not entitled to direct monetary compensation for your contributions.
 
