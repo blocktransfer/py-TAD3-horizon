@@ -25,6 +25,6 @@ We welcome contributions from the community. If you are interested in contributi
 
 ## Contact
 
-For any questions or support, please [contact our developers](support@blocktransfer.dev).
+For any questions or support, please [open an issue](https://github.com/blocktransfer/py-TAD3-horizon/issues) or [start a Discussion](https://github.com/orgs/blocktransfer/discussions).
 
 Thank you for your interest in TAD3! Together, we can revolutionize the stock market landscape.
