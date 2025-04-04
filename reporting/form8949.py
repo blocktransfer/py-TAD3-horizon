@@ -1,6 +1,6 @@
 import sys
 sys.path.append("../")
-from globals import *
+from cacheHelper import *
 
 # debug: 
 # USDC_ASSET = Asset("TERN", "GDGQDVO6XPFSY4NMX75A7AOVYCF5JYGW2SHCJJNWCQWIDGOZB53DGP6C")
@@ -28,7 +28,7 @@ def form8949(queryAccount):
     requestAddr = f"{HORIZON_INST}/offers/{offerIDs}/trades"
     memo = memos.split("|")
     instructions = memo[0]
-    address = memo[1]
+    address = memo[1] if len(memo) > 1 else None
     if(address == queryAccount):
       offerTradeData = getTradeData(offerIDs, address)
       if(offerTradeData["type"] == "out"):
@@ -151,7 +151,7 @@ def getTradePNL(fill, instructions, address):
   
   washSaleAdjustment = Decimal("0")
   
-  if fill["originOfferID"]
+  if fill["originOfferID"]:
     washSaleOfferIDsMappedToAdjustments = getWashSaleOfferIDsMappedToAdjustments()
     washSaleAdjustment = [fill["originOfferID"]]
   

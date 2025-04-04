@@ -5,7 +5,8 @@ from globals import *
 import shutil
 
 def getOfferIDsMappedToChiefMemosFromCache():
-  return readCache("offer-memos")
+  blockHeight, cacheRecords = readCache("offer-memos")
+  return cacheRecords
 
 def readCache(type):
   path, height = getCachePathAndBlockHeight(type)
