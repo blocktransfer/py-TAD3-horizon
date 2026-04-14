@@ -1,7 +1,3 @@
-<div align="center">
-<a href="https://www.blocktransfer.com/?utm_source=github&utm_medium=organic&utm_campaign=py-tad3-horizon"><img alt="Block Transfer" src="https://blocktransfer.com/logo.png" width="558" /></a>
-</div>
-
 # TAD3: Python Interface to Stellar Horizon
 
 TAD3 leverages the robustness and efficiency of the Stellar blockchain to provide a seamless and secure platform for financial institutions, individuals, and organizations involved in securities trading. Our mission is to standardize and streamline the process of securities issuance, trading, and settlement on a worldwide scale.
