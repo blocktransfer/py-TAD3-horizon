@@ -12,7 +12,7 @@ from globals import *
 #     via Broadridge: search requests to intermediaries for mailing counts rip,
 #     20 days prior to Record Date
 #   Information you migth need:
-#     Block Transfer
+#     BlockTransfer
 #     www.blocktransfer.io
 #     99 Wall Street #4640
 #     New York, NY 10005
